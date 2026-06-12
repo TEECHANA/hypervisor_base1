@@ -1,0 +1,138 @@
+/*
+ * stage2.c — ARM Stage-2 (IPA→PA) page table manager
+ *
+ * 3-level walk with 4 KB granule, 40-bit IPA:
+ *   L1 (PGD): bits [39:30], 512 × 1 GB
+ *   L2 (PMD): bits [29:21], 512 × 2 MB
+ *   L3 (PTE): bits [20:12], 512 × 4 KB pages
+ *
+ * Physical memory for page tables comes from a 256-page static pool.
+ * Each VM gets an independent VTTBR_EL2 (VMID | PGD PA).
+ *
+ * PTE flag bits match ARM_REGS_H S2_* constants.
+ */
+#include "stage2.h"
+#include "../../core/vm/vm.h"
+#include "../../include/config.h"
+#include "../../lib/log/log.h"
+#include "../../lib/str/string.h"
+#include "../../arch/arm64/include/arm_regs.h"
+/* ── Page-table memory pool ── */
+#define PT_POOL_PAGES 1024
+static u64 _pt_pool[PT_POOL_PAGES][512] __aligned(4096);
+static u32 _pt_idx = 0;
+
+static u64 *pt_alloc(void)
+{
+    if(_pt_idx >= PT_POOL_PAGES){ LOG_ERROR("S2: page-table pool exhausted"); return NULL; }
+    u64 *p = _pt_pool[_pt_idx++];
+    memset(p, 0, 4096);
+    return p;
+}
+
+/* ── VMID counter (0 reserved for hypervisor) ── */
+static u8 _vmid = 1;
+
+/* ── s2_create: allocate PGD and assign VMID ── */
+err_t s2_create(struct vm *vm)
+{
+    u64 *pgd = pt_alloc();
+    if(!pgd) return E_NOMEM;
+    vm->s2_pgd = (paddr_t)(uintptr_t)pgd;
+    vm->vttbr  = ((u64)_vmid++ << 48) | (vm->s2_pgd & ~0xFFFULL);
+    /* Propagate to vCPUs after finalize; done in vcpu_init */
+    LOG_DEBUG("S2 create: VM %d PGD=0x%lx VTTBR=0x%lx",
+              vm->id, vm->s2_pgd, vm->vttbr);
+    return E_OK;
+}
+
+/* ── s2_map: map [ipa, ipa+sz) → [pa, pa+sz) using 4 KB pages ── */
+err_t s2_map(struct vm *vm, ipa_t ipa, paddr_t pa, u64 sz, u64 flags)
+{
+    if(!vm || !IS_ALIGNED(ipa,4096) || !IS_ALIGNED(pa,4096) || !IS_ALIGNED(sz,4096))
+        return E_INVAL;
+
+    u64 *l1 = (u64*)(uintptr_t)vm->s2_pgd;
+    LOG_INFO("S2 MAP START IPA=0x%lx -> PA=0x%lx size=0x%lx",
+         ipa,
+         pa,
+         sz);
+    for(u64 off=0; off<sz; off+=4096){
+        ipa_t  c_ipa = ipa+off;
+        paddr_t c_pa = pa +off;
+
+        if (c_ipa == 0x02BFF000ULL) {
+            LOG_INFO("Mapped Linux fault page IPA=0x%lx -> PA=0x%lx", c_ipa, c_pa);
+        }
+
+        u32 i1 = (u32)((c_ipa>>30)&0x1FF);
+        u32 i2 = (u32)((c_ipa>>21)&0x1FF);
+        u32 i3 = (u32)((c_ipa>>12)&0x1FF);
+
+        if(!(l1[i1]&1)){
+            u64 *l2=pt_alloc(); if(!l2) return E_NOMEM;
+            l1[i1] = ((u64)(uintptr_t)l2 & ~0xFFFULL) |
+                S2_DESC_VALID |
+	        S2_DESC_TABLE;
+        }
+        u64 *l2=(u64*)(uintptr_t)(l1[i1]&~0xFFFULL);
+
+        if(!(l2[i2]&1)){
+            u64 *l3=pt_alloc(); if(!l3) return E_NOMEM;
+            l2[i2] =
+	        ((u64)(uintptr_t)l3 & ~0xFFFULL) |
+	        S2_DESC_VALID |
+	        S2_DESC_TABLE;
+        }
+        u64 *l3=(u64*)(uintptr_t)(l2[i2]&~0xFFFULL);
+
+        u64 desc = (c_pa & ~0xFFFULL);
+
+        desc |= flags;
+	desc |= S2_DESC_VALID;
+	desc |= S2_DESC_PAGE;
+    
+        l3[i3] = desc;
+        if(c_ipa == 0x2236000)
+	{
+	    LOG_INFO(
+	        "FAULT PAGE MAP IPA=0x%lx PA=0x%lx DESC=0x%lx",
+	        c_ipa,
+	        c_pa,
+	        desc);
+	}
+        LOG_DEBUG("MAP L3[%d] = 0x%lx", i3, desc);
+        
+    }
+    __asm__ volatile(
+        "dsb ish\n"
+        "tlbi vmalls12e1is\n"
+        "dsb ish\n"
+        "isb\n"
+        ::: "memory");
+
+    return E_OK;
+}
+
+err_t s2_unmap(struct vm *vm, ipa_t ipa, u64 sz)
+{
+    UNUSED(vm); UNUSED(ipa); UNUSED(sz);
+    /* TODO Phase 3: walk + clear PTEs */
+    s2_flush_tlb(vm);
+    return E_OK;
+}
+
+void s2_flush_tlb(struct vm *vm)
+{
+    if(!vm) return;
+    __asm__ volatile(
+        "msr vttbr_el2,%0\nisb\ntlbi vmalls12e1is\ndsb ish\nisb\n"
+        ::"r"(vm->vttbr):"memory");
+}
+
+void s2_destroy(struct vm *vm)
+{
+    if(!vm) return;
+    s2_flush_tlb(vm);
+    vm->s2_pgd=0; vm->vttbr=0;
+}

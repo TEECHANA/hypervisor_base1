@@ -1,0 +1,11 @@
+vm:
+  id: 1
+  name: "linux"
+  type: "linux"
+  num_vcpus: 2
+memory:
+  - { pa: 0x41000000, ipa: 0x00000000, size: 0x1F000000, flags: [r,w,x] }
+  - { pa: 0x09000000, ipa: 0x09000000, size: 0x1000, flags: [r,w,device] }
+entry_pa: 0x41200000
+dtb_ipa:  0x02000000
+scheduler: { time_slice_us: 5000, priority: 2, realtime: false }

@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# init — minimal initramfs init for the Tessolve hypervisor Linux guest.
+#
+# REQUIREMENTS:
+#   * /bin/busybox must be STATICALLY linked (the initramfs has no /lib
+#     and no dynamic loader, so a dynamic busybox fails with ENOENT).
+#   * This file MUST have Unix (LF) line endings, not CRLF — a trailing
+#     '\r' on the shebang makes the kernel look for "/bin/sh\r" and fail
+#     with "Failed to execute /init (error -2)".
+#
+# Mount the basic pseudo-filesystems. Call busybox explicitly so we do
+# not depend on applet symlinks existing yet.
+/bin/busybox mount -t proc     proc     /proc 2>/dev/null
+/bin/busybox mount -t sysfs    sysfs    /sys  2>/dev/null
+/bin/busybox mount -t devtmpfs devtmpfs /dev  2>/dev/null
+
+# Install all busybox applet symlinks into /bin so 'ls', 'cat', 'mount',
+# etc. work as normal commands at the shell. Harmless if it fails.
+/bin/busybox --install -s /bin 2>/dev/null
+
+echo ""
+echo "=================================="
+echo "INIT SCRIPT STARTED"
+echo "=================================="
+
+while true
+do
+    echo "LINUX INIT RUNNING"
+    sleep 5
+done
+
+echo ""
+echo "=================================================="
+echo "  Tessolve Hypervisor — Linux guest userspace up"
+echo "=================================================="
+echo ""
+
+# Hand control to an interactive shell on the console the kernel gave us
+# (the hypervisor routes this to the PL011 UART). exec replaces PID 1 so
+# the shell becomes init; if the shell exits the kernel will panic, which
+# is expected for a demo.
+exec /bin/busybox sh
+~                      

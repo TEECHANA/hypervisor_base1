@@ -1,0 +1,169 @@
+/*
+ * vm.c — VM descriptor lifecycle
+ */
+#include "vm.h"
+#include "../vcpu/vcpu.h"
+#include "../../arch/arm64/include/arm_regs.h"
+#include "../../vre/mmu/stage2.h"
+#include "../../include/hypervisor.h"
+#include "../../lib/log/log.h"
+#include "../../lib/str/string.h"
+
+static vm_t   _pool[MAX_VMS];
+static u32    _count = 0;
+static u32    _next_id = 1;
+
+static const char *_state_str[]={"NONE","CREATED","READY","RUNNING","SUSPENDED","STOPPED"};
+const char *vm_state_str(vm_state_t s){
+    return (u32)s<ARRAY_SIZE(_state_str)?_state_str[(u32)s]:"?"; }
+
+/*err_t vm_subsys_init(void){
+    memset(_pool,0,sizeof(_pool)); _count=0; _next_id=1;
+    LOG_INFO("VM subsystem ready (max %d VMs)", MAX_VMS);
+    return E_OK;
+}*/
+
+err_t vm_create(const char *name, vm_type_t type, vm_t **out)
+{
+    if(!name||!out) return E_INVAL;
+    if(_count>=MAX_VMS){ LOG_ERROR("VM pool full"); return E_NOMEM; }
+    vm_t *vm = &_pool[_count];
+    memset(vm,0,sizeof(*vm));
+    vm->id    = _next_id++;
+    vm->type  = type;
+    vm->state = VM_CREATED;
+    strncpy(vm->name, name, sizeof(vm->name)-1);
+    /* Default scheduler params */
+    vm->sched.priority     = (type==VM_RTOS)?0:2;
+    // In vm.c vm_create(), change Linux time slice:
+    vm->sched.time_slice_us = (type == VM_RTOS) ? 1000 : 50000; // 50ms for Linux
+    vm->sched.realtime     = (type==VM_RTOS);
+    g_hyp.vms[_count++] = vm;
+    g_hyp.num_vms = _count;
+    LOG_INFO("VM %d '%s' created (type=%d)", vm->id, vm->name, (int)vm->type);
+    *out = vm;
+    return E_OK;
+}
+
+err_t vm_add_mem(vm_t *vm, paddr_t pa, ipa_t ipa, u64 sz, u32 flags)
+{
+    if(!vm||vm->num_mem>=MAX_MEM_REGIONS) return E_NOMEM;
+    mem_region_t *r = &vm->mem[vm->num_mem++];
+    r->pa_base=pa; r->ipa_base=ipa; r->size=sz; r->flags=flags;
+    return E_OK;
+}
+
+err_t vm_add_dev(vm_t *vm, u64 mb, u64 ms, u32 irq, bool pt)
+{
+    if(!vm||vm->num_dev>=MAX_DEV_PER_VM) return E_NOMEM;
+    dev_assign_t *d = &vm->dev[vm->num_dev++];
+    d->mmio_base=mb; d->mmio_size=ms; d->irq=irq; d->passthru=pt;
+    return E_OK;
+}
+
+err_t vm_finalize(vm_t *vm)
+{
+    if(!vm) return E_INVAL;
+    err_t e;
+
+    /* Build Stage-2 page tables */
+    LOG_INFO("VM finalize start");
+    e = s2_create(vm);
+    if(FAIL(e)){ LOG_ERROR("VM %d: s2_create failed",vm->id); return e; }
+
+    for(u32 i=0;i<vm->num_mem;i++){
+        mem_region_t *r=&vm->mem[i];
+        LOG_INFO(
+	    "MEM FLAGS raw=0x%lx MEM_X=0x%x result=%d",
+	    r->flags,
+	    MEM_X,
+	    !!(r->flags & MEM_X));
+        u64 flags =
+            S2_AF |
+    	    S2_SH_INNER |
+            S2_S2AP_RW;
+        if(r->flags & MEM_IO)
+            flags |= S2_MEMATTR_DEV;
+	else
+    	    flags |= S2_MEMATTR_WB;
+        if(!(r->flags & MEM_X)) flags |= S2_XN;
+        LOG_INFO(
+	    "VM MAP ipa=0x%lx pa=0x%lx sz=0x%lx flags=0x%x",
+	    r->ipa_base,
+	    r->pa_base,
+	    r->size,
+	    r->flags);
+        e = s2_map(vm, r->ipa_base, r->pa_base, r->size, flags);
+        if(FAIL(e)){ LOG_ERROR("VM %d: s2_map failed region %d",vm->id,i); return e; }
+
+        /* Linux accesses around 0x2bfffff very early during boot */
+        if (vm->type == VM_LINUX) {
+            e = s2_map(vm,
+               0x002BF000ULL,                 /* IPA */
+               0x41000000ULL + 0x002BF000ULL,/* PA */
+               0x1000ULL,
+               S2_AF | S2_SH_INNER | S2_S2AP_RW | S2_MEMATTR_WB);
+
+            if (FAIL(e)) {
+                LOG_ERROR("VM %d: extra Linux page map failed", vm->id);
+                return e;
+            }
+
+            LOG_INFO("Mapped Linux page IPA=0x2BF000");
+        }
+
+        LOG_DEBUG("VM %d map IPA=0x%lx PA=0x%lx sz=0x%lx",
+                  vm->id,r->ipa_base,r->pa_base,r->size);
+    }
+
+    /* Allocate + init vCPUs */
+    static struct vcpu _vcpu_pool[MAX_VMS][MAX_VCPU_PER_VM];
+    for(u32 v=0;v<vm->num_vcpus;v++){
+        struct vcpu *vc = &_vcpu_pool[vm->id-1][v];
+        e = vcpu_init(vc, vm, v);
+        if(FAIL(e)){ LOG_ERROR("VM %d: vcpu_init %d failed",vm->id,v); return e; }
+        vm->vcpus[v] = vc;
+    }
+    s2_flush_tlb(vm);
+
+    vm->state = VM_READY;
+    LOG_INFO("VM finalize done");
+    LOG_INFO("VM %d '%s' finalized (%d vCPUs)", vm->id, vm->name, vm->num_vcpus);
+    return E_OK;
+}
+
+err_t vm_start(vm_t *vm)
+{
+    if(!vm||vm->state!=VM_READY) return E_INVAL;
+    vm->state = VM_RUNNING;
+    LOG_INFO("VM %d '%s' started", vm->id, vm->name);
+    return E_OK;
+}
+
+err_t vm_stop(vm_t *vm)
+{
+    if(!vm) return E_INVAL;
+    if(vm->state==VM_STOPPED) return E_OK;
+    for(u32 i=0;i<vm->num_vcpus;i++) if(vm->vcpus[i]) vcpu_stop(vm->vcpus[i]);
+    s2_flush_tlb(vm);
+    vm->state = VM_STOPPED;
+    LOG_INFO("VM %d stopped", vm->id);
+    return E_OK;
+}
+
+err_t vm_suspend(vm_t *vm)
+{
+    if(!vm||vm->state!=VM_RUNNING) return E_INVAL;
+    vm->state=VM_SUSPENDED; return E_OK;
+}
+err_t vm_resume(vm_t *vm)
+{
+    if(!vm||vm->state!=VM_SUSPENDED) return E_INVAL;
+    vm->state=VM_RUNNING; return E_OK;
+}
+
+vm_t *vm_by_id(u32 id)
+{
+    for(u32 i=0;i<_count;i++) if(_pool[i].id==id) return &_pool[i];
+    return NULL;
+}

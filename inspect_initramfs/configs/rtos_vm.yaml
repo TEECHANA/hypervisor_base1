@@ -1,0 +1,10 @@
+vm:
+  id: 2
+  name: "rtos"
+  type: "rtos"
+  num_vcpus: 1
+memory:
+  - { pa: 0x60000000, ipa: 0x00000000, size: 0x0F000000, flags: [r,w,x] }
+entry_pa: 0x60008000
+dtb_ipa:  0x00000000
+scheduler: { time_slice_us: 1000, priority: 0, realtime: true }

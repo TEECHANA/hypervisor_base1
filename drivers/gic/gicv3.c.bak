@@ -1,0 +1,309 @@
+/*
+ * gicv3.c — GICv3 distributor init + virtual/physical IRQ routing
+ */
+#include "gicv3.h"
+#include "../../lib/log/log.h"
+#include "../../arch/arm64/include/arm_regs.h"
+#include "../timer/timer.h"
+
+/* GICD register offsets */
+#define GICD_CTLR           0x000u
+#define GICD_ISENABLER(n)   (0x100u + (n)*4u)
+#define GICD_ICENABLER(n)   (0x180u + (n)*4u)
+#define GICD_IPRIORITYR(n)  (0x400u + (n)*4u)
+#define GICD_ITARGETSR(n)   (0x800u + (n)*4u)
+#define GICD_ICFGR(n)       (0xC00u + (n)*4u)
+
+#define GICD_CTLR_EN_GRP0   BIT(0)
+#define GICD_CTLR_EN_GRP1NS BIT(1)
+#define GICD_CTLR_ARE_NS    BIT(4)
+
+/* ICC (CPU interface) system registers */
+#define ICC_SRE_SRE         BIT(0)
+#define ICC_SRE_DFB         BIT(1)
+#define ICC_SRE_DIB         BIT(2)
+#define ICC_CTLR_CBPR       BIT(0)
+#define ICC_IGRPEN1_EN      BIT(0)
+
+/* ICH (Virtual CPU Interface) */
+#define ICH_HCR_EN          BIT(0)
+
+/* CNTHP EL2 physical timer — PPI 26 on most ARM platforms */
+#define CNTHP_PPI           26u
+
+/* PL011 UART receive interrupt: SPI 1 on QEMU virt == INTID 33.
+ * This is the Linux console's input line. The scheduler enables this SPI
+ * only while the Linux VM is running (see sched_on_timer), so when it
+ * fires the current guest is always Linux and we can inject it directly. */
+#define UART_SPI            33u
+#define LINUX_VM_ID         1u
+
+static volatile u32 *_gicd;
+static void gd_wr(u32 o, u32 v) { *(volatile u32*)((u8*)_gicd + o) = v; }
+static u32  gd_rd(u32 o)        { return *(volatile u32*)((u8*)_gicd + o); }
+extern bool g_sched_stopped;
+
+static void udelay(u32 us)
+{
+    u64 f = READ_SYSREG(cntfrq_el0);
+    u64 s = READ_SYSREG(cntpct_el0);
+    u64 t = (f / 1000000ULL) * us;
+    while ((READ_SYSREG(cntpct_el0) - s) < t) {}
+}
+
+/* Add to drivers/gic/gicv3.c */
+err_t gic_dist_emulate(u64 addr, bool write, u64 *val, void *priv) {
+    u32 offset = (u32)(addr & 0xFFFF);
+    
+    if (!write) {
+        switch (offset) {
+            case 0x000: *val = 0x00000003; break; // GICD_CTLR: Enable Group0/1
+            case 0x004: *val = 0x0000003B; break; // GICD_TYPER
+            case 0x008: *val = 0x0000043B; break; // GICD_IIDR
+            case 0x00C: *val = 0x0;        break; // GICD_TYPER2 (return 0) 
+            case 0xFFE: *val = 0x0000003B; break; // GICD_PIDR2 (Must be 0x3B for GICv3)
+            default:    *val = 0;          break; // Return 0 for other registers
+        }
+    }
+
+    if (!write && ((u32)(addr & 0xFFFF)) == 0x00C) 
+    { 
+        LOG_INFO("HV GICD: served TYPER2 (0x00C)"); 
+    }
+
+    return E_OK;
+}
+err_t gic_init(u64 gicd, u64 gicr)
+{
+    UNUSED(gicr);
+    _gicd = (volatile u32*)(uintptr_t)gicd;
+
+    /* 1. Enable GIC distributor: affinity routing + both groups */
+    gd_wr(GICD_CTLR, 0);
+    udelay(1);
+    gd_wr(GICD_CTLR, GICD_CTLR_ARE_NS | GICD_CTLR_EN_GRP0 | GICD_CTLR_EN_GRP1NS);
+
+    /* 2. Enable CPU interface system register access */
+    u64 sre; __asm__ volatile("mrs %0, icc_sre_el2" : "=r"(sre));
+    sre |= ICC_SRE_SRE | ICC_SRE_DFB | ICC_SRE_DIB;
+    __asm__ volatile("msr icc_sre_el2, %0\nisb" :: "r"(sre));
+
+    /* 3. Set priority mask: allow all priorities */
+    __asm__ volatile("msr icc_pmr_el1, %0" :: "r"(0xFFULL));
+
+    /* 4. Set binary point */
+    __asm__ volatile("msr icc_bpr1_el1, %0" :: "r"(0ULL));
+
+    /* 5. Enable Group 1 interrupts */
+    __asm__ volatile("msr icc_igrpen1_el1, %0\nisb" :: "r"((u64)ICC_IGRPEN1_EN));
+
+    /* 6. Enable virtual CPU interface at EL2 */
+    u64 ich_hcr; __asm__ volatile("mrs %0, ich_hcr_el2" : "=r"(ich_hcr));
+    ich_hcr |= ICH_HCR_EN;
+    __asm__ volatile("msr ich_hcr_el2, %0\nisb" :: "r"(ich_hcr));
+
+    /* 6b. Seed the virtual CPU interface control register so injected
+     * virtual IRQs can actually be delivered to the guest even before
+     * the guest has finished programming its own GIC view.
+     *   ICH_VMCR_EL2: VPMR[31:24]=0xFF (allow all priorities),
+     *                 VENG1 (bit1) = 1 (enable virtual Group 1). */
+    u64 vmcr = (0xFFULL << 24) | (1ULL << 1);
+    __asm__ volatile("msr ich_vmcr_el2, %0\nisb" :: "r"(vmcr));
+
+    /* 7. Enable CNTHP PPI 26 and virtual timer PPI 27 at SGI/PPI bank
+     * PPIs are in GICR_ISENABLER0 (offset 0x10100 from GICR base)
+     * For QEMU virt with one CPU, GICR base = 0x080A0000
+     * GICR_ISENABLER0 = GICR_base + 0x10100 (SGI/PPI frame) */
+    volatile u32 *gicr_sgi = (volatile u32*)(uintptr_t)(gicr + 0x10100ULL);
+    *gicr_sgi = BIT(26) | BIT(27);   /* enable PPI 26 (CNTHP) + PPI 27 (virtual timer) */
+
+    /* Set priority for PPI 27 (virtual timer) = 0x80 (medium) */
+    volatile u32 *gicr_prio = (volatile u32*)(uintptr_t)(gicr + 0x10400ULL);
+    u32 prio_reg = gicr_prio[27/4];
+    prio_reg &= ~(0xFFu << ((27 % 4) * 8));
+    prio_reg |=  (0x80u << ((27 % 4) * 8));
+    gicr_prio[27/4] = prio_reg;
+
+    /* Also set PPI 26 priority */
+    prio_reg = gicr_prio[26/4];
+    prio_reg &= ~(0xFFu << ((26 % 4) * 8));
+    prio_reg |=  (0x80u << ((26 % 4) * 8));
+    gicr_prio[26/4] = prio_reg;
+
+    /* Keep GICD enable for SPIs */
+    gd_wr(GICD_ISENABLER(CNTHP_PPI / 32), BIT(CNTHP_PPI % 32));
+    /* Priority 0x80 (mid) for timer */
+    gd_wr(GICD_IPRIORITYR(CNTHP_PPI / 4),
+          gd_rd(GICD_IPRIORITYR(CNTHP_PPI / 4)) | (0x80u << ((CNTHP_PPI % 4) * 8)));
+
+    LOG_INFO("GICv3 init: GICD=0x%lx", gicd);
+    return E_OK;
+}
+
+void gic_enable_irq(u32 irq)
+{
+    gd_wr(GICD_ISENABLER(irq / 32), BIT(irq % 32));
+}
+
+void gic_disable_irq(u32 irq)
+{
+    gd_wr(GICD_ICENABLER(irq / 32), BIT(irq % 32));
+}
+
+/* Inject a virtual IRQ into the currently running guest */
+void gic_inject_virq(u32 virq, u32 prio)
+{
+    /*
+     * ICH_LR<n>_EL2 layout (GICv3 spec):
+     *   [63:62]  State    : 0b01 = Pending
+     *   [61]     HW       : 0 = software-generated (no physical link)
+     *   [60]     Group    : 1 = Group 1 (non-secure)
+     *   [55:48]  Priority
+     *   [31:0]   vINTID
+     *
+     * NOTE: the previous encoding set bit 61 (the HW bit) intending
+     * "State = Pending", and bit 59 intending "Group 1".  That left the
+     * State field [63:62] = 0b00 = INVALID, which the GIC ignores — so
+     * the virtual interrupt was never delivered and the guest never saw
+     * its timer tick.  Corrected field positions below.
+     */
+    u64 lr = ((u64)virq & 0xFFFFFFFFULL)   /* [31:0]  vINTID   */
+           | ((u64)(prio & 0xFF) << 48)    /* [55:48] Priority */
+           | (1ULL << 60)                  /* [60]    Group 1  */
+           | (1ULL << 62);                 /* [63:62] State = Pending */
+                                           /* [61] HW left 0 (software) */
+    asm volatile("msr ich_lr0_el2, %0\nisb" :: "r"(lr));
+}
+
+/* Inject a virtual IRQ via list register 1 (used for the UART so it does
+ * not overwrite the timer interrupt that lives in LR0). */
+static void gic_inject_virq_lr1(u32 virq, u32 prio)
+{
+    u64 lr = ((u64)virq & 0xFFFFFFFFULL)
+           | ((u64)(prio & 0xFF) << 48)
+           | (1ULL << 60)                  /* Group 1  */
+           | (1ULL << 62);                 /* State = Pending */
+    asm volatile("msr ich_lr1_el2, %0\nisb" :: "r"(lr));
+}
+
+/*
+ * gic_handle_irq — called from hyp_irq_handler.
+ * Reads IAR1 to ack, routes the IRQ, then EOIs.
+ */
+/* ---------- gic_handle_irq ---------- */
+void gic_handle_irq(void *regs)
+{
+    UNUSED(regs);
+    u64 iar;
+    asm volatile("mrs %0, icc_iar1_el1" : "=r"(iar));
+    u32 id = (u32)(iar & 0xFFFFFFu);
+
+    if (id >= 1020) return; /* spurious */
+
+    if (id == CNTHP_PPI) {
+
+        if (g_sched_stopped) {
+            /* acknowledge and ignore */
+            __asm__ volatile("msr icc_eoir1_el1, %0" :: "r"(iar));
+            return;
+        }
+
+        LOG_INFO("Timer IRQ: id=%u", id);
+
+        extern void sched_on_timer(void);
+        sched_on_timer();
+    }
+    
+    /*
+    if (id == CNTHP_PPI) {
+
+        u64 ctl = READ_SYSREG(cnthp_ctl_el2);
+
+        timer disabled → ignore stray IRQ
+        if (!(ctl & CNTHP_ENABLE)) {
+            __asm__ volatile("msr icc_eoir1_el1, %0" :: "r"(iar));
+            return;
+        }
+
+        LOG_INFO("Timer IRQ: id=%u", id);
+
+        extern void sched_on_timer(void);
+        sched_on_timer();
+    }*/
+
+    /*
+    if (id == CNTHP_PPI) {
+
+        LOG_INFO("Timer IRQ: id=%u", id);
+
+        //mask while handling
+        __asm__ volatile("msr cnthp_ctl_el2, %0" :: "r"(CNTHP_IMASK));
+ 
+        extern void sched_on_timer(void);
+        sched_on_timer();
+    }*/
+
+    /*
+    if (id == CNTHP_PPI) {
+        
+         * PPI 26 — EL2 hypervisor physical timer.
+         * This is our scheduler tick; mask it and run the scheduler.
+         
+        __asm__ volatile("msr cnthp_ctl_el2, %0" :: "r"(CNTHP_IMASK));
+        extern void sched_on_timer(void);
+        sched_on_timer();
+
+    }*/
+
+    else if (id == 27 || id == 30) {
+        /*
+         * PPI 27 — guest virtual timer (CNTV).
+         * PPI 30 — guest NS physical timer (CNTP); guests may use either.
+         *
+         * These timers are LEVEL-triggered: once the comparator condition
+         * is met the interrupt stays asserted until the guest reprograms
+         * CVAL.  If we just EOI the physical IRQ and ERET, the level
+         * re-asserts immediately and traps straight back to EL2 — the
+         * guest never gets a window to run its tick handler (jiffies stop
+         * advancing and the kernel appears to hang).
+         *
+         * Fix: mask the physical timer here (keep it enabled, set IMASK)
+         * before injecting the virtual IRQ.  The guest's tick handler then
+         * writes CNTV_CVAL/CNTV_CTL — and because we do NOT trap those,
+         * the writes reach the hardware, clear this mask, and arm the next
+         * deadline.  That breaks the re-assert storm.
+         */
+        if (id == 27)
+            WRITE_SYSREG(cntv_ctl_el0, CNTHP_ENABLE | CNTHP_IMASK); /* 0x3 */
+
+        /* Per-tick diagnostic — silenced now that timer delivery is verified.
+         * Re-enable if you need to confirm the virtual timer is firing.
+        LOG_INFO("Forward timer PPI %u -> vIRQ", id);
+        */
+        gic_inject_virq(id, 0x80);
+
+    } else if (id == UART_SPI) {
+        /*
+         * PL011 UART receive (SPI 1 = INTID 33) — Linux console input.
+         *
+         * The line is LEVEL-triggered and stays asserted until the guest
+         * reads UARTDR. If we only inject + EOI, the still-asserted line
+         * re-traps to EL2 before Linux can run a single instruction of its
+         * ISR, so the FIFO is never drained. Mask the physical line here so
+         * Linux actually gets to run its handler and read the byte(s); the
+         * scheduler re-enables SPI 33 the next time the Linux VM runs
+         * (see sched_on_timer), which re-arms it for the next keystroke.
+         * Linux's ISR drains the whole FIFO in one pass, so a word typed
+         * between slices is delivered together.
+         */
+        gic_inject_virq_lr1(UART_SPI, 0x80);
+        gic_disable_irq(UART_SPI);
+
+    } else {
+        extern void irq_route_to_vm(u32 phys_irq);
+        irq_route_to_vm(id);
+    }
+
+    /* Priority-drop + deactivate at EL2 (EOImode=0, the default). */
+    __asm__ volatile("msr icc_eoir1_el1, %0" :: "r"(iar));
+}

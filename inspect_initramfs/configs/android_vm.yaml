@@ -1,0 +1,13 @@
+vm:
+  id: 3
+  name: "android"
+  type: "android"
+  num_vcpus: 2
+memory:
+  - { pa: 0x70000000, ipa: 0x00000000, size: 0x1F000000, flags: [r,w,x] }
+entry_pa: 0x70200000
+dtb_ipa:  0x02000000
+scheduler: { time_slice_us: 4000, priority: 2, realtime: false }
+virtio:
+  - { type: virtio-blk, image: guests/android/system.img }
+  - { type: virtio-net, backend: tap0 }
