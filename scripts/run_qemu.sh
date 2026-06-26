@@ -21,6 +21,7 @@ ARGS=(
 
     # Load Linux kernel into guest RAM
     -device loader,file="$LINUX",addr=0x41200000,force-raw=on
+    -device loader,file=guests/linux/initramfs.cpio.gz,addr=0x47000000,force-raw=on
     -device loader,file=guests/rtos/rtos.bin,addr=0x60008000,force-raw=on
     -device loader,file=guests/android_stub/android.bin,addr=0x70200000,force-raw=on
     -device loader,file=guests/rtos/rtos.bin,addr=0x90000000,force-raw=on
