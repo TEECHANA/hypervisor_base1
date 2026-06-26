@@ -57,13 +57,7 @@ C_SRCS = \
     vse/config_check.c            \
     vse/component_check.c         \
     vse/trust.c                   \
-    vse/seal.c                    \
-    vse/fault_detect.c            \
-    vse/failover.c                \
-    vse/hotp.c                    \
-    vse/login.c                   \
-    vse/ids.c                     \
-    vse/guest_measure.c
+    vse/seal.c
 
 HYP_OBJS = $(ASM_SRCS:%.S=$(BUILD_DIR)/%.o) \
            $(C_SRCS:%.c=$(BUILD_DIR)/%.o)

@@ -1,0 +1,555 @@
+  ✓ All guest images present
+=== Launching QEMU with guests ===
+qemu-system-aarch64 -machine virt,gic-version=3,virtualization=on,iommu=smmuv3 -cpu cortex-a57 -m 2G -smp 4 -nographic -serial mon:stdio -no-reboot -d guest_errors \
+    -kernel build/qemu/hypervisor.elf \
+    -device loader,file=guests/linux/Image,addr=0x41200000,force-raw=on \
+    -device loader,file=guests/linux/initramfs.cpio.gz,addr=0x47000000,force-raw=on \
+    -device loader,file=guests/rtos/rtos.bin,addr=0x60008000,force-raw=on \
+    -device loader,file=guests/android_stub/android.bin,addr=0x70200000,force-raw=on
+ABCDMHHYP [INF] ====================================
+HYP [INF]   Tessolve Hypervisor v1.0  booting
+HYP [INF]   Platform : QEMU-ARM64-virt
+HYP [INF]   CPU ID   : 72
+HYP [INF]   DTB PA   : 0x0x000000000000100d
+HYP [INF] ====================================
+HYP [INF] VSE Phase 1: verifying hypervisor configuration...
+HYP [INF] VSE: config integrity check starting
+HYP [INF] VSE: configuration integrity check PASSED
+HYP [INF] VSE Phase 1: configuration verified
+HYP [INF] VSE Phase 2: verifying hypervisor components...
+HYP [INF] VSE Phase 2: component integrity check starting
+HYP [INF] VSE Phase 2: component '.text' verified OK
+HYP [INF] VSE Phase 2: all components verified — image is trusted
+HYP [INF] VSE Phase 2: components verified
+HYP [INF] Timer freq: 62500000 Hz
+HYP [INF] Init GICv3...
+HYP [INF] GICv3: 4 list registers available (ICH_VTR=0x0x0000000090b80003)
+HYP [INF] GICv3 init: GICD=0x0x0000000008000000
+HYP [INF] Init PMU...
+HYP [INF] PMU: MDCR_EL2=0x0x0000000000000066 — guest PMU trapped to EL2
+HYP [INF] Init VM subsystem...
+HYP [INF] VM subsystem init
+HYP [INF] Power manager: initialised (max 4 VMs)
+HYP [INF] Power manager ready
+HYP [INF] SMMU: hardware enabled at 0x0x0000000009050000, 256 streams
+HYP [INF] PCIe: bus manager initialised, ECAM=0x0x000000003f000000 size=0x0x0000000001000000
+HYP [INF] PCIe: VM1 owns all bus 255 devices
+HYP [INF] SMMU: hardware present and enabled
+HYP [INF] VM 1 'linux' created (type=0)
+DTB generated
+
+HYP [INF] Linux DTB built: 1764 bytes at PA 0x0x0000000045000000
+HYP [INF] Linux VM ready
+HYP [INF] VM 2 'rtos' created (type=1)
+HYP [INF] RTOS VM ready (entry IPA=0x0x0000000000008000)
+HYP [INF] VM 3 'android' created (type=2)
+HYP [INF] Android VM ready
+HYP [INF] DevProfile: applying 10 entries
+HYP [INF] VM MAP ipa=0x0x0000000000000000 pa=0x0x0000000041000000 sz=0x0x0000000008000000 flags=0x0x0000000000000007
+HYP [INF] DevProfile[0] VM1 'linux-ram-low': PA=0x0x0000000041000000 IPA=0x0x0000000000000000 sz=0x0x0000000008000000
+HYP [INF] VM MAP ipa=0x0x0000000010000000 pa=0x0x0000000051000000 sz=0x0x0000000040000000 flags=0x0x0000000000000007
+HYP [INF] DevProfile[1] VM1 'linux-ram-high': PA=0x0x0000000051000000 IPA=0x0x0000000010000000 sz=0x0x0000000040000000
+HYP [INF] VM MAP ipa=0x0x0000000009000000 pa=0x0x0000000009000000 sz=0x0x0000000000001000 flags=0x0x000000000000000b
+HYP [INF] DevProfile[2] VM1 'linux-uart': PA=0x0x0000000009000000 IPA=0x0x0000000009000000 sz=0x0x0000000000001000 [IO]
+HYP [INF] VM MAP ipa=0x0x0000000008000000 pa=0x0x0000000008000000 sz=0x0x0000000000100000 flags=0x0x000000000000000b
+HYP [INF] DevProfile[3] VM1 'linux-gicd': PA=0x0x0000000008000000 IPA=0x0x0000000008000000 sz=0x0x0000000000100000 [IO]
+HYP [INF] VM MAP ipa=0x0x00000000080a0000 pa=0x0x00000000080a0000 sz=0x0x0000000000200000 flags=0x0x000000000000000b
+HYP [INF] DevProfile[4] VM1 'linux-gicr': PA=0x0x00000000080a0000 IPA=0x0x00000000080a0000 sz=0x0x0000000000200000 [IO]
+HYP [INF] VM MAP ipa=0x0x0000000000000000 pa=0x0x0000000060000000 sz=0x0x000000000f000000 flags=0x0x0000000000000007
+HYP [INF] DevProfile[5] VM2 'rtos-ram': PA=0x0x0000000060000000 IPA=0x0x0000000000000000 sz=0x0x000000000f000000
+HYP [INF] VM MAP ipa=0x0x0000000009000000 pa=0x0x0000000009000000 sz=0x0x0000000000001000 flags=0x0x000000000000000b
+HYP [INF] DevProfile[6] VM2 'rtos-uart': PA=0x0x0000000009000000 IPA=0x0x0000000009000000 sz=0x0x0000000000001000 [IO]
+HYP [INF] VM MAP ipa=0x0x000000000a000000 pa=0x0x0000000040f00000 sz=0x0x0000000000001000 flags=0x0x0000000000000003
+HYP [INF] DevProfile[7] VM1 'linux-obd-shmem': PA=0x0x0000000040f00000 IPA=0x0x000000000a000000 sz=0x0x0000000000001000
+HYP [INF] VM MAP ipa=0x0x0000000000000000 pa=0x0x0000000070000000 sz=0x0x0000000020000000 flags=0x0x0000000000000007
+HYP [INF] DevProfile[8] VM3 'android-ram': PA=0x0x0000000070000000 IPA=0x0x0000000000000000 sz=0x0x0000000020000000
+HYP [INF] VM MAP ipa=0x0x0000000009000000 pa=0x0x0000000009000000 sz=0x0x0000000000001000 flags=0x0x000000000000000b
+HYP [INF] DevProfile[9] VM3 'android-uart': PA=0x0x0000000009000000 IPA=0x0x0000000009000000 sz=0x0x0000000000001000 [IO]
+HYP [INF] DevProfile: all entries applied
+HYP [INF] VM finalize start
+HYP [INF] MEM FLAGS raw=0x0x0000000000000007 MEM_X=0x0x0000000000000004 result=0
+HYP [INF] S2 MAP START IPA=0x0x0000000000000000 -> PA=0x0x0000000041000000 size=0x0x0000000008000000
+HYP [INF] FAULT PAGE MAP IPA=0x0x0000000002236000 PA=0x0x0000000043236000 DESC=0x0x00000000432367ff
+HYP [INF] Mapped Linux fault page IPA=0x0x0000000002bff000 -> PA=0x0x0000000043bff000
+HYP [INF] MEM FLAGS raw=0x0x0000000000000007 MEM_X=0x0x0000000000000004 result=0
+HYP [INF] S2 MAP START IPA=0x0x0000000010000000 -> PA=0x0x0000000051000000 size=0x0x0000000040000000
+HYP [INF] MEM FLAGS raw=0x0x000000000000000b MEM_X=0x0x0000000000000000 result=1
+HYP [INF] S2 MAP START IPA=0x0x0000000009000000 -> PA=0x0x0000000009000000 size=0x0x0000000000001000
+HYP [INF] MEM FLAGS raw=0x0x000000000000000b MEM_X=0x0x0000000000000000 result=1
+HYP [INF] S2 MAP START IPA=0x0x0000000008000000 -> PA=0x0x0000000008000000 size=0x0x0000000000100000
+HYP [INF] MEM FLAGS raw=0x0x000000000000000b MEM_X=0x0x0000000000000000 result=1
+HYP [INF] S2 MAP START IPA=0x0x00000000080a0000 -> PA=0x0x00000000080a0000 size=0x0x0000000000200000
+HYP [INF] MEM FLAGS raw=0x0x0000000000000003 MEM_X=0x0x0000000000000000 result=1
+HYP [INF] S2 MAP START IPA=0x0x000000000a000000 -> PA=0x0x0000000040f00000 size=0x0x0000000000001000
+HYP [INF] S2 MAP START IPA=0x0x00000000002bf000 -> PA=0x0x00000000412bf000 size=0x0x0000000000001000
+HYP [INF] Mapped Linux page IPA=0x2BF000
+HYP [INF] vCPU 0 init VM 1
+HYP [INF]   entry IPA : 0x0x0000000000200000
+HYP [INF]   DTB IPA   : 0x0x0000000004000000
+HYP [INF]   VTTBR     : 0x0x000100004001d000
+HYP [INF] VM 1 'linux' finalized (1 vCPUs)
+HYP [INF] VM 1 'linux' started
+HYP [INF] SMMU: stream 0 -> VM1 VMID=1 S2=0x0x000000004001d000
+HYP [INF] VM finalize start
+HYP [INF] MEM FLAGS raw=0x0x0000000000000007 MEM_X=0x0x0000000000000004 result=0
+HYP [INF] S2 MAP START IPA=0x0x0000000000000000 -> PA=0x0x0000000060000000 size=0x0x000000000f000000
+HYP [INF] FAULT PAGE MAP IPA=0x0x0000000002236000 PA=0x0x0000000062236000 DESC=0x0x00000000622367ff
+HYP [INF] Mapped Linux fault page IPA=0x0x0000000002bff000 -> PA=0x0x0000000062bff000
+HYP [INF] MEM FLAGS raw=0x0x000000000000000b MEM_X=0x0x0000000000000000 result=1
+HYP [INF] S2 MAP START IPA=0x0x0000000009000000 -> PA=0x0x0000000009000000 size=0x0x0000000000001000
+HYP [INF] vCPU 0 init VM 2
+HYP [INF]   entry IPA : 0x0x0000000000008000
+HYP [INF]   DTB IPA   : 0x0x0000000000000000
+HYP [INF]   VTTBR     : 0x0x000200004001e000
+HYP [INF] VM 2 'rtos' finalized (1 vCPUs)
+HYP [INF] VM 2 'rtos' started
+HYP [INF] SMMU: stream 1 -> VM2 VMID=2 S2=0x0x000000004001e000
+HYP [INF] VM finalize start
+HYP [INF] MEM FLAGS raw=0x0x0000000000000007 MEM_X=0x0x0000000000000004 result=0
+HYP [INF] S2 MAP START IPA=0x0x0000000000000000 -> PA=0x0x0000000070000000 size=0x0x0000000020000000
+HYP [INF] FAULT PAGE MAP IPA=0x0x0000000002236000 PA=0x0x0000000072236000 DESC=0x0x00000000722367ff
+HYP [INF] Mapped Linux fault page IPA=0x0x0000000002bff000 -> PA=0x0x0000000072bff000
+HYP [INF] MEM FLAGS raw=0x0x000000000000000b MEM_X=0x0x0000000000000000 result=1
+HYP [INF] S2 MAP START IPA=0x0x0000000009000000 -> PA=0x0x0000000009000000 size=0x0x0000000000001000
+HYP [INF] vCPU 0 init VM 3
+HYP [INF]   entry IPA : 0x0x0000000000200000
+HYP [INF]   DTB IPA   : 0x0x0000000002000000
+HYP [INF]   VTTBR     : 0x0x000300004001f000
+HYP [INF] vCPU 1 init VM 3
+HYP [INF]   entry IPA : 0x0x0000000000200000
+HYP [INF]   DTB IPA   : 0x0x0000000002000000
+HYP [INF]   VTTBR     : 0x0x000300004001f000
+HYP [INF] VM 3 'android' finalized (2 vCPUs)
+HYP [INF] VM 3 'android' started
+HYP [INF] SMMU: stream 2 -> VM3 VMID=3 S2=0x0x000000004001f000
+HYP [INF] IRQ router init (max 256 routes)
+HYP [INF] IRQ route: phys=33 -> VM1 virq=33
+HYP [INF] IRQ route: phys=34 -> VM1 virq=34
+HYP [INF] IRQ route: phys=35 -> VM1 virq=35
+HYP [INF] IRQ routes registered: 3 entries
+HYP [INF] Init scheduler...
+HYP [INF] Sched stats: initialised for 4 VMs
+HYP [INF] Scheduler init start
+HYP [INF] Adding VM 1 'linux' (realtime=0) with 1 vCPUs
+HYP [INF] Adding VM 2 'rtos' (realtime=1) with 1 vCPUs
+HYP [INF] Adding VM 3 'android' (realtime=0) with 2 vCPUs
+HYP [INF] Scheduler ready: 4 slots, major-frame=10000 us
+HYP [INF] Hypervisor ready — starting scheduler
+HYP [INF] Starting VMs
+HYP [INF] ----------------------------------
+HYP [INF] Launching first guest
+HYP [INF] VM ID        : 2
+HYP [INF] VM Name      : rtos
+HYP [INF] vCPU ID      : 0
+HYP [INF] Entry PC     : 0x0x0000000000008000
+HYP [INF] SPSR_EL2     : 0x0x00000000000003c5
+HYP [INF] DTB arg (x0) : 0x0x0000000000000000
+HYP [INF] VTTBR_EL2    : 0x0x000200004001e000
+HYP [INF] ----------------------------------
+HYP [INF] Executing ERET -> Guest
+
+[RTOS] *** Tessolve RTOS — Fuel Injection ECU v1.0 ***
+[RTOS] Engine: 4-cyl 2.0L gasoline, Bosch-style injection
+[RTOS] self-test tick 1
+[RTOS] self-test tick 2
+[RTOS] self-test tick 3
+[RTOS] self-test tick 4
+[RTOS] self-test tick 5
+[RTOS] self-test tick 6
+[RTOS] self-test tick 7
+[RTOS] self-test tick 8
+[RTOS] self-test tick 9
+[RTOS] self-test tick 10
+[RTOS] Self-test complete — starting fuel ECU loop
+[RTOS] ---- slot 1 (500ms) ----
+[FUEL] RPM=800 inj=1368us thr=5% temp=30C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=50  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000000320f x3=0x0x0000006400000001 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=1
+HYP [INF] CTX[0]: rtos -> android (2000ms, wfi)
+HYP [WRN] DABT: FAR=0x0x0000000048fefff0 ESR=0x0x0000000092000045 DFSC=0x0x0000000000000005 ELR=0x0x0000000000200070
+
+[ANDROID] Guest boot stub active
+[ANDROID] Android VM booted successfully
+HYP [INF] CTX[1]: android -> linux (2000ms, wfi)
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x411fd070]
+[    0.000000] Linux version 6.6.0 (rishi@BLRTESLTP-11854) (aarch64-linux-gnu-gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, GNU ld (GNU Binutils for Ubuntu) 2.42) #1 SMP PREEMPT Thu May 21 15:21:50 IST 2026
+[    0.000000] KASLR disabled due to lack of seed
+[    0.000000] Machine model: Tessolve-Hypervisor-Guest
+[    0.000000] earlycon: pl11 at MMIO32 0x0000000009000000 (options '')
+[    0.000000] printk: bootconsole [pl11] enabled
+[    0.000000] printk: debug: ignoring loglevel setting.
+[    0.000000] efi: UEFI not found.
+[    0.000000] NUMA: No NUMA configuration found
+[    0.000000] NUMA: Faking a node at [mem 0x0000000000000000-0x000000004fffffff]
+[    0.000000] NUMA: NODE_DATA [mem 0x4fdb99c0-0x4fdbbfff]
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x0000000000000000-0x000000004fffffff]
+[    0.000000]   DMA32    empty
+[    0.000000]   Normal   empty
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000000000000-0x0000000007ffffff]
+[    0.000000]   node   0: [mem 0x0000000010000000-0x000000004fffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000000000000-0x000000004fffffff]
+[    0.000000] cma: Reserved 32 MiB at 0x000000004ca00000 on node -1
+[    0.000000] psci: probing for conduit method from DT.
+HYP [INF] HVC: func=0x0x0000000084000000
+HYP [INF] PSCI/SMCCC: func=0x0x0000000084000000
+HYP [INF] PSCI: VERSION -> 1.1
+[    0.000000] psci: PSCIv1.1 detected in firmware.
+[    0.000000] psci: Using standard PSCI v0.2 function IDs
+HYP [INF] HVC: func=0x0x0000000084000006
+HYP [INF] PSCI/SMCCC: func=0x0x0000000084000006
+HYP [INF] PSCI: MIGRATE_INFO_TYPE -> TOS_MP (no migration)
+[    0.000000] psci: Trusted OS migration not required
+HYP [INF] HVC: func=0x0x000000008400000a
+HYP [INF] PSCI/SMCCC: func=0x0x000000008400000a
+HYP [INF] PSCI: FEATURES 0x0x000000005a000000 -> NOT supported
+[    0.000000] psci: SMC Calling Convention v1.0
+HYP [INF] HVC: func=0x0x000000008400000a
+HYP [INF] PSCI/SMCCC: func=0x0x000000008400000a
+HYP [INF] PSCI: FEATURES 0x0x000000005a000000 -> NOT supported
+HYP [INF] HVC: func=0x0x000000008400000a
+HYP [INF] PSCI/SMCCC: func=0x0x000000008400000a
+HYP [INF] PSCI: FEATURES 0x0x000000005a000000 -> NOT supported
+HYP [INF] HVC: func=0x0x000000008400000a
+HYP [INF] PSCI/SMCCC: func=0x0x000000008400000a
+HYP [INF] PSCI: FEATURES 0x0x000000005a000000 -> NOT supported
+[    0.000000] percpu: Embedded 22 pages/cpu s50728 r8192 d31192 u90112
+[    0.000000] pcpu-alloc: s50728 r8192 d31192 u90112 alloc=22*4096
+[    0.000000] pcpu-alloc: [0] 0 
+[    0.000000] Detected PIPT I-cache on CPU0
+[    0.000000] CPU features: detected: GIC system register CPU interface
+[    0.000000] CPU features: detected: Spectre-v2
+[    0.000000] CPU features: detected: Spectre-v3a
+[    0.000000] CPU features: detected: Spectre-v4
+[    0.000000] CPU features: detected: Spectre-BHB
+[    0.000000] CPU features: detected: ARM erratum 834220
+[    0.000000] CPU features: detected: ARM erratum 1742098
+[    0.000000] CPU features: detected: ARM erratum 832075
+[    0.000000] CPU features: detected: ARM errata 1165522, 1319367, or 1530923
+[    0.000000] alternatives: applying boot alternatives
+[    0.000000] Kernel command line: console=ttyAMA0,115200 earlycon=pl011,mmio32,0x09000000 init=/init loglevel=8 ignore_loglevel
+[    0.000000] Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes, linear)
+[    0.000000] Fallback order for Node 0: 0 
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 290304
+[    0.000000] Policy zone: DMA
+[    0.000000] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+[    0.000000] software IO TLB: area num 1.
+[    0.000000] software IO TLB: mapped [mem 0x0000000048800000-0x000000004c800000] (64MB)
+[    0.000000] Memory: 1013876K/1179648K available (16576K kernel code, 4264K rwdata, 10556K rodata, 9152K init, 605K bss, 133004K reserved, 32768K cma-reserved)
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] rcu: Preemptible hierarchical RCU implementation.
+[    0.000000] rcu: 	RCU event tracing is enabled.
+[    0.000000] rcu: 	RCU restricting CPUs from NR_CPUS=256 to nr_cpu_ids=1.
+[    0.000000] 	Trampoline variant of Tasks RCU enabled.
+[    0.000000] 	Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=1
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] GICv3: 256 SPIs implemented
+[    0.000000] GICv3: 0 Extended SPIs implemented
+gicv3_dist_read: invalid guest read at offset 000000000000000c size 4
+[    0.000000] Root IRQ handler: gic_handle_irq
+[    0.000000] GICv3: GICv3 features: 16 PPIs
+[    0.000000] GICv3: CPU0: found redistributor 0 region 0:0x00000000080a0000
+[    0.000000] ITS: No ITS available, not enabling LPIs
+[    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.000000] arch_timer: cp15 timer(s) running at 62.50MHz (virt).
+[    0.000000] clocksource: arch_sys_counter: mask: 0x1ffffffffffffff max_cycles: 0x1cd42e208c, max_idle_ns: 881590405314 ns
+[    0.000066] sched_clock: 57 bits at 63MHz, resolution 16ns, wraps every 4398046511096ns
+[    0.007056] Console: colour dummy device 80x25
+[    0.008867] Calibrating delay loop (skipped), value calculated using timer frequency.. 125.00 BogoMIPS (lpj=250000)
+[    0.009660] pid_max: default: 32768 minimum: 301
+[    0.010880] LSM: initializing lsm=capability,integrity
+[    0.012685] Mount-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    0.012939] Mountpoint-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    0.036524] cacheinfo: Unable to detect cache hierarchy for CPU 0
+[    0.044395] RCU Tasks: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1.
+[    0.045245] RCU Tasks Trace: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1.
+[    0.046857] rcu: Hierarchical SRCU implementation.
+[    0.046996] rcu: 	Max phase no-delay instances is 1000.
+[    0.051522] EFI services will not be available.
+[    0.052970] smp: Bringing up secondary CPUs ...
+[    0.053715] smp: Brought up 1 node, 1 CPU
+[    0.053826] SMP: Total of 1 processors activated.
+[    0.054000] CPU features: detected: 32-bit EL0 Support
+[    0.054139] CPU features: detected: 32-bit EL1 Support
+[    0.054328] CPU features: detected: CRC32 instructions
+[    0.057118] CPU: All CPU(s) started at EL1
+[    0.057513] alternatives: applying system-wide alternatives
+[    0.074749] devtmpfs: initialized
+[    0.089121] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.089637] futex hash table entries: 256 (order: 2, 16384 bytes, linear)
+[    0.094214] pinctrl core: initialized pinctrl subsystem
+[    0.102812] DMI not present or invalid.
+[    0.118510] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.127322] DMA: preallocated 128 KiB GFP_KERNEL pool for atomic allocations
+[    0.127945] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.128375] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.128840] audit: initializing netlink subsys (disabled)
+[    0.131290] audit: type=2000 audit(0.120:1): state=initialized audit_enabled=0 res=1
+[    0.137774] thermal_sys: Registered thermal governor 'step_wise'
+[    0.137833] thermal_sys: Registered thermal governor 'power_allocator'
+[    0.138591] cpuidle: using governor menu
+[    0.139981] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[    0.140509] ASID allocator initialised with 65536 entries
+[    0.145937] Serial: AMBA PL011 UART driver
+[    0.158400] 9000000.pl011: ttyAMA0 at MMIO 0x9000000 (irq = 13, base_baud = 0) is a PL011 rev1
+[    0.160525] printk: console [ttyAMA0] enabled
+[    0.160525] printk: console [ttyAMA0] enabled
+[    0.160960] printk: bootconsole [pl11] disabled
+[    0.160960] printk: bootconsole [pl11] disabled
+[    0.173372] Modules: 22432 pages in range for non-PLT usage
+[    0.173411] Modules: 513952 pages in range for PLT usage
+[    0.177403] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+[    0.177650] HugeTLB: 0 KiB vmemmap can be freed for a 1.00 GiB page
+[    0.177835] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
+[    0.177974] HugeTLB: 0 KiB vmemmap can be freed for a 32.0 MiB page
+[    0.178102] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[    0.178243] HugeTLB: 0 KiB vmemmap can be freed for a 2.00 MiB page
+[    0.178373] HugeTLB: registered 64.0 KiB page size, pre-allocated 0 pages
+[    0.178494] HugeTLB: 0 KiB vmemmap can be freed for a 64.0 KiB page
+[    0.187038] ACPI: Interpreter disabled.
+[    0.190294] iommu: Default domain type: Translated
+[    0.190419] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.191531] SCSI subsystem initialized
+[    0.192354] libata version 3.00 loaded.
+[    0.193633] usbcore: registered new interface driver usbfs
+[    0.193947] usbcore: registered new interface driver hub
+[    0.194207] usbcore: registered new device driver usb
+[    0.195151] pps_core: LinuxPPS API ver. 1 registered
+[    0.195260] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.195491] PTP clock support registered
+[    0.195939] EDAC MC: Ver: 3.0.0
+[    0.198053] scmi_core: SCMI protocol bus registered
+[    0.200207] FPGA manager framework
+[    0.201159] Advanced Linux Sound Architecture Driver Initialized.
+[    0.209235] vgaarb: loaded
+[    0.212030] clocksource: Switched to clocksource arch_sys_counter
+[    0.214887] VFS: Disk quotas dquot_6.6.0
+[    0.215185] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+[    0.217518] pnp: PnP ACPI: disabled
+[    0.233933] NET: Registered PF_INET protocol family
+[    0.235467] IP idents hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[    0.240388] tcp_listen_portaddr_hash hash table entries: 1024 (order: 2, 16384 bytes, linear)
+[    0.240627] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.240828] TCP established hash table entries: 16384 (order: 5, 131072 bytes, linear)
+[    0.241273] TCP bind hash table entries: 16384 (order: 7, 524288 bytes, linear)
+[    0.242122] TCP: Hash tables configured (established 16384 bind 16384)
+[    0.243137] UDP hash table entries: 1024 (order: 3, 32768 bytes, linear)
+[    0.243530] UDP-Lite hash table entries: 1024 (order: 3, 32768 bytes, linear)
+[    0.244674] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    0.247351] RPC: Registered named UNIX socket transport module.
+[    0.247593] RPC: Registered udp transport module.
+[    0.247739] RPC: Registered tcp transport module.
+[    0.248117] RPC: Registered tcp-with-tls transport module.
+[    0.248238] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.248462] PCI: CLS 0 bytes, default 64
+[    0.251518] Unpacking initramfs...
+[    0.252485] kvm [1]: HYP mode not available
+[    0.255222] Initialise system trusted keyrings
+[    0.260811] workingset: timestamp_bits=42 max_order=18 bucket_order=0
+[    0.262368] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.269014] NFS: Registering the id_resolver key type
+[    0.269524] Key type id_resolver registered
+[    0.269635] Key type id_legacy registered
+[    0.269995] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.270174] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[    0.271344] 9p: Installing v9fs 9p2000 file system support
+[    0.345015] Key type asymmetric registered
+[    0.345209] Asymmetric key parser 'x509' registered
+[    0.345629] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 245)
+[    0.345918] io scheduler mq-deadline registered
+[    0.346050] io scheduler kyber registered
+[    0.346532] io scheduler bfq registered
+[    0.356276] Freeing initrd memory: 1428K
+[    0.369464] EINJ: ACPI disabled.
+[    0.396162] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    0.402934] SuperH (H)SCI(F) driver initialized
+[    0.403441] msm_serial: driver initialized
+[    0.404306] STM32 USART driver initialized
+[    0.421106] loop: module loaded
+[    0.423027] megasas: 07.725.01.00-rc1
+[    0.432632] tun: Universal TUN/TAP device driver, 1.6
+[    0.434432] thunder_xcv, ver 1.0
+[    0.434588] thunder_bgx, ver 1.0
+[    0.434756] nicpf, ver 1.0
+[    0.436445] hns3: Hisilicon Ethernet Network Driver for Hip08 Family - version
+[    0.436591] hns3: Copyright (c) 2017 Huawei Corporation.
+[    0.436941] hclge is initializing
+[    0.437135] e1000: Intel(R) PRO/1000 Network Driver
+[    0.437231] e1000: Copyright (c) 1999-2006 Intel Corporation.
+[    0.437448] e1000e: Intel(R) PRO/1000 Network Driver
+[    0.437558] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
+[    0.437788] igb: Intel(R) Gigabit Ethernet Network Driver
+[    0.437890] igb: Copyright (c) 2007-2014 Intel Corporation.
+[    0.438087] igbvf: Intel(R) Gigabit Virtual Function Network Driver
+[    0.438223] igbvf: Copyright (c) 2009 - 2012 Intel Corporation.
+[    0.438687] sky2: driver version 1.30
+[    0.440520] VFIO - User Level meta-driver version: 0.3
+[    0.444203] usbcore: registered new interface driver usb-storage
+[    0.447684] i2c_dev: i2c /dev entries driver
+[    0.455611] sdhci: Secure Digital Host Controller Interface driver
+[    0.455884] sdhci: Copyright(c) Pierre Ossman
+[    0.456568] Synopsys Designware Multimedia Card Interface Driver
+[    0.457394] sdhci-pltfm: SDHCI platform and OF driver helper
+[    0.459233] ledtrig-cpu: registered to indicate activity on CPUs
+[    0.462107] usbcore: registered new interface driver usbhid
+[    0.462231] usbhid: USB HID core driver
+[    0.472210] NET: Registered PF_PACKET protocol family
+[    0.473345] 9pnet: Installing 9P2000 support
+[    0.473710] Key type dns_resolver registered
+[    0.491157] registered taskstats version 1
+[    0.492664] Loading compiled-in X.509 certificates
+[    0.512059] clk: Disabling unused clocks
+[    0.512442] ALSA device list:
+[    0.512555]   No soundcards found.
+[    0.517366] uart-pl011 9000000.pl011: no DMA platform data
+[    0.577727] Freeing unused kernel memory: 9152K
+[    0.579295] Run /init as init process
+[    0.579517]   with arguments:
+[    0.579628]     /init
+[    0.579723]   with environment:
+[    0.580109]     HOME=/
+[    0.580189]     TERM=linux
+
+==================================
+INIT SCRIPT STARTED
+==================================
+
+==================================================
+  Tessolve Hypervisor -- Linux guest userspace up
+==================================================
+
+[OBD] *** Tessolve OBD-II Diagnostic Monitor v1.0 ***
+[OBD] Protocol: shared memory IPA=0xA000000
+[OBD] Data source: RTOS Fuel ECU (VM2) via hypervisor
+
+[OBD] ---- Linux slice 1 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 38 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=1 inj#=50 (updated)
+
+HYP [INF] CTX[2]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 2 (500ms) ----
+[FUEL] RPM=800 inj=1368us thr=5% temp=40C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=100  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000000640f x3=0x0x0000006400000002 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=2
+HYP [INF] CTX[3]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[4]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[5]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 3 (500ms) ----
+[FUEL] RPM=800 inj=1368us thr=5% temp=50C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=150  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000000960f x3=0x0x0000006400000003 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=3
+HYP [INF] CTX[6]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[7]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[8]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 4 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=60C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=200  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000000c80f x3=0x0x0000006400000004 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=4
+HYP [INF] CTX[9]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[10]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[11]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 5 (500ms) ----
+[FUEL] RPM=800 inj=3860us thr=45% temp=70C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=250  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000000fa0f x3=0x0x0000006400000005 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=5
+HYP [INF] CTX[12]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[13]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 2 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 64 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=5 inj#=250 (updated)
+
+HYP [INF] CTX[14]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 6 (500ms) ----
+[FUEL] RPM=1800 inj=3860us thr=45% temp=80C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=342  λ=0.98  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000001560f x3=0x0x0000006200000006 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=6
+HYP [INF] CTX[15]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[16]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[17]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 7 (500ms) ----
+[FUEL] RPM=2800 inj=3860us thr=45% temp=90C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=500  λ=0.102  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000001f40f x3=0x0x0000006600000007 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=7
+HYP [INF] CTX[18]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[19]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[20]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 8 (500ms) ----
+[FUEL] RPM=3200 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=708  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000002c40f x3=0x0x0000006400000008 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=8
+HYP [INF] CTX[21]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[22]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[23]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 9 (500ms) ----
+[FUEL] RPM=3200 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=918  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000003960f x3=0x0x0000006400000009 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=9
+HYP [INF] CTX[24]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[25]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 3 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 64 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=9 inj#=918 (updated)
+
+HYP [INF] CTX[26]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 10 (500ms) ----
+[FUEL] RPM=3200 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=1128  λ=0.100  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000004680f x3=0x0x000000640000000a x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=10
+HYP [INF] CTX[27]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[28]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[29]: linux -> rtos (500ms, wfi)
+QEMU: Terminated
+

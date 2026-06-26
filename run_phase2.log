@@ -1,0 +1,11 @@
+=== Tessolve Hypervisor Full Build ===
+Cross compiler : aarch64-linux-gnu-gcc (aarch64-linux-gnu-gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0)
+Platform       : qemu
+
+=== [1/4] Building hypervisor ===
+make: 'build/qemu/hypervisor.elf' is up to date.
+
+=== [2/4] Building Linux guest ===
+make: Entering directory '/home/teechana/Downloads/VSE_hypervisor/LINUX_RTOS_base2 (2)/LINUX_RTOS/hypervisor1/guests/linux'
+make: *** No rule to make target 'demo'.  Stop.
+make: Leaving directory '/home/teechana/Downloads/VSE_hypervisor/LINUX_RTOS_base2 (2)/LINUX_RTOS/hypervisor1/guests/linux'

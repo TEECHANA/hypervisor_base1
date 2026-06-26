@@ -1,0 +1,128 @@
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c arch/arm64/entry.S -o build/qemu/arch/arm64/entry.o
+  AS  arch/arm64/entry.S
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c arch/arm64/context.S -o build/qemu/arch/arm64/context.o
+  AS  arch/arm64/context.S
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c arch/arm64/mmu.S -o build/qemu/arch/arm64/mmu.o
+  AS  arch/arm64/mmu.S
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c boot/main.c -o build/qemu/boot/main.o
+  CC  boot/main.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c boot/platform_init.c -o build/qemu/boot/platform_init.o
+boot/platform_init.c:55:14: warning: ‘gic_dist_emulate_local’ defined but not used [-Wunused-function]
+   55 | static err_t gic_dist_emulate_local(u64 addr, bool wr, u64 *val, void *priv)
+      |              ^~~~~~~~~~~~~~~~~~~~~~
+  CC  boot/platform_init.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c boot/pal/pal_qemu.c -o build/qemu/boot/pal/pal_qemu.o
+  CC  boot/pal/pal_qemu.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c boot/dtb/dtb_gen.c -o build/qemu/boot/dtb/dtb_gen.o
+  CC  boot/dtb/dtb_gen.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c arch/arm64/psci.c -o build/qemu/arch/arm64/psci.o
+arch/arm64/psci.c: In function ‘psci_handler’:
+arch/arm64/psci.c:166:13: warning: unused variable ‘lowest_affinity’ [-Wunused-variable]
+  166 |         u64 lowest_affinity = regs[2];
+      |             ^~~~~~~~~~~~~~~
+arch/arm64/psci.c: At top level:
+arch/arm64/psci.c:72:13: warning: ‘psci_is_supported’ defined but not used [-Wunused-function]
+   72 | static bool psci_is_supported(u64 func_id)
+      |             ^~~~~~~~~~~~~~~~~
+  CC  arch/arm64/psci.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c core/vm/vm.c -o build/qemu/core/vm/vm.o
+  CC  core/vm/vm.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c core/vcpu/vcpu.c -o build/qemu/core/vcpu/vcpu.o
+  CC  core/vcpu/vcpu.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c core/vcpu/pmu.c -o build/qemu/core/vcpu/pmu.o
+  CC  core/vcpu/pmu.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c core/sched/sched.c -o build/qemu/core/sched/sched.o
+core/sched/sched.c:41: warning: "HCR_GUEST" redefined
+   41 | #define HCR_GUEST (HCR_VM | HCR_RW | HCR_IMO | HCR_FMO | HCR_AMO | HCR_TSC \
+      | 
+In file included from core/sched/sched.c:32:
+core/sched/../../arch/arm64/include/arm_regs.h:19: note: this is the location of the previous definition
+   19 | #define HCR_GUEST (HCR_VM|HCR_RW|HCR_IMO|HCR_FMO|HCR_AMO|HCR_TSC)
+      | 
+core/sched/sched.c:89:16: warning: ‘find_next_be’ defined but not used [-Wunused-function]
+   89 | static vcpu_t *find_next_be(u32 *dur_out)
+      |                ^~~~~~~~~~~~
+  CC  core/sched/sched.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c core/sched/sched_stats.c -o build/qemu/core/sched/sched_stats.o
+  CC  core/sched/sched_stats.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c core/fault/fault.c -o build/qemu/core/fault/fault.o
+  CC  core/fault/fault.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c vre/mmu/stage2.c -o build/qemu/vre/mmu/stage2.o
+In file included from vre/mmu/stage2.c:22:
+vre/mmu/../../arch/arm64/include/arm_regs.h:78: warning: "S2_MEMATTR_DEV" redefined
+   78 | #define S2_MEMATTR_DEV (0ULL << 2)
+      | 
+In file included from vre/mmu/stage2.c:17:
+vre/mmu/stage2.h:28: note: this is the location of the previous definition
+   28 | #define S2_MEMATTR_DEV  (0x1ULL << 2) /* Device-nGnRE                              */
+      | 
+vre/mmu/../../arch/arm64/include/arm_regs.h:94: warning: "S2_XN" redefined
+   94 | #define S2_XN          (1ULL << 54)
+      | 
+vre/mmu/stage2.h:24: note: this is the location of the previous definition
+   24 | #define S2_XN           (2ULL << 53)  /* Execute-never (both EL0 and EL1)          */
+      | 
+  CC  vre/mmu/stage2.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c vre/irq/irq_router.c -o build/qemu/vre/irq/irq_router.o
+  CC  vre/irq/irq_router.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c vre/irq/vgic.c -o build/qemu/vre/irq/vgic.o
+  CC  vre/irq/vgic.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c vre/bus/pcie.c -o build/qemu/vre/bus/pcie.o
+  CC  vre/bus/pcie.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c vre/device/mmio_trap.c -o build/qemu/vre/device/mmio_trap.o
+  CC  vre/device/mmio_trap.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c vre/dma/smmu.c -o build/qemu/vre/dma/smmu.o
+  CC  vre/dma/smmu.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c vre/dma/dma_guard.c -o build/qemu/vre/dma/dma_guard.o
+  CC  vre/dma/dma_guard.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c vre/power/power.c -o build/qemu/vre/power/power.o
+  CC  vre/power/power.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c boot/device_profile.c -o build/qemu/boot/device_profile.o
+  CC  boot/device_profile.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c guest/hypercall/hvc_handler.c -o build/qemu/guest/hypercall/hvc_handler.o
+  CC  guest/hypercall/hvc_handler.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c guest/hypercall/hvc_drivers.c -o build/qemu/guest/hypercall/hvc_drivers.o
+  CC  guest/hypercall/hvc_drivers.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c guest/shmem/shmem.c -o build/qemu/guest/shmem/shmem.o
+In file included from guest/shmem/shmem.c:12:
+guest/shmem/../../arch/arm64/include/arm_regs.h:78: warning: "S2_MEMATTR_DEV" redefined
+   78 | #define S2_MEMATTR_DEV (0ULL << 2)
+      | 
+In file included from guest/shmem/shmem.c:8:
+guest/shmem/../../vre/mmu/stage2.h:28: note: this is the location of the previous definition
+   28 | #define S2_MEMATTR_DEV  (0x1ULL << 2) /* Device-nGnRE                              */
+      | 
+guest/shmem/../../arch/arm64/include/arm_regs.h:94: warning: "S2_XN" redefined
+   94 | #define S2_XN          (1ULL << 54)
+      | 
+guest/shmem/../../vre/mmu/stage2.h:24: note: this is the location of the previous definition
+   24 | #define S2_XN           (2ULL << 53)  /* Execute-never (both EL0 and EL1)          */
+      | 
+  CC  guest/shmem/shmem.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c guest/ipc/ipc.c -o build/qemu/guest/ipc/ipc.o
+  CC  guest/ipc/ipc.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c drivers/uart/uart_pl011.c -o build/qemu/drivers/uart/uart_pl011.o
+  CC  drivers/uart/uart_pl011.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c drivers/gic/gicv3.c -o build/qemu/drivers/gic/gicv3.o
+  CC  drivers/gic/gicv3.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c drivers/timer/timer.c -o build/qemu/drivers/timer/timer.o
+  CC  drivers/timer/timer.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c lib/log/log.c -o build/qemu/lib/log/log.o
+  CC  lib/log/log.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c lib/str/string.c -o build/qemu/lib/str/string.o
+  CC  lib/str/string.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c arch/arm64/s2_debug.c -o build/qemu/arch/arm64/s2_debug.o
+  CC  arch/arm64/s2_debug.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c vse/hmac.c -o build/qemu/vse/hmac.o
+  CC  vse/hmac.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c vse/config_check.c -o build/qemu/vse/config_check.o
+  CC  vse/config_check.c
+aarch64-linux-gnu-gcc -O2 -g -Wall -Wextra -Wno-unused-parameter -ffreestanding -nostdlib -nostdinc -mcpu=cortex-a57 -mabi=lp64 -DPLATFORM_QEMU -I. -DINITRD_SIZE=1463430   -c vse/component_check.c -o build/qemu/vse/component_check.o
+  CC  vse/component_check.c
+aarch64-linux-gnu-gcc -T boot/linker/hypervisor.ld -Wl,--build-id=none -nostdlib \
+    -o build/qemu/hypervisor.elf build/qemu/arch/arm64/entry.o build/qemu/arch/arm64/context.o build/qemu/arch/arm64/mmu.o build/qemu/boot/main.o build/qemu/boot/platform_init.o build/qemu/boot/pal/pal_qemu.o build/qemu/boot/dtb/dtb_gen.o build/qemu/arch/arm64/psci.o build/qemu/core/vm/vm.o build/qemu/core/vcpu/vcpu.o build/qemu/core/vcpu/pmu.o build/qemu/core/sched/sched.o build/qemu/core/sched/sched_stats.o build/qemu/core/fault/fault.o build/qemu/vre/mmu/stage2.o build/qemu/vre/irq/irq_router.o build/qemu/vre/irq/vgic.o build/qemu/vre/bus/pcie.o build/qemu/vre/device/mmio_trap.o build/qemu/vre/dma/smmu.o build/qemu/vre/dma/dma_guard.o build/qemu/vre/power/power.o build/qemu/boot/device_profile.o build/qemu/guest/hypercall/hvc_handler.o build/qemu/guest/hypercall/hvc_drivers.o build/qemu/guest/shmem/shmem.o build/qemu/guest/ipc/ipc.o build/qemu/drivers/uart/uart_pl011.o build/qemu/drivers/gic/gicv3.o build/qemu/drivers/timer/timer.o build/qemu/lib/log/log.o build/qemu/lib/str/string.o build/qemu/arch/arm64/s2_debug.o build/qemu/vse/hmac.o build/qemu/vse/config_check.o build/qemu/vse/component_check.o /usr/lib/gcc-cross/aarch64-linux-gnu/13/libgcc.a
+/usr/lib/gcc-cross/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/bin/ld: warning: build/qemu/hypervisor.elf has a LOAD segment with RWX permissions
+   text	   data	    bss	    dec	    hex	filename
+  47580	    560	4292792	4340932	 423cc4	build/qemu/hypervisor.elf
+
+  ✓ Hypervisor built: build/qemu/hypervisor.elf

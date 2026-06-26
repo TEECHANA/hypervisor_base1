@@ -19,7 +19,6 @@
 #include "../../core/vm/vm.h"
 #include "../../vre/mmu/stage2.h"
 #include "../../lib/log/log.h"
-#include "../../vse/fault_detect.h"   /* VSE Phase 5 */
 
 err_t dma_guard_check(struct vm *vm, paddr_t pa, u64 size)
 {
@@ -88,9 +87,6 @@ void dma_guard_log_violation(u32 stream_id, u32 vm_id,
     LOG_ERROR("DMA VIOLATION: stream=%u VM%u PA=0x%lx size=0x%lx",
               stream_id, vm_id, fault_pa, fault_size);
     LOG_ERROR("DMA VIOLATION: peripheral attempted out-of-bounds DMA");
-
-    /* VSE Phase 5: report to trust engine */
-    fdetect_dma_violation(vm_id, fault_pa, fault_size, stream_id);
     /*
      * Phase 3: inject a virtual SError to the offending VM here.
      * For now, log and continue — the SMMU hardware will abort

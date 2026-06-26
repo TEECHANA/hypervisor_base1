@@ -8,7 +8,7 @@ LINUX="guests/linux/Image"
 [[ -f "$LINUX" ]] || { echo "Linux Image missing"; exit 1; }
 
 ARGS=(
-    -machine virt,virtualization=on,gic-version=3
+    -machine virt,iommu=smmuv3,virtualization=on,gic-version=3
     -cpu cortex-a57
     -m 2G
     -smp 4
@@ -20,7 +20,10 @@ ARGS=(
     -kernel "$ELF"
 
     # Load Linux kernel into guest RAM
-    -device loader,file="$LINUX",addr=0x41000000,force-raw=on
+    -device loader,file="$LINUX",addr=0x41200000,force-raw=on
+    -device loader,file=guests/rtos/rtos.bin,addr=0x60008000,force-raw=on
+    -device loader,file=guests/android_stub/android.bin,addr=0x70200000,force-raw=on
+    -device loader,file=guests/rtos/rtos.bin,addr=0x90000000,force-raw=on
 )
 
 [[ "$1" == "--debug" ]] && {

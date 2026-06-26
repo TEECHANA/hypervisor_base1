@@ -21,14 +21,6 @@
 #include "../core/vm/vm.h"
 #include "../vse/config_check.h"   /* VSE Phase 1 */
 #include "../vse/component_check.h"   /* VSE Phase 2 */
-#include "../vse/trust.h"            /* VSE Phase 3 */
-#include "../vse/seal.h"             /* VSE Phase 4 */
-#include "../vse/fault_detect.h"     /* VSE Phase 5 */
-#include "../vse/failover.h"         /* VSE Phase 6 */
-#include "../vse/hotp.h"             /* Operator login: HOTP */
-#include "../vse/login.h"            /* Operator login: 2FA prompt */
-#include "../vse/ids.h"              /* IDS: runtime intrusion detection */
-#include "../drivers/uart/uart.h"
 
 #define EC_WFI 0x01
 
@@ -110,95 +102,6 @@ void hyp_main(u32 cpu_id, paddr_t dtb_pa)
     LOG_INFO("Init VM subsystem...");
     e = vm_subsys_init();
     if (FAIL(e)) hyp_panic("VM subsys init failed");
-
-    /*
-     * VSE Phase 3 — Trust services.
-     * Runs after VMs are created so it can mark each one TRUSTED.
-     * Later phases (fault detection, IDS) feed trust_report_fault().
-     */
-    LOG_INFO("VSE Phase 3: initializing trust services...");
-    e = trust_init();
-    if (FAIL(e)) LOG_WARN("VSE Phase 3: trust_init failed (err=%d)", (int)e);
-    else         LOG_INFO("VSE Phase 3: trust services initialized");
-
-    /*
-     * VSE Phase 4 — Sealing service.
-     * Derives a platform-bound seal key from the verified config, then runs
-     * a self-test (seal/unseal round-trip + tamper-detection) to prove the
-     * subsystem works on this build.
-     */
-    LOG_INFO("VSE Phase 4: initializing sealing service...");
-    e = seal_init();
-    if (FAIL(e)) {
-        LOG_WARN("VSE Phase 4: seal_init failed (err=%d)", (int)e);
-    } else {
-        seal_selftest();   /* logs PASS/FAIL; non-fatal */
-        LOG_INFO("VSE Phase 4: sealing service initialized");
-    }
-
-    /*
-     * VSE Phase 5 — Fault detection & recovery.
-     * Activates the hooks that feed guest faults (memory, DMA, IRQ) into
-     * the Phase 3 trust engine. Must run after trust_init() (Phase 3) so the
-     * trust state machine exists when the first fault arrives.
-     */
-    LOG_INFO("VSE Phase 5: initializing fault detection...");
-    e = fault_detect_init();
-    if (FAIL(e)) LOG_WARN("VSE Phase 5: fault_detect_init failed (err=%d)", (int)e);
-    else         LOG_INFO("VSE Phase 5: fault detection initialized");
-    LOG_INFO("VSE IDS: initializing intrusion detection...");
-    e = ids_init();
-    if (FAIL(e)) LOG_WARN("VSE IDS: ids_init failed (err=%d)", (int)e);
-    /* DEMO: exercise the IDS so it produces audit records (remove later) */
-
-    /*
-     * VSE Phase 6 — Backup OS failover.
-     * Registers critical VMs with a backup image. When the trust engine
-     * quarantines such a VM (after Phase 5 detects enough faults), the
-     * hypervisor restarts it from the backup instead of leaving it dead.
-     *
-     * Here we protect VM1 (Linux). The backup image is assumed resident at
-     * the Linux load PA; entry IPA mirrors the normal Linux entry (0x200000).
-     * Adjust backup_pa / entry to point at a dedicated backup image if you
-     * load one separately.
-     */
-    LOG_INFO("VSE Phase 6: initializing failover service...");
-    e = failover_init();
-    if (FAIL(e)) {
-        LOG_WARN("VSE Phase 6: failover_init failed (err=%d)", (int)e);
-    } else {
-        /* Register VM1 (Linux) as critical with a backup at its load PA. */
-        /* VM2 (rtos): backup @0x90000000, live @0x60008000, size, entry 0x8000 */
-        failover_register(2u, 0x90000000ULL, 0x60008000ULL, 4904ULL, 0x8000ULL);
-        LOG_INFO("VSE Phase 6: failover service initialized");
-
-    LOG_INFO("VSE IDS: running detection demo...");
-    for (int i = 0; i < 6; i++)
-        fdetect_dma_violation(2, 0xDEAD0000 + i, 0x1000, 1);   /* storm on VM2 */
-    fdetect_mem_fault(3, 0xBEEF000, 0x0C, true);                /* perm fault VM3 */
-    ids_poll();                                                 /* heartbeat + downgrade scan */
-    ids_print_summary();
-    ids_print_log();
-    }
-
-    /*
-     * Operator login — two-factor (password + HOTP).
-     *
-     * Runs AFTER all VSE integrity/trust/seal phases so the platform has
-     * proven its own integrity before any human is let in, and AFTER
-     * seal_init() (Phase 4) so the HOTP counter can be unsealed. No RTC on
-     * this platform, so HOTP (counter-based) is used instead of TOTP.
-     *
-     * On lockout (too many failed attempts) we panic rather than boot guests.
-     */
-    LOG_INFO("Operator login: initializing HOTP...");
-    e = hotp_init();
-    if (FAIL(e)) LOG_WARN("Operator login: hotp_init failed (err=%d)", (int)e);
-    hotp_selftest();   /* logs PASS/FAIL; non-fatal */
-
-    e = login_authenticate();
-    if (FAIL(e))
-        hyp_panic("Operator login failed — system locked");
 
     LOG_INFO("Init scheduler...");
     e = sched_init();

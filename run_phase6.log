@@ -1,0 +1,37 @@
+  ✓ All guest images present
+=== Launching QEMU with guests ===
+qemu-system-aarch64 -machine virt,gic-version=3,virtualization=on,iommu=smmuv3 -cpu cortex-a57 -m 2G -smp 4 -nographic -serial mon:stdio -no-reboot -d guest_errors \
+    -kernel build/qemu/hypervisor.elf \
+    -device loader,file=guests/linux/Image,addr=0x41200000,force-raw=on \
+    -device loader,file=guests/linux/initramfs.cpio.gz,addr=0x47000000,force-raw=on \
+    -device loader,file=guests/rtos/rtos.bin,addr=0x60008000,force-raw=on \
+    -device loader,file=guests/android_stub/android.bin,addr=0x70200000,force-raw=on
+ABCDMHHYP [INF] ====================================
+HYP [INF]   Tessolve Hypervisor v1.0  booting
+HYP [INF]   Platform : QEMU-ARM64-virt
+HYP [INF]   CPU ID   : 72
+HYP [INF]   DTB PA   : 0x0x000000000000100d
+HYP [INF] ====================================
+HYP [INF] VSE Phase 1: verifying hypervisor configuration...
+HYP [INF] VSE: config integrity check starting
+HYP [INF] VSE: configuration integrity check PASSED
+HYP [INF] VSE Phase 1: configuration verified
+HYP [INF] VSE Phase 2: verifying hypervisor components...
+HYP [INF] VSE Phase 2: component integrity check starting
+HYP [ERR] VSE Phase 2: COMPONENT INTEGRITY VIOLATION in '.text'
+HYP [ERR] Expected (golden):
+HYP [WRN] golden:
+HYP [WRN]     0x44, 0x81, 0xf9, 0x4a, 0x41, 0xa2, 0x6a, 0xe2
+HYP [WRN]     0x98, 0xc6, 0xf0, 0xde, 0x67, 0x37, 0x8f, 0x29
+HYP [WRN]     0x68, 0xd6, 0xe3, 0x6d, 0xdf, 0x55, 0x56, 0xe2
+HYP [WRN]     0x25, 0xe1, 0x43, 0x82, 0x3d, 0x32, 0xd8, 0x5b
+HYP [ERR] Computed:
+HYP [WRN] computed:
+HYP [WRN]     0x68, 0xc9, 0x27, 0xc6, 0x53, 0x11, 0x28, 0x91
+HYP [WRN]     0xf8, 0x17, 0x92, 0xc1, 0xa7, 0xf1, 0x02, 0xc3
+HYP [WRN]     0xc4, 0x16, 0x1e, 0x1a, 0x1a, 0x5a, 0x37, 0x25
+HYP [WRN]     0x60, 0x26, 0x28, 0x7e, 0xf9, 0xd6, 0x2f, 0xae
+HYP [ERR] VSE Phase 2: in-memory image differs from trusted build
+HYP [ERR] ** PANIC: VSE: component integrity check failed
+QEMU: Terminated
+

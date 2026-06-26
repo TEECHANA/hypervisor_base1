@@ -7,6 +7,7 @@
 #define LCR  0x02Cu
 #define CR   0x030u
 #define FR_TXFF (1u<<5)
+#define FR_RXFE (1u<<4)
 #define CR_UARTEN (1u<<0)
 #define CR_TXE  (1u<<8)
 #define CR_RXE  (1u<<9)
@@ -42,4 +43,35 @@ void uart_putdec(s64 v){
     char b[20];int i=0;
     while(v>0){b[i++]='0'+(int)(v%10);v/=10;}
     while(--i>=0)uart_putc(b[i]);
+}
+
+/* ── Receive path (added for operator login) ── */
+char uart_getc(void){
+    if(!_b) return 0;
+    while(rd(FR)&FR_RXFE){}            /* wait until RX FIFO not empty */
+    return (char)(rd(DR)&0xFF);
+}
+
+/*
+ * uart_getline — read a line into buf (max len-1 chars), NUL-terminated.
+ * Echoes input. If echo_mask is non-zero, prints that char instead of the
+ * typed character (for password entry). Backspace handled. Returns length.
+ */
+u32 uart_getline(char *buf, u32 len, char echo_mask){
+    u32 i=0;
+    if(!buf||len==0) return 0;
+    for(;;){
+        char c=uart_getc();
+        if(c=='\r'||c=='\n'){ uart_putc('\n'); break; }
+        if((c==0x7f||c=='\b')){           /* backspace */
+            if(i>0){ i--; uart_puts("\b \b"); }
+            continue;
+        }
+        if(i<len-1){
+            buf[i++]=c;
+            uart_putc(echo_mask?echo_mask:c);
+        }
+    }
+    buf[i]='\0';
+    return i;
 }

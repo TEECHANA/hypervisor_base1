@@ -1,0 +1,38 @@
+  ✓ All guest images present
+=== Launching QEMU with guests ===
+qemu-system-aarch64 -machine virt,gic-version=3,virtualization=on,iommu=smmuv3 -cpu cortex-a57 -m 2G -smp 4 -nographic -serial mon:stdio -no-reboot -d guest_errors \
+    -kernel build/qemu/hypervisor.elf \
+    -device loader,file=guests/linux/Image,addr=0x41200000,force-raw=on \
+    -device loader,file=guests/linux/initramfs.cpio.gz,addr=0x47000000,force-raw=on \
+    -device loader,file=guests/rtos/rtos.bin,addr=0x60008000,force-raw=on \
+    -device loader,file=guests/android_stub/android.bin,addr=0x70200000,force-raw=on
+ABCDMHHYP [INF] ====================================
+HYP [INF]   Tessolve Hypervisor v1.0  booting
+HYP [INF]   Platform : QEMU-ARM64-virt
+HYP [INF]   CPU ID   : 72
+HYP [INF]   DTB PA   : 0x0x000000000000100d
+HYP [INF] ====================================
+HYP [INF] VSE Phase 1: verifying hypervisor configuration...
+HYP [INF] VSE: config integrity check starting
+HYP [INF] VSE: configuration integrity check PASSED
+HYP [INF] VSE Phase 1: configuration verified
+HYP [INF] VSE Phase 2: verifying hypervisor components...
+HYP [INF] VSE Phase 2: component integrity check starting
+HYP [ERR] VSE Phase 2: COMPONENT INTEGRITY VIOLATION in '.text'
+HYP [ERR] Expected (golden):
+HYP [WRN] golden:
+HYP [WRN]     0xb6, 0x2c, 0xb0, 0xfd, 0xa4, 0x20, 0xc2, 0xad
+HYP [WRN]     0xd9, 0xb0, 0x1c, 0x5e, 0x0e, 0xaa, 0x88, 0xa6
+HYP [WRN]     0x06, 0x97, 0xe7, 0x11, 0xe5, 0xaf, 0xc0, 0xbf
+HYP [WRN]     0xd1, 0x34, 0x33, 0x17, 0xea, 0x7a, 0x68, 0x42
+HYP [ERR] Computed:
+HYP [WRN] computed:
+HYP [WRN]     0xdc, 0xa2, 0xdb, 0x86, 0x83, 0xe0, 0xcb, 0xb9
+HYP [WRN]     0xea, 0x3c, 0x1f, 0xd1, 0x2c, 0x5a, 0x74, 0x4c
+HYP [WRN]     0xbc, 0x2d, 0x5a, 0x2b, 0x6b, 0xcc, 0x3d, 0x95
+HYP [WRN]     0x76, 0x4a, 0x3f, 0xf5, 0x68, 0x2c, 0x52, 0x3d
+HYP [ERR] VSE Phase 2: in-memory image differs from trusted build
+HYP [ERR] ** PANIC: VSE: component integrity check failed
+QEMU 8.2.2 monitor - type 'help' for more information
+(qemu) QEMU: Terminated
+

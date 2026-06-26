@@ -10,7 +10,6 @@
 #include "../../drivers/gic/gicv3.h"
 #include "../../lib/log/log.h"
 #include "../../lib/str/string.h"
-#include "../../vse/fault_detect.h"   /* VSE Phase 5 */
 
 typedef struct { u32 phys; u32 vm_id; u32 virq; bool active; } route_t;
 static route_t _routes[MAX_IRQ_ROUTES];
@@ -51,7 +50,5 @@ void irq_route_to_vm(u32 phys)
             return;
         }
     }
-    /* VSE Phase 5: report unrouted IRQ to fault detection */
-    fdetect_irq_unrouted(phys);
     LOG_WARN("No route for IRQ %u", phys);
 }

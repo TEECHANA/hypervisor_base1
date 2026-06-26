@@ -1,0 +1,1451 @@
+  ✓ All guest images present
+=== Launching QEMU with guests ===
+qemu-system-aarch64 -machine virt,gic-version=3,virtualization=on,iommu=smmuv3 -cpu cortex-a57 -m 2G -smp 4 -nographic -serial mon:stdio -no-reboot -d guest_errors \
+    -kernel build/qemu/hypervisor.elf \
+    -device loader,file=guests/linux/Image,addr=0x41200000,force-raw=on \
+    -device loader,file=guests/linux/initramfs.cpio.gz,addr=0x47000000,force-raw=on \
+    -device loader,file=guests/rtos/rtos.bin,addr=0x60008000,force-raw=on \
+    -device loader,file=guests/android_stub/android.bin,addr=0x70200000,force-raw=on
+ABCDMHHYP [INF] ====================================
+HYP [INF]   Tessolve Hypervisor v1.0  booting
+HYP [INF]   Platform : QEMU-ARM64-virt
+HYP [INF]   CPU ID   : 72
+HYP [INF]   DTB PA   : 0x0x000000000000100d
+HYP [INF] ====================================
+HYP [INF] VSE Phase 1: verifying hypervisor configuration...
+HYP [INF] VSE: config integrity check starting
+HYP [INF] VSE: configuration integrity check PASSED
+HYP [INF] VSE Phase 1: configuration verified
+HYP [INF] VSE Phase 2: verifying hypervisor components...
+HYP [INF] VSE Phase 2: component integrity check starting
+HYP [WRN] VSE Phase 2: [LEARN] component '.text' size=44972 bytes:
+HYP [WRN]     paste into _golden_components[]:
+HYP [WRN]     0x68, 0xc9, 0x27, 0xc6, 0x53, 0x11, 0x28, 0x91
+HYP [WRN]     0xf8, 0x17, 0x92, 0xc1, 0xa7, 0xf1, 0x02, 0xc3
+HYP [WRN]     0xc4, 0x16, 0x1e, 0x1a, 0x1a, 0x5a, 0x37, 0x25
+HYP [WRN]     0x60, 0x26, 0x28, 0x7e, 0xf9, 0xd6, 0x2f, 0xae
+HYP [WRN] VSE Phase 2: LEARN MODE active — paste golden value(s) above, then rebuild
+HYP [INF] VSE Phase 2: components verified
+HYP [INF] Timer freq: 62500000 Hz
+HYP [INF] Init GICv3...
+HYP [INF] GICv3: 4 list registers available (ICH_VTR=0x0x0000000090b80003)
+HYP [INF] GICv3 init: GICD=0x0x0000000008000000
+HYP [INF] Init PMU...
+HYP [INF] PMU: MDCR_EL2=0x0x0000000000000066 — guest PMU trapped to EL2
+HYP [INF] Init VM subsystem...
+HYP [INF] VM subsystem init
+HYP [INF] Power manager: initialised (max 4 VMs)
+HYP [INF] Power manager ready
+HYP [INF] SMMU: hardware enabled at 0x0x0000000009050000, 256 streams
+HYP [INF] PCIe: bus manager initialised, ECAM=0x0x000000003f000000 size=0x0x0000000001000000
+HYP [INF] PCIe: VM1 owns all bus 255 devices
+HYP [INF] SMMU: hardware present and enabled
+HYP [INF] VM 1 'linux' created (type=0)
+DTB generated
+
+HYP [INF] Linux DTB built: 1764 bytes at PA 0x0x0000000045000000
+HYP [INF] Linux VM ready
+HYP [INF] VM 2 'rtos' created (type=1)
+HYP [INF] RTOS VM ready (entry IPA=0x0x0000000000008000)
+HYP [INF] VM 3 'android' created (type=2)
+HYP [INF] Android VM ready
+HYP [INF] DevProfile: applying 10 entries
+HYP [INF] VM MAP ipa=0x0x0000000000000000 pa=0x0x0000000041000000 sz=0x0x0000000008000000 flags=0x0x0000000000000007
+HYP [INF] DevProfile[0] VM1 'linux-ram-low': PA=0x0x0000000041000000 IPA=0x0x0000000000000000 sz=0x0x0000000008000000
+HYP [INF] VM MAP ipa=0x0x0000000010000000 pa=0x0x0000000051000000 sz=0x0x0000000040000000 flags=0x0x0000000000000007
+HYP [INF] DevProfile[1] VM1 'linux-ram-high': PA=0x0x0000000051000000 IPA=0x0x0000000010000000 sz=0x0x0000000040000000
+HYP [INF] VM MAP ipa=0x0x0000000009000000 pa=0x0x0000000009000000 sz=0x0x0000000000001000 flags=0x0x000000000000000b
+HYP [INF] DevProfile[2] VM1 'linux-uart': PA=0x0x0000000009000000 IPA=0x0x0000000009000000 sz=0x0x0000000000001000 [IO]
+HYP [INF] VM MAP ipa=0x0x0000000008000000 pa=0x0x0000000008000000 sz=0x0x0000000000100000 flags=0x0x000000000000000b
+HYP [INF] DevProfile[3] VM1 'linux-gicd': PA=0x0x0000000008000000 IPA=0x0x0000000008000000 sz=0x0x0000000000100000 [IO]
+HYP [INF] VM MAP ipa=0x0x00000000080a0000 pa=0x0x00000000080a0000 sz=0x0x0000000000200000 flags=0x0x000000000000000b
+HYP [INF] DevProfile[4] VM1 'linux-gicr': PA=0x0x00000000080a0000 IPA=0x0x00000000080a0000 sz=0x0x0000000000200000 [IO]
+HYP [INF] VM MAP ipa=0x0x0000000000000000 pa=0x0x0000000060000000 sz=0x0x000000000f000000 flags=0x0x0000000000000007
+HYP [INF] DevProfile[5] VM2 'rtos-ram': PA=0x0x0000000060000000 IPA=0x0x0000000000000000 sz=0x0x000000000f000000
+HYP [INF] VM MAP ipa=0x0x0000000009000000 pa=0x0x0000000009000000 sz=0x0x0000000000001000 flags=0x0x000000000000000b
+HYP [INF] DevProfile[6] VM2 'rtos-uart': PA=0x0x0000000009000000 IPA=0x0x0000000009000000 sz=0x0x0000000000001000 [IO]
+HYP [INF] VM MAP ipa=0x0x000000000a000000 pa=0x0x0000000040f00000 sz=0x0x0000000000001000 flags=0x0x0000000000000003
+HYP [INF] DevProfile[7] VM1 'linux-obd-shmem': PA=0x0x0000000040f00000 IPA=0x0x000000000a000000 sz=0x0x0000000000001000
+HYP [INF] VM MAP ipa=0x0x0000000000000000 pa=0x0x0000000070000000 sz=0x0x0000000020000000 flags=0x0x0000000000000007
+HYP [INF] DevProfile[8] VM3 'android-ram': PA=0x0x0000000070000000 IPA=0x0x0000000000000000 sz=0x0x0000000020000000
+HYP [INF] VM MAP ipa=0x0x0000000009000000 pa=0x0x0000000009000000 sz=0x0x0000000000001000 flags=0x0x000000000000000b
+HYP [INF] DevProfile[9] VM3 'android-uart': PA=0x0x0000000009000000 IPA=0x0x0000000009000000 sz=0x0x0000000000001000 [IO]
+HYP [INF] DevProfile: all entries applied
+HYP [INF] VM finalize start
+HYP [INF] MEM FLAGS raw=0x0x0000000000000007 MEM_X=0x0x0000000000000004 result=0
+HYP [INF] S2 MAP START IPA=0x0x0000000000000000 -> PA=0x0x0000000041000000 size=0x0x0000000008000000
+HYP [INF] FAULT PAGE MAP IPA=0x0x0000000002236000 PA=0x0x0000000043236000 DESC=0x0x00000000432367ff
+HYP [INF] Mapped Linux fault page IPA=0x0x0000000002bff000 -> PA=0x0x0000000043bff000
+HYP [INF] MEM FLAGS raw=0x0x0000000000000007 MEM_X=0x0x0000000000000004 result=0
+HYP [INF] S2 MAP START IPA=0x0x0000000010000000 -> PA=0x0x0000000051000000 size=0x0x0000000040000000
+HYP [INF] MEM FLAGS raw=0x0x000000000000000b MEM_X=0x0x0000000000000000 result=1
+HYP [INF] S2 MAP START IPA=0x0x0000000009000000 -> PA=0x0x0000000009000000 size=0x0x0000000000001000
+HYP [INF] MEM FLAGS raw=0x0x000000000000000b MEM_X=0x0x0000000000000000 result=1
+HYP [INF] S2 MAP START IPA=0x0x0000000008000000 -> PA=0x0x0000000008000000 size=0x0x0000000000100000
+HYP [INF] MEM FLAGS raw=0x0x000000000000000b MEM_X=0x0x0000000000000000 result=1
+HYP [INF] S2 MAP START IPA=0x0x00000000080a0000 -> PA=0x0x00000000080a0000 size=0x0x0000000000200000
+HYP [INF] MEM FLAGS raw=0x0x0000000000000003 MEM_X=0x0x0000000000000000 result=1
+HYP [INF] S2 MAP START IPA=0x0x000000000a000000 -> PA=0x0x0000000040f00000 size=0x0x0000000000001000
+HYP [INF] S2 MAP START IPA=0x0x00000000002bf000 -> PA=0x0x00000000412bf000 size=0x0x0000000000001000
+HYP [INF] Mapped Linux page IPA=0x2BF000
+HYP [INF] vCPU 0 init VM 1
+HYP [INF]   entry IPA : 0x0x0000000000200000
+HYP [INF]   DTB IPA   : 0x0x0000000004000000
+HYP [INF]   VTTBR     : 0x0x000100004001f000
+HYP [INF] VM 1 'linux' finalized (1 vCPUs)
+HYP [INF] VM 1 'linux' started
+HYP [INF] SMMU: stream 0 -> VM1 VMID=1 S2=0x0x000000004001f000
+HYP [INF] VM finalize start
+HYP [INF] MEM FLAGS raw=0x0x0000000000000007 MEM_X=0x0x0000000000000004 result=0
+HYP [INF] S2 MAP START IPA=0x0x0000000000000000 -> PA=0x0x0000000060000000 size=0x0x000000000f000000
+HYP [INF] FAULT PAGE MAP IPA=0x0x0000000002236000 PA=0x0x0000000062236000 DESC=0x0x00000000622367ff
+HYP [INF] Mapped Linux fault page IPA=0x0x0000000002bff000 -> PA=0x0x0000000062bff000
+HYP [INF] MEM FLAGS raw=0x0x000000000000000b MEM_X=0x0x0000000000000000 result=1
+HYP [INF] S2 MAP START IPA=0x0x0000000009000000 -> PA=0x0x0000000009000000 size=0x0x0000000000001000
+HYP [INF] vCPU 0 init VM 2
+HYP [INF]   entry IPA : 0x0x0000000000008000
+HYP [INF]   DTB IPA   : 0x0x0000000000000000
+HYP [INF]   VTTBR     : 0x0x0002000040020000
+HYP [INF] VM 2 'rtos' finalized (1 vCPUs)
+HYP [INF] VM 2 'rtos' started
+HYP [INF] SMMU: stream 1 -> VM2 VMID=2 S2=0x0x0000000040020000
+HYP [INF] VM finalize start
+HYP [INF] MEM FLAGS raw=0x0x0000000000000007 MEM_X=0x0x0000000000000004 result=0
+HYP [INF] S2 MAP START IPA=0x0x0000000000000000 -> PA=0x0x0000000070000000 size=0x0x0000000020000000
+HYP [INF] FAULT PAGE MAP IPA=0x0x0000000002236000 PA=0x0x0000000072236000 DESC=0x0x00000000722367ff
+HYP [INF] Mapped Linux fault page IPA=0x0x0000000002bff000 -> PA=0x0x0000000072bff000
+HYP [INF] MEM FLAGS raw=0x0x000000000000000b MEM_X=0x0x0000000000000000 result=1
+HYP [INF] S2 MAP START IPA=0x0x0000000009000000 -> PA=0x0x0000000009000000 size=0x0x0000000000001000
+HYP [INF] vCPU 0 init VM 3
+HYP [INF]   entry IPA : 0x0x0000000000200000
+HYP [INF]   DTB IPA   : 0x0x0000000002000000
+HYP [INF]   VTTBR     : 0x0x0003000040021000
+HYP [INF] vCPU 1 init VM 3
+HYP [INF]   entry IPA : 0x0x0000000000200000
+HYP [INF]   DTB IPA   : 0x0x0000000002000000
+HYP [INF]   VTTBR     : 0x0x0003000040021000
+HYP [INF] VM 3 'android' finalized (2 vCPUs)
+HYP [INF] VM 3 'android' started
+HYP [INF] SMMU: stream 2 -> VM3 VMID=3 S2=0x0x0000000040021000
+HYP [INF] IRQ router init (max 256 routes)
+HYP [INF] IRQ route: phys=33 -> VM1 virq=33
+HYP [INF] IRQ route: phys=34 -> VM1 virq=34
+HYP [INF] IRQ route: phys=35 -> VM1 virq=35
+HYP [INF] IRQ routes registered: 3 entries
+HYP [INF] VSE Phase 3: initializing trust services...
+HYP [INF] VSE Phase 3: VM1 'linux' -> TRUSTED
+HYP [INF] VSE Phase 3: VM2 'rtos' -> TRUSTED
+HYP [INF] VSE Phase 3: VM3 'android' -> TRUSTED
+HYP [INF] VSE Phase 3: trust services ready (3 VMs trusted)
+HYP [INF] VSE Phase 3: trust services initialized
+HYP [INF] VSE Phase 4: initializing sealing service...
+HYP [INF] VSE Phase 4: sealing service ready (blob=328 bytes, max payload=256)
+HYP [INF] VSE Phase 4: running seal self-test...
+HYP [WRN] VSE Phase 4: unseal DENIED — MAC mismatch (tampered or platform state changed)
+HYP [INF] VSE Phase 4: seal self-test PASSED (round-trip ok, tamper correctly denied)
+HYP [INF] VSE Phase 4: sealing service initialized
+HYP [INF] VSE Phase 5: initializing fault detection...
+HYP [INF] VSE Phase 5: fault detection ready (hooks: mem, dma, irq -> trust engine)
+HYP [INF] VSE Phase 5: fault detection initialized
+HYP [INF] VSE Phase 6: initializing failover service...
+HYP [INF] VSE Phase 6: failover service ready (max attempts=3)
+HYP [INF] VSE Phase 6: VM1 'linux' registered for failover (backup PA=0x0x0000000041000000 size=0x0x0000000008000000 entry=0x0x0000000000200000)
+HYP [INF] VSE Phase 6: failover service initialized
+HYP [INF] Init scheduler...
+HYP [INF] Sched stats: initialised for 4 VMs
+HYP [INF] Scheduler init start
+HYP [INF] Adding VM 1 'linux' (realtime=0) with 1 vCPUs
+HYP [INF] Adding VM 2 'rtos' (realtime=1) with 1 vCPUs
+HYP [INF] Adding VM 3 'android' (realtime=0) with 2 vCPUs
+HYP [INF] Scheduler ready: 4 slots, major-frame=10000 us
+HYP [INF] Hypervisor ready — starting scheduler
+HYP [INF] Starting VMs
+HYP [INF] ----------------------------------
+HYP [INF] Launching first guest
+HYP [INF] VM ID        : 2
+HYP [INF] VM Name      : rtos
+HYP [INF] vCPU ID      : 0
+HYP [INF] Entry PC     : 0x0x0000000000008000
+HYP [INF] SPSR_EL2     : 0x0x00000000000003c5
+HYP [INF] DTB arg (x0) : 0x0x0000000000000000
+HYP [INF] VTTBR_EL2    : 0x0x0002000040020000
+HYP [INF] ----------------------------------
+HYP [INF] Executing ERET -> Guest
+
+[RTOS] *** Tessolve RTOS — Fuel Injection ECU v1.0 ***
+[RTOS] Engine: 4-cyl 2.0L gasoline, Bosch-style injection
+[RTOS] self-test tick 1
+[RTOS] self-test tick 2
+[RTOS] self-test tick 3
+[RTOS] self-test tick 4
+[RTOS] self-test tick 5
+[RTOS] self-test tick 6
+[RTOS] self-test tick 7
+[RTOS] self-test tick 8
+[RTOS] self-test tick 9
+[RTOS] self-test tick 10
+[RTOS] Self-test complete — starting fuel ECU loop
+[RTOS] ---- slot 1 (500ms) ----
+[FUEL] RPM=800 inj=1368us thr=5% temp=30C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=50  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000000320f x3=0x0x0000006400000001 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=1
+HYP [INF] CTX[0]: rtos -> android (2000ms, wfi)
+HYP [WRN] VSE Phase 5: VM3 memory fault IPA=0x0x0000000048fefff0 ESR=0x0x0000000092000045
+HYP [WRN] VSE Phase 3: VM3 fault type=0x0x0000000000000001 detail=0x0x8000000048fefff0 (count=1)
+HYP [WRN] DABT: FAR=0x0x0000000048fefff0 ESR=0x0x0000000092000045 DFSC=0x0x0000000000000005 ELR=0x0x0000000000200070
+
+[ANDROID] Guest boot stub active
+[ANDROID] Android VM booted successfully
+HYP [INF] CTX[1]: android -> linux (2000ms, wfi)
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x411fd070]
+[    0.000000] Linux version 6.6.0 (rishi@BLRTESLTP-11854) (aarch64-linux-gnu-gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, GNU ld (GNU Binutils for Ubuntu) 2.42) #1 SMP PREEMPT Thu May 21 15:21:50 IST 2026
+[    0.000000] KASLR disabled due to lack of seed
+[    0.000000] Machine model: Tessolve-Hypervisor-Guest
+[    0.000000] earlycon: pl11 at MMIO32 0x0000000009000000 (options '')
+[    0.000000] printk: bootconsole [pl11] enabled
+[    0.000000] printk: debug: ignoring loglevel setting.
+[    0.000000] efi: UEFI not found.
+[    0.000000] NUMA: No NUMA configuration found
+[    0.000000] NUMA: Faking a node at [mem 0x0000000000000000-0x000000004fffffff]
+[    0.000000] NUMA: NODE_DATA [mem 0x4fdb99c0-0x4fdbbfff]
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x0000000000000000-0x000000004fffffff]
+[    0.000000]   DMA32    empty
+[    0.000000]   Normal   empty
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000000000000-0x0000000007ffffff]
+[    0.000000]   node   0: [mem 0x0000000010000000-0x000000004fffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000000000000-0x000000004fffffff]
+[    0.000000] cma: Reserved 32 MiB at 0x000000004ca00000 on node -1
+[    0.000000] psci: probing for conduit method from DT.
+HYP [INF] HVC: func=0x0x0000000084000000
+HYP [INF] PSCI/SMCCC: func=0x0x0000000084000000
+HYP [INF] PSCI: VERSION -> 1.1
+[    0.000000] psci: PSCIv1.1 detected in firmware.
+[    0.000000] psci: Using standard PSCI v0.2 function IDs
+HYP [INF] HVC: func=0x0x0000000084000006
+HYP [INF] PSCI/SMCCC: func=0x0x0000000084000006
+HYP [INF] PSCI: MIGRATE_INFO_TYPE -> TOS_MP (no migration)
+[    0.000000] psci: Trusted OS migration not required
+HYP [INF] HVC: func=0x0x000000008400000a
+HYP [INF] PSCI/SMCCC: func=0x0x000000008400000a
+HYP [INF] PSCI: FEATURES 0x0x000000005a000000 -> NOT supported
+[    0.000000] psci: SMC Calling Convention v1.0
+HYP [INF] HVC: func=0x0x000000008400000a
+HYP [INF] PSCI/SMCCC: func=0x0x000000008400000a
+HYP [INF] PSCI: FEATURES 0x0x000000005a000000 -> NOT supported
+HYP [INF] HVC: func=0x0x000000008400000a
+HYP [INF] PSCI/SMCCC: func=0x0x000000008400000a
+HYP [INF] PSCI: FEATURES 0x0x000000005a000000 -> NOT supported
+HYP [INF] HVC: func=0x0x000000008400000a
+HYP [INF] PSCI/SMCCC: func=0x0x000000008400000a
+HYP [INF] PSCI: FEATURES 0x0x000000005a000000 -> NOT supported
+[    0.000000] percpu: Embedded 22 pages/cpu s50728 r8192 d31192 u90112
+[    0.000000] pcpu-alloc: s50728 r8192 d31192 u90112 alloc=22*4096
+[    0.000000] pcpu-alloc: [0] 0 
+[    0.000000] Detected PIPT I-cache on CPU0
+[    0.000000] CPU features: detected: GIC system register CPU interface
+[    0.000000] CPU features: detected: Spectre-v2
+[    0.000000] CPU features: detected: Spectre-v3a
+[    0.000000] CPU features: detected: Spectre-v4
+[    0.000000] CPU features: detected: Spectre-BHB
+[    0.000000] CPU features: detected: ARM erratum 834220
+[    0.000000] CPU features: detected: ARM erratum 1742098
+[    0.000000] CPU features: detected: ARM erratum 832075
+[    0.000000] CPU features: detected: ARM errata 1165522, 1319367, or 1530923
+[    0.000000] alternatives: applying boot alternatives
+[    0.000000] Kernel command line: console=ttyAMA0,115200 earlycon=pl011,mmio32,0x09000000 init=/init loglevel=8 ignore_loglevel
+[    0.000000] Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes, linear)
+[    0.000000] Fallback order for Node 0: 0 
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 290304
+[    0.000000] Policy zone: DMA
+[    0.000000] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+[    0.000000] software IO TLB: area num 1.
+[    0.000000] software IO TLB: mapped [mem 0x0000000048800000-0x000000004c800000] (64MB)
+[    0.000000] Memory: 1013876K/1179648K available (16576K kernel code, 4264K rwdata, 10556K rodata, 9152K init, 605K bss, 133004K reserved, 32768K cma-reserved)
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] rcu: Preemptible hierarchical RCU implementation.
+[    0.000000] rcu: 	RCU event tracing is enabled.
+[    0.000000] rcu: 	RCU restricting CPUs from NR_CPUS=256 to nr_cpu_ids=1.
+[    0.000000] 	Trampoline variant of Tasks RCU enabled.
+[    0.000000] 	Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=1
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] GICv3: 256 SPIs implemented
+[    0.000000] GICv3: 0 Extended SPIs implemented
+gicv3_dist_read: invalid guest read at offset 000000000000000c size 4
+[    0.000000] Root IRQ handler: gic_handle_irq
+[    0.000000] GICv3: GICv3 features: 16 PPIs
+[    0.000000] GICv3: CPU0: found redistributor 0 region 0:0x00000000080a0000
+[    0.000000] ITS: No ITS available, not enabling LPIs
+[    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.000000] arch_timer: cp15 timer(s) running at 62.50MHz (virt).
+[    0.000000] clocksource: arch_sys_counter: mask: 0x1ffffffffffffff max_cycles: 0x1cd42e208c, max_idle_ns: 881590405314 ns
+[    0.000063] sched_clock: 57 bits at 63MHz, resolution 16ns, wraps every 4398046511096ns
+[    0.006511] Console: colour dummy device 80x25
+[    0.008196] Calibrating delay loop (skipped), value calculated using timer frequency.. 125.00 BogoMIPS (lpj=250000)
+[    0.008553] pid_max: default: 32768 minimum: 301
+[    0.010487] LSM: initializing lsm=capability,integrity
+[    0.013038] Mount-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    0.013745] Mountpoint-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    0.035261] cacheinfo: Unable to detect cache hierarchy for CPU 0
+[    0.042145] RCU Tasks: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1.
+[    0.043274] RCU Tasks Trace: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1.
+[    0.045446] rcu: Hierarchical SRCU implementation.
+[    0.045633] rcu: 	Max phase no-delay instances is 1000.
+[    0.049543] EFI services will not be available.
+[    0.050101] smp: Bringing up secondary CPUs ...
+[    0.050746] smp: Brought up 1 node, 1 CPU
+[    0.050839] SMP: Total of 1 processors activated.
+[    0.050987] CPU features: detected: 32-bit EL0 Support
+[    0.051770] CPU features: detected: 32-bit EL1 Support
+[    0.051914] CPU features: detected: CRC32 instructions
+[    0.053399] CPU: All CPU(s) started at EL1
+[    0.053690] alternatives: applying system-wide alternatives
+[    0.067733] devtmpfs: initialized
+[    0.078326] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.078695] futex hash table entries: 256 (order: 2, 16384 bytes, linear)
+[    0.082296] pinctrl core: initialized pinctrl subsystem
+[    0.091432] DMI not present or invalid.
+[    0.099333] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.106050] DMA: preallocated 128 KiB GFP_KERNEL pool for atomic allocations
+[    0.106621] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.107068] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.107427] audit: initializing netlink subsys (disabled)
+[    0.112399] audit: type=2000 audit(0.100:1): state=initialized audit_enabled=0 res=1
+[    0.114287] thermal_sys: Registered thermal governor 'step_wise'
+[    0.114333] thermal_sys: Registered thermal governor 'power_allocator'
+[    0.114848] cpuidle: using governor menu
+[    0.116036] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[    0.116638] ASID allocator initialised with 65536 entries
+[    0.121604] Serial: AMBA PL011 UART driver
+[    0.132017] 9000000.pl011: ttyAMA0 at MMIO 0x9000000 (irq = 13, base_baud = 0) is a PL011 rev1
+[    0.133355] printk: console [ttyAMA0] enabled
+[    0.133355] printk: console [ttyAMA0] enabled
+[    0.133750] printk: bootconsole [pl11] disabled
+[    0.133750] printk: bootconsole [pl11] disabled
+[    0.146518] Modules: 22432 pages in range for non-PLT usage
+[    0.146559] Modules: 513952 pages in range for PLT usage
+[    0.150521] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+[    0.150764] HugeTLB: 0 KiB vmemmap can be freed for a 1.00 GiB page
+[    0.150888] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
+[    0.151013] HugeTLB: 0 KiB vmemmap can be freed for a 32.0 MiB page
+[    0.151119] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[    0.151226] HugeTLB: 0 KiB vmemmap can be freed for a 2.00 MiB page
+[    0.151328] HugeTLB: registered 64.0 KiB page size, pre-allocated 0 pages
+[    0.151435] HugeTLB: 0 KiB vmemmap can be freed for a 64.0 KiB page
+[    0.158537] ACPI: Interpreter disabled.
+[    0.162191] iommu: Default domain type: Translated
+[    0.162335] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.163688] SCSI subsystem initialized
+[    0.164395] libata version 3.00 loaded.
+[    0.165733] usbcore: registered new interface driver usbfs
+[    0.166007] usbcore: registered new interface driver hub
+[    0.166206] usbcore: registered new device driver usb
+[    0.167174] pps_core: LinuxPPS API ver. 1 registered
+[    0.167275] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.167484] PTP clock support registered
+[    0.167908] EDAC MC: Ver: 3.0.0
+[    0.169170] scmi_core: SCMI protocol bus registered
+[    0.170688] FPGA manager framework
+[    0.171406] Advanced Linux Sound Architecture Driver Initialized.
+[    0.179623] vgaarb: loaded
+[    0.182421] clocksource: Switched to clocksource arch_sys_counter
+[    0.184640] VFS: Disk quotas dquot_6.6.0
+[    0.184842] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+[    0.186046] pnp: PnP ACPI: disabled
+[    0.202300] NET: Registered PF_INET protocol family
+[    0.203638] IP idents hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[    0.208093] tcp_listen_portaddr_hash hash table entries: 1024 (order: 2, 16384 bytes, linear)
+[    0.208357] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.208563] TCP established hash table entries: 16384 (order: 5, 131072 bytes, linear)
+[    0.209023] TCP bind hash table entries: 16384 (order: 7, 524288 bytes, linear)
+[    0.209879] TCP: Hash tables configured (established 16384 bind 16384)
+[    0.211274] UDP hash table entries: 1024 (order: 3, 32768 bytes, linear)
+[    0.211676] UDP-Lite hash table entries: 1024 (order: 3, 32768 bytes, linear)
+[    0.212986] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    0.215980] RPC: Registered named UNIX socket transport module.
+[    0.216169] RPC: Registered udp transport module.
+[    0.216263] RPC: Registered tcp transport module.
+[    0.216353] RPC: Registered tcp-with-tls transport module.
+[    0.216481] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.216730] PCI: CLS 0 bytes, default 64
+[    0.219726] Unpacking initramfs...
+[    0.222835] kvm [1]: HYP mode not available
+[    0.225525] Initialise system trusted keyrings
+[    0.232026] workingset: timestamp_bits=42 max_order=18 bucket_order=0
+[    0.233630] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.240198] NFS: Registering the id_resolver key type
+[    0.240619] Key type id_resolver registered
+[    0.240720] Key type id_legacy registered
+[    0.241020] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.241218] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[    0.243038] 9p: Installing v9fs 9p2000 file system support
+[    0.313696] Freeing initrd memory: 1428K
+[    0.316545] Key type asymmetric registered
+[    0.316734] Asymmetric key parser 'x509' registered
+[    0.317310] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 245)
+[    0.317652] io scheduler mq-deadline registered
+[    0.317804] io scheduler kyber registered
+[    0.318156] io scheduler bfq registered
+[    0.334659] EINJ: ACPI disabled.
+[    0.360777] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    0.365734] SuperH (H)SCI(F) driver initialized
+[    0.366184] msm_serial: driver initialized
+[    0.366966] STM32 USART driver initialized
+[    0.382014] loop: module loaded
+[    0.384199] megasas: 07.725.01.00-rc1
+[    0.393017] tun: Universal TUN/TAP device driver, 1.6
+[    0.394985] thunder_xcv, ver 1.0
+[    0.395163] thunder_bgx, ver 1.0
+[    0.395316] nicpf, ver 1.0
+[    0.396885] hns3: Hisilicon Ethernet Network Driver for Hip08 Family - version
+[    0.397026] hns3: Copyright (c) 2017 Huawei Corporation.
+[    0.397379] hclge is initializing
+[    0.397586] e1000: Intel(R) PRO/1000 Network Driver
+[    0.397699] e1000: Copyright (c) 1999-2006 Intel Corporation.
+[    0.397884] e1000e: Intel(R) PRO/1000 Network Driver
+[    0.397975] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
+[    0.398141] igb: Intel(R) Gigabit Ethernet Network Driver
+[    0.398241] igb: Copyright (c) 2007-2014 Intel Corporation.
+[    0.398693] igbvf: Intel(R) Gigabit Virtual Function Network Driver
+[    0.398812] igbvf: Copyright (c) 2009 - 2012 Intel Corporation.
+[    0.399251] sky2: driver version 1.30
+[    0.400882] VFIO - User Level meta-driver version: 0.3
+[    0.404417] usbcore: registered new interface driver usb-storage
+[    0.407685] i2c_dev: i2c /dev entries driver
+[    0.415540] sdhci: Secure Digital Host Controller Interface driver
+[    0.415691] sdhci: Copyright(c) Pierre Ossman
+[    0.416325] Synopsys Designware Multimedia Card Interface Driver
+[    0.417136] sdhci-pltfm: SDHCI platform and OF driver helper
+[    0.419025] ledtrig-cpu: registered to indicate activity on CPUs
+[    0.421711] usbcore: registered new interface driver usbhid
+[    0.421827] usbhid: USB HID core driver
+[    0.431385] NET: Registered PF_PACKET protocol family
+[    0.432534] 9pnet: Installing 9P2000 support
+[    0.432888] Key type dns_resolver registered
+[    0.449150] registered taskstats version 1
+[    0.450269] Loading compiled-in X.509 certificates
+[    0.468788] clk: Disabling unused clocks
+[    0.469094] ALSA device list:
+[    0.469201]   No soundcards found.
+[    0.472483] uart-pl011 9000000.pl011: no DMA platform data
+[    0.532770] Freeing unused kernel memory: 9152K
+[    0.534166] Run /init as init process
+[    0.534706]   with arguments:
+[    0.534805]     /init
+[    0.534865]   with environment:
+[    0.534940]     HOME=/
+[    0.535001]     TERM=linux
+
+==================================
+INIT SCRIPT STARTED
+==================================
+
+==================================================
+  Tessolve Hypervisor -- Linux guest userspace up
+==================================================
+
+[OBD] *** Tessolve OBD-II Diagnostic Monitor v1.0 ***
+[OBD] Protocol: shared memory IPA=0xA000000
+[OBD] Data source: RTOS Fuel ECU (VM2) via hypervisor
+
+[OBD] ---- Linux slice 1 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 38 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=1 inj#=50 (updated)
+
+HYP [INF] CTX[2]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 2 (500ms) ----
+[FUEL] RPM=800 inj=1368us thr=5% temp=40C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=100  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000000640f x3=0x0x0000006400000002 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=2
+HYP [INF] CTX[3]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[4]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[5]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 3 (500ms) ----
+[FUEL] RPM=800 inj=1368us thr=5% temp=50C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=150  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000000960f x3=0x0x0000006400000003 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=3
+HYP [INF] CTX[6]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[7]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[8]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 4 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=60C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=200  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000000c80f x3=0x0x0000006400000004 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=4
+HYP [INF] CTX[9]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[10]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[11]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 5 (500ms) ----
+[FUEL] RPM=800 inj=3860us thr=45% temp=70C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=250  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000000fa0f x3=0x0x0000006400000005 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=5
+HYP [INF] CTX[12]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[13]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 2 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 64 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=5 inj#=250 (updated)
+
+HYP [INF] CTX[14]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 6 (500ms) ----
+[FUEL] RPM=1800 inj=3860us thr=45% temp=80C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=342  λ=0.98  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000001560f x3=0x0x0000006200000006 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=6
+HYP [INF] CTX[15]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[16]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[17]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 7 (500ms) ----
+[FUEL] RPM=2800 inj=3860us thr=45% temp=90C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=500  λ=0.102  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000001f40f x3=0x0x0000006600000007 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=7
+HYP [INF] CTX[18]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[19]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[20]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 8 (500ms) ----
+[FUEL] RPM=3200 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=708  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000002c40f x3=0x0x0000006400000008 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=8
+HYP [INF] CTX[21]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[22]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[23]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 9 (500ms) ----
+[FUEL] RPM=3200 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=918  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000003960f x3=0x0x0000006400000009 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=9
+HYP [INF] CTX[24]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[25]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 3 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 64 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=9 inj#=918 (updated)
+
+HYP [INF] CTX[26]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 10 (500ms) ----
+[FUEL] RPM=3200 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=1128  λ=0.100  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000004680f x3=0x0x000000640000000a x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=10
+HYP [INF] CTX[27]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[28]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[29]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 11 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=1316  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000005240f x3=0x0x000000660000000b x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=11
+HYP [INF] CTX[30]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[31]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[32]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 12 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=1501  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000005dd0f x3=0x0x000000660000000c x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=12
+HYP [INF] CTX[33]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[34]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[35]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 13 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=1686  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000006960f x3=0x0x000000660000000d x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=13
+HYP [INF] CTX[36]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[37]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 4 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 54 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=13 inj#=1686 (updated)
+
+HYP [INF] CTX[38]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 14 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=1871  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x0000000000074f0f x3=0x0x000000660000000e x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=14
+HYP [INF] CTX[39]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[40]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[41]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 15 (500ms) ----
+[FUEL] RPM=2800 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=2056  λ=0.102  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000008080f x3=0x0x000000660000000f x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=15
+HYP [INF] CTX[42]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[43]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[44]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 16 (500ms) ----
+[FUEL] RPM=1800 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=2201  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000008990f x3=0x0x0000006200000010 x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=16
+HYP [INF] CTX[45]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[46]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[47]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 17 (500ms) ----
+[FUEL] RPM=1200 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=2288  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000008f00f x3=0x0x0000006200000011 x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=17
+HYP [INF] CTX[48]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[49]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 5 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 41 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=17 inj#=2288 (updated)
+
+HYP [INF] CTX[50]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 18 (500ms) ----
+[FUEL] RPM=1200 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=2368  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000009400f x3=0x0x0000006200000012 x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=18
+HYP [INF] CTX[51]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[52]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[53]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 19 (500ms) ----
+[FUEL] RPM=1200 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=2448  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000009900f x3=0x0x0000006200000013 x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=19
+HYP [INF] CTX[54]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[55]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[56]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 20 (500ms) ----
+[FUEL] RPM=1200 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=2528  λ=0.98  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000009e00f x3=0x0x0000006200000014 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=20
+HYP [INF] CTX[57]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[58]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[59]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 21 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=2581  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000000a150f x3=0x0x0000006400000015 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=21
+HYP [INF] CTX[60]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[61]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 6 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 38 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=21 inj#=2581 (updated)
+
+HYP [INF] CTX[62]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 22 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=2631  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000000a470f x3=0x0x0000006400000016 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=22
+HYP [INF] CTX[63]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[64]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[65]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 23 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=2681  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000000a790f x3=0x0x0000006400000017 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=23
+HYP [INF] CTX[66]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[67]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[68]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 24 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=2731  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000000aab0f x3=0x0x0000006400000018 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=24
+HYP [INF] CTX[69]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[70]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[71]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 25 (500ms) ----
+[FUEL] RPM=800 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=2781  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000000add0f x3=0x0x0000006400000019 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=25
+HYP [INF] CTX[72]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[73]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 7 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 64 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=25 inj#=2781 (updated)
+
+HYP [INF] CTX[74]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 26 (500ms) ----
+[FUEL] RPM=1800 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=2873  λ=0.98  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000000b390f x3=0x0x000000620000001a x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=26
+HYP [INF] CTX[75]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[76]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[77]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 27 (500ms) ----
+[FUEL] RPM=2800 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=3031  λ=0.102  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000000bd70f x3=0x0x000000660000001b x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=27
+HYP [INF] CTX[78]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[79]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[80]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 28 (500ms) ----
+[FUEL] RPM=3200 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=3239  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000000ca70f x3=0x0x000000640000001c x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=28
+HYP [INF] CTX[81]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[82]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[83]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 29 (500ms) ----
+[FUEL] RPM=3200 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=3449  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000000d790f x3=0x0x000000640000001d x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=29
+HYP [INF] CTX[84]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[85]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 8 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 64 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=29 inj#=3449 (updated)
+
+HYP [INF] CTX[86]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 30 (500ms) ----
+[FUEL] RPM=3200 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=3659  λ=0.100  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000000e4b0f x3=0x0x000000640000001e x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=30
+HYP [INF] CTX[87]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[88]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[89]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 31 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=3847  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000000f070f x3=0x0x000000660000001f x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=31
+HYP [INF] CTX[90]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[91]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[92]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 32 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=4032  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000000fc00f x3=0x0x0000006600000020 x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=32
+HYP [INF] CTX[93]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[94]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[95]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 33 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=4217  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000010790f x3=0x0x0000006600000021 x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=33
+HYP [INF] CTX[96]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[97]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 9 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 54 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=33 inj#=4217 (updated)
+
+HYP [INF] CTX[98]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 34 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=4402  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000011320f x3=0x0x0000006600000022 x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=34
+HYP [INF] CTX[99]: rtos -> android (2000ms, wfi)
+HYP [INF] === CPU utilisation (switch #100) ===
+HYP [INF]   VM1 linux: 10.9%  slices=33 preempt=0 wfi=33
+HYP [INF]   VM2 rtos: 45.1%  slices=33 preempt=0 wfi=34
+HYP [INF]   VM3 android: 43.8%  slices=34 preempt=0 wfi=33
+HYP [INF] =====================================
+HYP [INF] CTX[100]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[101]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 35 (500ms) ----
+[FUEL] RPM=2800 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=4587  λ=0.102  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000011eb0f x3=0x0x0000006600000023 x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=35
+HYP [INF] CTX[102]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[103]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[104]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 36 (500ms) ----
+[FUEL] RPM=1800 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=4732  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x0000000000127c0f x3=0x0x0000006200000024 x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=36
+HYP [INF] CTX[105]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[106]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[107]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 37 (500ms) ----
+[FUEL] RPM=1200 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=4819  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000012d30f x3=0x0x0000006200000025 x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=37
+HYP [INF] CTX[108]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[109]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 10 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 41 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=37 inj#=4819 (updated)
+
+HYP [INF] CTX[110]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 38 (500ms) ----
+[FUEL] RPM=1200 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=4899  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000013230f x3=0x0x0000006200000026 x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=38
+HYP [INF] CTX[111]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[112]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[113]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 39 (500ms) ----
+[FUEL] RPM=1200 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=4979  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000013730f x3=0x0x0000006200000027 x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=39
+HYP [INF] CTX[114]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[115]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[116]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 40 (500ms) ----
+[FUEL] RPM=1200 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=5059  λ=0.98  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000013c30f x3=0x0x0000006200000028 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=40
+HYP [INF] CTX[117]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[118]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[119]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 41 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=5112  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000013f80f x3=0x0x0000006400000029 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=41
+HYP [INF] CTX[120]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[121]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 11 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 38 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=41 inj#=5112 (updated)
+
+HYP [INF] CTX[122]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 42 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=5162  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x0000000000142a0f x3=0x0x000000640000002a x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=42
+HYP [INF] CTX[123]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[124]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[125]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 43 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=5212  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x0000000000145c0f x3=0x0x000000640000002b x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=43
+HYP [INF] CTX[126]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[127]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[128]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 44 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=5262  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x0000000000148e0f x3=0x0x000000640000002c x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=44
+HYP [INF] CTX[129]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[130]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[131]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 45 (500ms) ----
+[FUEL] RPM=800 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=5312  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000014c00f x3=0x0x000000640000002d x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=45
+HYP [INF] CTX[132]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[133]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 12 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 64 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=45 inj#=5312 (updated)
+
+HYP [INF] CTX[134]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 46 (500ms) ----
+[FUEL] RPM=1800 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=5404  λ=0.98  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x0000000000151c0f x3=0x0x000000620000002e x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=46
+HYP [INF] CTX[135]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[136]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[137]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 47 (500ms) ----
+[FUEL] RPM=2800 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=5562  λ=0.102  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000015ba0f x3=0x0x000000660000002f x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=47
+HYP [INF] CTX[138]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[139]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[140]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 48 (500ms) ----
+[FUEL] RPM=3200 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=5770  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x0000000000168a0f x3=0x0x0000006400000030 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=48
+HYP [INF] CTX[141]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[142]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[143]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 49 (500ms) ----
+[FUEL] RPM=3200 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=5980  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x0000000000175c0f x3=0x0x0000006400000031 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=49
+HYP [INF] CTX[144]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[145]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 13 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 64 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=49 inj#=5980 (updated)
+
+HYP [INF] CTX[146]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 50 (500ms) ----
+[FUEL] RPM=3200 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=6190  λ=0.100  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x0000000000182e0f x3=0x0x0000006400000032 x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=50
+HYP [INF] CTX[147]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[148]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[149]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 51 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=6378  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000018ea0f x3=0x0x0000006600000033 x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=51
+HYP [INF] CTX[150]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[151]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[152]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 52 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=6563  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000019a30f x3=0x0x0000006600000034 x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=52
+HYP [INF] CTX[153]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[154]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[155]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 53 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=6748  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001a5c0f x3=0x0x0000006600000035 x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=53
+HYP [INF] CTX[156]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[157]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 14 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 54 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=53 inj#=6748 (updated)
+
+HYP [INF] CTX[158]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 54 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=6933  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001b150f x3=0x0x0000006600000036 x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=54
+HYP [INF] CTX[159]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[160]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[161]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 55 (500ms) ----
+[FUEL] RPM=2800 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=7118  λ=0.102  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001bce0f x3=0x0x0000006600000037 x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=55
+HYP [INF] CTX[162]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[163]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[164]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 56 (500ms) ----
+[FUEL] RPM=1800 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=7263  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001c5f0f x3=0x0x0000006200000038 x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=56
+HYP [INF] CTX[165]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[166]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[167]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 57 (500ms) ----
+[FUEL] RPM=1200 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=7350  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001cb60f x3=0x0x0000006200000039 x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=57
+HYP [INF] CTX[168]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[169]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 15 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 41 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=57 inj#=7350 (updated)
+
+HYP [INF] CTX[170]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 58 (500ms) ----
+[FUEL] RPM=1200 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=7430  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001d060f x3=0x0x000000620000003a x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=58
+HYP [INF] CTX[171]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[172]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[173]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 59 (500ms) ----
+[FUEL] RPM=1200 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=7510  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001d560f x3=0x0x000000620000003b x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=59
+HYP [INF] CTX[174]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[175]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[176]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 60 (500ms) ----
+[FUEL] RPM=1200 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=7590  λ=0.98  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001da60f x3=0x0x000000620000003c x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=60
+HYP [INF] CTX[177]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[178]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[179]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 61 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=7643  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001ddb0f x3=0x0x000000640000003d x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=61
+HYP [INF] CTX[180]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[181]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 16 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 38 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=61 inj#=7643 (updated)
+
+HYP [INF] CTX[182]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 62 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=7693  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001e0d0f x3=0x0x000000640000003e x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=62
+HYP [INF] CTX[183]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[184]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[185]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 63 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=7743  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001e3f0f x3=0x0x000000640000003f x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=63
+HYP [INF] CTX[186]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[187]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[188]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 64 (500ms) ----
+[FUEL] RPM=800 inj=1140us thr=5% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=7793  λ=0.100  DTC=none
+[FUEL] phase=idle
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001e710f x3=0x0x0000006400000040 x4=0x0x0000000000000026
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=38 seq=64
+HYP [INF] CTX[189]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[190]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[191]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 65 (500ms) ----
+[FUEL] RPM=800 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=7843  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001ea30f x3=0x0x0000006400000041 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=65
+HYP [INF] CTX[192]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[193]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 17 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 64 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=65 inj#=7843 (updated)
+
+HYP [INF] CTX[194]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 66 (500ms) ----
+[FUEL] RPM=1800 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=7935  λ=0.98  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001eff0f x3=0x0x0000006200000042 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=66
+HYP [INF] CTX[195]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[196]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[197]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 67 (500ms) ----
+[FUEL] RPM=2800 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=8093  λ=0.102  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x00000000001f9d0f x3=0x0x0000006600000043 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=67
+HYP [INF] CTX[198]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[199]: android -> linux (2000ms, wfi)
+HYP [INF] === CPU utilisation (switch #200) ===
+HYP [INF]   VM1 linux: 10.9%  slices=67 preempt=0 wfi=66
+HYP [INF]   VM2 rtos: 44.5%  slices=66 preempt=0 wfi=67
+HYP [INF]   VM3 android: 44.5%  slices=67 preempt=0 wfi=67
+HYP [INF] =====================================
+HYP [INF] CTX[200]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 68 (500ms) ----
+[FUEL] RPM=3200 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=8301  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x0000000000206d0f x3=0x0x0000006400000044 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=68
+HYP [INF] CTX[201]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[202]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[203]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 69 (500ms) ----
+[FUEL] RPM=3200 inj=3860us thr=45% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=8511  λ=0.100  DTC=none
+[FUEL] phase=accel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x0000000000213f0f x3=0x0x0000006400000045 x4=0x0x0000000000000040
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=64 seq=69
+HYP [INF] CTX[204]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[205]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 18 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 64 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=69 inj#=8511 (updated)
+
+HYP [INF] CTX[206]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 70 (500ms) ----
+[FUEL] RPM=3200 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=8721  λ=0.100  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000022110f x3=0x0x0000006400000046 x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=70
+HYP [INF] CTX[207]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[208]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[209]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 71 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=8909  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000022cd0f x3=0x0x0000006600000047 x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=71
+HYP [INF] CTX[210]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[211]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[212]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 72 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=9094  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000023860f x3=0x0x0000006600000048 x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=72
+HYP [INF] CTX[213]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[214]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[215]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 73 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=9279  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x0000000000243f0f x3=0x0x0000006600000049 x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=73
+HYP [INF] CTX[216]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[217]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 19 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 54 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=73 inj#=9279 (updated)
+
+HYP [INF] CTX[218]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 74 (500ms) ----
+[FUEL] RPM=2800 inj=2840us thr=30% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=9464  λ=0.102  DTC=none
+[FUEL] phase=cruise
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000024f80f x3=0x0x000000660000004a x4=0x0x0000000000000036
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=54 seq=74
+HYP [INF] CTX[219]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[220]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[221]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 75 (500ms) ----
+[FUEL] RPM=2800 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=9649  λ=0.102  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000025b10f x3=0x0x000000660000004b x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=75
+HYP [INF] CTX[222]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[223]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[224]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 76 (500ms) ----
+[FUEL] RPM=1800 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=9794  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000026420f x3=0x0x000000620000004c x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=76
+HYP [INF] CTX[225]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[226]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[227]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 77 (500ms) ----
+[FUEL] RPM=1200 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=9881  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000026990f x3=0x0x000000620000004d x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=77
+HYP [INF] CTX[228]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[229]: android -> linux (2000ms, wfi)
+[OBD] ---- Linux slice 20 ----
+[OBD] PID 0x0C RPM          : 0
+[OBD] PID 0x0D Speed        : 0 km/h
+[OBD] PID 0x05 Coolant      : 0 C
+[OBD] PID 0x11 Throttle     : 0 %
+[OBD] PID 0x0B MAP          : 41 kPa
+[OBD] Cylinders: Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK
+[OBD] DTC: none
+[OBD] seq=77 inj#=9881 (updated)
+
+HYP [INF] CTX[230]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 78 (500ms) ----
+[FUEL] RPM=1200 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=9961  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000026e90f x3=0x0x000000620000004e x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=78
+HYP [INF] CTX[231]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[232]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[233]: linux -> rtos (500ms, wfi)
+[RTOS] ---- slot 79 (500ms) ----
+[FUEL] RPM=1200 inj=1480us thr=10% temp=96C
+[FUEL] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK  inj#=10041  λ=0.98  DTC=none
+[FUEL] phase=decel
+HYP [INF] HVC: func=0x0x0000000000000060
+HYP [INF] FUEL RAW: x1=0x0x000000005a000000 x2=0x0x000000000027390f x3=0x0x000000620000004f x4=0x0x0000000000000029
+HYP [INF] FUEL HVC: rpm=0 cool=0 thr=0 map=41 seq=79
+HYP [INF] CTX[234]: rtos -> android (2000ms, wfi)
+HYP [INF] CTX[235]: android -> linux (2000ms, wfi)
+HYP [INF] CTX[236]: linux -> rtos (500ms, wfi)
+QEMU: Terminated
+

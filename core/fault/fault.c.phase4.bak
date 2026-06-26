@@ -10,8 +10,6 @@
 #include "../../lib/log/log.h"
 #include "../../arch/arm64/s2_debug.h"
 #include "../../core/vcpu/vcpu.h"
-#include "../../core/vm/vm.h"          /* VSE Phase 5: full vm_t for ->id */
-#include "../../vse/fault_detect.h"   /* VSE Phase 5 */
 extern void mmio_handle(u64 fault_addr, u64 esr, void *regs);
 
 void fault_dabt(void *regs, u64 esr)
@@ -40,26 +38,8 @@ void fault_dabt(void *regs, u64 esr)
 
         LOG_WARN("IPA=0x%lx", ipa);
 
-        /* VSE Phase 5: report to trust engine */
-        {
-            extern vcpu_t *g_current_vcpu[];
-            u32 vmid = (g_current_vcpu[0] && g_current_vcpu[0]->vm)
-                       ? g_current_vcpu[0]->vm->id : 0u;
-            bool is_wr = (bool)((esr >> 6) & 1u);
-            fdetect_mem_fault(vmid, ipa, esr, is_wr);
-        }
-
         return;
      }
-
-    /* VSE Phase 5: report unhandled DABT to trust engine */
-    {
-        extern vcpu_t *g_current_vcpu[];
-        u32 vmid = (g_current_vcpu[0] && g_current_vcpu[0]->vm)
-                   ? g_current_vcpu[0]->vm->id : 0u;
-        bool is_wr = (bool)((esr >> 6) & 1u);
-        fdetect_mem_fault(vmid, far, esr, is_wr);
-    }
 
     /* Advance saved ELR, not the hardware register */
     extern vcpu_t *g_current_vcpu[];
