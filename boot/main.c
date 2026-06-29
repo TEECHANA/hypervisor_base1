@@ -172,6 +172,7 @@ void hyp_main(u32 cpu_id, paddr_t dtb_pa)
         failover_register(2u, 0x90000000ULL, 0x60008000ULL, 4904ULL, 0x8000ULL);
         LOG_INFO("VSE Phase 6: failover service initialized");
 
+#ifdef VSE_IDS_DEMO
     LOG_INFO("VSE IDS: running detection demo...");
     for (int i = 0; i < 6; i++)
         fdetect_dma_violation(2, 0xDEAD0000 + i, 0x1000, 1);   /* storm on VM2 */
@@ -179,6 +180,7 @@ void hyp_main(u32 cpu_id, paddr_t dtb_pa)
     ids_poll();                                                 /* heartbeat + downgrade scan */
     ids_print_summary();
     ids_print_log();
+#endif /* VSE_IDS_DEMO */
     }
 
     /*

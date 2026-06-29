@@ -16,6 +16,7 @@ CFLAGS += -ffreestanding -nostdlib -nostdinc
 CFLAGS += -mcpu=cortex-a57 -mabi=lp64
 CFLAGS += -DPLATFORM_$(shell echo $(PLATFORM) | tr a-z A-Z)
 CFLAGS += -I.
+CFLAGS += -DVSE_IDS_DEMO   # IDS attack demo on boot; build with VSE_IDS_DEMO=0 to disable
 CFLAGS += -DINITRD_SIZE=$(INITRD_SIZE)  # <--- ADD THIS LINE
 ASM_SRCS = arch/arm64/entry.S arch/arm64/context.S arch/arm64/mmu.S
 

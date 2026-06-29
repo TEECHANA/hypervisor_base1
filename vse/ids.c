@@ -205,6 +205,8 @@ u32 ids_poll(void)
 
     /* Heartbeat record (carries the global fault total as detail). */
     _log(0u, IDS_EV_POLL, IDS_SEV_INFO, 0, (u64)g_trust.total_faults);
+    LOG_INFO("VSE IDS: poll heartbeat — total_faults=%u new_anom=%u",
+             (u32)g_trust.total_faults, new_anom);
     g_ids.last_poll_us = now;
 
     return new_anom;

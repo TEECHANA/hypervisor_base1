@@ -30,6 +30,7 @@
 #include "../../lib/log/log.h"
 #include "../../lib/str/string.h"
 #include "../../arch/arm64/include/arm_regs.h"
+#include "../../vse/ids.h"             /* Audit fix #4: periodic ids_poll() */
 
 #define MAX_SLOTS (MAX_VMS * MAX_VCPU_PER_VM)
 
@@ -125,6 +126,14 @@ static void do_switch(vcpu_t *prev, vcpu_t *next,
 
         LOG_INFO("CTX[%u]: %s -> %s (%ums, %s)",
                  sw, prev_name, next_name, ms, reason);
+
+        /* Audit fix #4: periodic IDS monitor (heartbeat + trust-downgrade scan).
+         * Header targets ~10s; switches are 0.5-2s, so poll every 8th VM change.
+         * Single-core assumption: ids_poll reads g_ids/g_trust with no lock;
+         * an SMP port (CPU_ON) must add locking here. */
+        static u32 ids_poll_ctr = 0;
+        if ((++ids_poll_ctr % 8u) == 0u)
+            ids_poll();
     }
 
     /* Phase 3: update CPU accounting */
