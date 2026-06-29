@@ -17,17 +17,13 @@
 
 #include "seal.h"
 #include "hmac.h"
+#include "keystore.h"
 #include "config_check.h"
 #include "../lib/log/log.h"
 #include "../lib/str/string.h"
 
 /* ── Master key (shared with the other VSE modules) ── */
-static const u8 _master_key[32] = {
-    0xa3, 0x7f, 0x2c, 0x91, 0xd4, 0x58, 0xbe, 0x06,
-    0x1e, 0x82, 0x4a, 0xf3, 0x70, 0xc9, 0x55, 0x3d,
-    0x08, 0xb1, 0xe7, 0x6f, 0x29, 0xda, 0x44, 0x9c,
-    0x87, 0x5e, 0x13, 0xab, 0xfc, 0x60, 0x2b, 0x77,
-};
+static u8 _master_key[32];  /* filled from keystore at init (audit #3) */
 
 /* Domain-separation label for the seal key KDF. */
 static const u8 _seal_label[] = "VSE-SEAL-v1";
@@ -97,6 +93,7 @@ static err_t _blob_mac(const u8 seal_key[HMAC_SIZE],
 /* ── seal_init ── */
 err_t seal_init(void)
 {
+    vse_get_master_key(_master_key, sizeof(_master_key));  /* audit #3 */
     /* Verify we can compute a bind tag now (config is available). */
     u8 tag[HMAC_SIZE];
     err_t e = _platform_bind_tag(tag);

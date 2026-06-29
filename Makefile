@@ -55,6 +55,7 @@ C_SRCS = \
     lib/str/string.c		  \
     arch/arm64/s2_debug.c         \
     vse/hmac.c                    \
+    vse/keystore.c                \
     vse/config_check.c            \
     vse/component_check.c         \
     vse/trust.c                   \
