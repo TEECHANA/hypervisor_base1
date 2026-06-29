@@ -64,19 +64,19 @@ static u8 _master_key[32];  /* filled from keystore at init (audit #3) */
 static const u8 _golden_components[VSE_NUM_COMPONENTS][HMAC_SIZE] = {
     /* [0] .text golden HMAC — paste learn-mode output here */
      {
-        0x5f, 0xae, 0xe4, 0xa3, 0xbb, 0x1d, 0xbc, 0x75,
-0x9c, 0xd2, 0xf1, 0xf2, 0xfd, 0x5c, 0x45, 0xe9,
-0xf3, 0xe5, 0x06, 0x90, 0x2b, 0x16, 0x82, 0x5e,
-0x17, 0x9a, 0x30, 0x45, 0xf4, 0xc3, 0xff, 0x1e,
+        0x63, 0x16, 0xf6, 0xb9, 0x2d, 0x43, 0xe8, 0x02,
+0x1f, 0xce, 0xdb, 0x32, 0xc4, 0xd0, 0xad, 0x7e,
+0xf1, 0x35, 0x0a, 0xb0, 0xbb, 0xc0, 0xc4, 0x61,
+0xb8, 0x9a, 0x15, 0x0c, 0xdb, 0x79, 0xa7, 0x56,
     },
 
 #if VSE_NUM_COMPONENTS > 1
     /* [1] .rodata golden HMAC — paste learn-mode output here */
     {
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x47, 0x76, 0x6c, 0x79, 0x57, 0x49, 0xc6, 0x41,
+        0x0c, 0x9a, 0x85, 0xb4, 0x74, 0x75, 0x45, 0xfe,
+        0x4b, 0xa5, 0xe4, 0x65, 0x05, 0x21, 0xd2, 0x30,
+        0xba, 0xe8, 0xd7, 0x7d, 0x4e, 0x14, 0xeb, 0x2d,
     },
 #endif
 };
@@ -113,6 +113,39 @@ err_t component_check_measure(u32 idx, u8 out[HMAC_SIZE])
     }
 
     u64 len = (u64)(c->end - c->start);
+
+    /* Audit #7: .rodata contains _golden_components[] itself, which makes a
+     * naive whole-region hash self-referential (changing a golden changes the
+     * measured bytes -> the hash never converges). Measure .rodata in two
+     * segments that SKIP the golden table, so the measurement is stable and a
+     * pasted golden never alters it. The golden table's own integrity is
+     * covered by Phase 1 config_check / image signing, not by this self-hash.
+     * .text (no golden table inside it) keeps the simple single-shot path. */
+    if (idx == VSE_COMPONENT_RODATA) {
+        const u8 *gp_start = (const u8 *)_golden_components;
+        const u8 *gp_end   = gp_start + sizeof(_golden_components);
+
+        /* Guard: golden table must lie fully within [start, end). */
+        if (gp_start < c->start || gp_end > c->end) {
+            LOG_ERROR("VSE: golden table not within .rodata range");
+            return E_INVAL;
+        }
+
+        hmac_ctx_t ctx;
+        err_t e = hmac_init(&ctx, _master_key, (u32)sizeof(_master_key));
+        if (FAIL(e)) return e;
+
+        /* Segment A: [start, gp_start)  — bytes before the golden table. */
+        if (gp_start > c->start)
+            hmac_update(&ctx, c->start, (u64)(gp_start - c->start));
+        /* Segment B: [gp_end, end)      — bytes after the golden table. */
+        if (c->end > gp_end)
+            hmac_update(&ctx, gp_end, (u64)(c->end - gp_end));
+
+        hmac_final(&ctx, out);
+        return E_OK;
+    }
+
     return hmac_sha256(_master_key, (u32)sizeof(_master_key),
                        c->start, len, out);
 }

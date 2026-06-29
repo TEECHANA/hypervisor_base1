@@ -51,7 +51,7 @@
 #endif
 
 /* Number of measured components */
-#define VSE_NUM_COMPONENTS   1u
+#define VSE_NUM_COMPONENTS   2u
 #define VSE_COMPONENT_TEXT   0u
 #define VSE_COMPONENT_RODATA 1u
 
