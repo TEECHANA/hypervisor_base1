@@ -1,7 +1,9 @@
+*.bak
+*.log
+*.bak.*
+*.before_debug
+*.buggy.bak
+*.old.bak
 build/
-*.o
-*.elf
-*.bin
-*.map
-*.d
-guests/
+__pycache__/
+*.pyc
