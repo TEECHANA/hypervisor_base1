@@ -34,7 +34,10 @@ SECTIONS
     __text_end = .;
 
     /* ── Read-only data ──────────────────── */
-    . = ALIGN(64);
+    /* 2 MB alignment gives .rodata its own L2 slot so mmu.S can set
+     * AP[2]=1 (read-only) on exactly [__rodata_start, __rodata_end)
+     * without splitting a shared 2 MB block. */
+    . = ALIGN(0x200000);
     __rodata_start = .;
     .rodata :
     {
@@ -42,8 +45,15 @@ SECTIONS
     }
     __rodata_end = .;
 
+    ASSERT((__rodata_start & 0x1FFFFF) == 0,
+           ".rodata must be 2 MB aligned — mmu.S assumes slot boundary")
+    ASSERT(__rodata_end <= (__rodata_start + 0x200000),
+           ".rodata overflows its 2 MB MMU slot")
+
     /* ── Data ───────────────────────────── */
-    . = ALIGN(8);
+    /* 2 MB alignment keeps .data/.bss in separate L2 slots from .rodata,
+     * so the R/W mapping does not bleed back into the read-only range. */
+    . = ALIGN(0x200000);
     .data :
     {
         *(.data*)

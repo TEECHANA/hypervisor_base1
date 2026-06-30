@@ -25,6 +25,9 @@ cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ELF="build/qemu/hypervisor.elf"
 LINUX="guests/linux/Image"
+INITRD="guests/linux/initramfs.cpio.gz"
+RTOS="guests/rtos/rtos.bin"
+ANDROID="guests/android_stub/android.bin"
 LOG="/tmp/vse_ids_test_$(date +%s).log"
 CAP_SECONDS=25
 
@@ -59,7 +62,10 @@ timeout "${CAP_SECONDS}s" qemu-system-aarch64 \
     -cpu cortex-a57 -m 2G -smp 4 -nographic \
     -serial stdio -monitor none -no-reboot -d guest_errors \
     -kernel "$ELF" \
-    -device loader,file="$LINUX",addr=0x41000000,force-raw=on \
+    -device loader,file="$LINUX",addr=0x41200000,force-raw=on \
+    -device loader,file="$INITRD",addr=0x47000000,force-raw=on \
+    -device loader,file="$RTOS",addr=0x60008000,force-raw=on \
+    -device loader,file="$ANDROID",addr=0x70200000,force-raw=on \
     </dev/null >"$LOG" 2>&1 &
 qpid=$!
 # Stop once we reach the login prompt (all evidence is printed by then).
