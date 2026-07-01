@@ -33,7 +33,7 @@ echo "-----------------------------------------------------------"
 # Run QEMU, pipe serial to tee so output appears live AND goes to log.
 # We use a pipe + process substitution so timeout applies to QEMU only.
 timeout "$TIMEOUT" qemu-system-aarch64 \
-    -machine virt,gic-version=3,virtualization=on \
+    -machine virt,iommu=smmuv3,virtualization=on,gic-version=3 \
     -cpu cortex-a57 -m 2G -smp 4 \
     -nographic \
     -serial "file:$LOG" \

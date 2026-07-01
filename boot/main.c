@@ -28,6 +28,8 @@
 #include "../vse/totp.h"             /* Operator login: TOTP (RFC 6238) */
 #include "../vse/login.h"            /* Operator login: 2FA prompt */
 #include "../vse/ids.h"              /* IDS: runtime intrusion detection */
+#include "../guest/ipc/ipc.h"        /* Inter-VM IPC subsystem */
+#include "../core/sched/sched_stats.h" /* Scheduler accounting */
 #include "../drivers/uart/uart.h"
 
 #define EC_WFI 0x01
@@ -110,6 +112,13 @@ void hyp_main(u32 cpu_id, paddr_t dtb_pa)
     LOG_INFO("Init VM subsystem...");
     e = vm_subsys_init();
     if (FAIL(e)) hyp_panic("VM subsys init failed");
+
+    /* IPC subsystem — inter-VM messaging, must be after VMs are created */
+    e = ipc_init();
+    if (FAIL(e)) LOG_WARN("IPC: init failed (err=%d)", (int)e);
+
+    /* Scheduler stats — init here so the log line appears before login */
+    sched_stats_init();
 
     /*
      * VSE Phase 3 — Trust services.

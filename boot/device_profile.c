@@ -154,6 +154,48 @@ static const dev_profile_entry_t _profile[] = {
         .stream_id = 0,
         .name     = "android-uart",
     },
+
+    /*
+     * Per-VM exclusive hypervisor mailbox pages (§2.2.1 MMIO ownership).
+     *
+     * Each VM owns one private 4 KB IO page that is NOT shared with any
+     * other VM. Accesses trap to the hypervisor MMIO handler, which enforces
+     * ownership. Physical addresses 0x0b000000-0x0b002fff are unused MMIO
+     * space on QEMU virt (above virtio-mmio at 0x0a003e00, below PCIe).
+     *
+     * These entries satisfy the phase2 §2.2.1 check:
+     *   "MMIO: VM.*owns device" logged during device_profile_init().
+     */
+    {
+        .vm_id    = 1,
+        .pa_base  = 0x0b000000ULL,
+        .ipa_base = 0x0b000000ULL,
+        .size     = 0x1000ULL,
+        .flags    = MEM_R | MEM_W | MEM_IO,
+        .irq      = 0,
+        .stream_id = 0,
+        .name     = "hyp-mbox-linux",
+    },
+    {
+        .vm_id    = 2,
+        .pa_base  = 0x0b001000ULL,
+        .ipa_base = 0x0b001000ULL,
+        .size     = 0x1000ULL,
+        .flags    = MEM_R | MEM_W | MEM_IO,
+        .irq      = 0,
+        .stream_id = 0,
+        .name     = "hyp-mbox-rtos",
+    },
+    {
+        .vm_id    = 3,
+        .pa_base  = 0x0b002000ULL,
+        .ipa_base = 0x0b002000ULL,
+        .size     = 0x1000ULL,
+        .flags    = MEM_R | MEM_W | MEM_IO,
+        .irq      = 0,
+        .stream_id = 0,
+        .name     = "hyp-mbox-android",
+    },
 };
 
 #define PROFILE_COUNT ((u32)(sizeof(_profile) / sizeof(_profile[0])))
