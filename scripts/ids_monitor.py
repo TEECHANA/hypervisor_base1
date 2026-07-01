@@ -229,17 +229,97 @@ class IDSMonitor:
             return
 
 
+def run_headless(log_path, follow):
+    """Parse the log and print a summary to stdout — no tkinter required."""
+    vm_trust = {}
+    counts = {"alerts": 0, "enforcements": 0, "faults": 0, "polls": 0}
+    events = []
+
+    def _parse(line):
+        m = RE_HEARTBEAT.search(line)
+        if m:
+            counts["polls"] += 1
+            events.append(f"[POLL] total_faults={m.group(1)} new_anom={m.group(2)}")
+            return
+        m = RE_ENFORCE.search(line)
+        if m:
+            counts["enforcements"] += 1
+            events.append(f"[ENFORCE] {m.group(1)}")
+            return
+        m = RE_TRUST_DROP.search(line)
+        if m:
+            vm, a, b = m.group(1), m.group(2), m.group(3)
+            vm_trust[vm] = (b, vm_trust.get(vm, ("UNKNOWN", f"vm{vm}"))[1])
+            events.append(f"[TRUST] VM{vm} {a} -> {b}")
+            return
+        m = RE_ALERT.search(line)
+        if m:
+            counts["alerts"] += 1
+            events.append(f"[ALERT] VM{m.group(1)} {m.group(2)}")
+            return
+        m = RE_QUARANTINE.search(line)
+        if m:
+            vm, name = m.group(1), (m.group(2) or "").strip()
+            vm_trust[vm] = ("QUARANTINE", name or vm_trust.get(vm, ("", f"vm{vm}"))[1])
+            events.append(f"[QUARANTINE] VM{vm}")
+            return
+        m = RE_PHASE_TRUST.search(line)
+        if m:
+            vm, name, level = m.group(1), m.group(2), m.group(3)
+            vm_trust[vm] = (level, name)
+            return
+        m = RE_TRUST_TX.search(line)
+        if m:
+            vm, a, b = m.group(1), m.group(2), m.group(3)
+            vm_trust[vm] = (b, vm_trust.get(vm, ("UNKNOWN", f"vm{vm}"))[1])
+            events.append(f"[TRUST] VM{vm} {a} -> {b}")
+            return
+        if RE_FAULT.search(line):
+            counts["faults"] += 1
+
+    try:
+        with open(log_path, "r", errors="replace") as fh:
+            for line in fh:
+                _parse(line.rstrip("\n"))
+    except FileNotFoundError:
+        print(f"[ids_monitor] ERROR: log not found: {log_path}", file=sys.stderr)
+        sys.exit(1)
+
+    print("=== VSE / IDS Headless Report ===")
+    print(f"  source : {log_path}")
+    print(f"  alerts={counts['alerts']}  enforcements={counts['enforcements']}"
+          f"  faults={counts['faults']}  polls={counts['polls']}")
+    print("--- Guest Trust State ---")
+    for vm_id in sorted(vm_trust):
+        level, name = vm_trust[vm_id]
+        print(f"  VM{vm_id}  {name:<14}  {level}")
+    print("--- Events ---")
+    for ev in events:
+        print(f"  {ev}")
+    print("=================================")
+    print(f"  SUMMARY: {counts['alerts']} alerts, "
+          f"{counts['enforcements']} enforcements, "
+          f"{counts['polls']} polls")
+
+
 def main():
     args = [a for a in sys.argv[1:]]
     follow = True
+    headless = False
     if "--once" in args:
         follow = False
         args.remove("--once")
+    if "--headless" in args:
+        headless = True
+        args.remove("--headless")
     log_path = args[0] if args else DEFAULT_LOG
 
-    root = tk.Tk()
-    IDSMonitor(root, log_path, follow=follow)
-    root.mainloop()
+    if headless:
+        run_headless(log_path, follow)
+    else:
+        root = tk.Tk()
+        IDSMonitor(root, log_path, follow=follow)
+        root.mainloop()
 
 
 if __name__ == "__main__":

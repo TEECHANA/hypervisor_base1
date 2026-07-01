@@ -53,6 +53,7 @@ C_SRCS = \
     drivers/timer/timer.c         \
     lib/log/log.c                 \
     lib/str/string.c		  \
+    lib/rtc/rtc.c                 \
     arch/arm64/s2_debug.c         \
     vse/hmac.c                    \
     vse/keystore.c                \
@@ -63,6 +64,7 @@ C_SRCS = \
     vse/fault_detect.c            \
     vse/failover.c                \
     vse/hotp.c                    \
+    vse/totp.c                    \
     vse/login.c                   \
     vse/ids.c                     \
     vse/guest_measure.c

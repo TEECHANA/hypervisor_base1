@@ -3,7 +3,7 @@
  */
 
 #include "login.h"
-#include "hotp.h"
+#include "totp.h"
 #include "hmac.h"            /* sha256_*, hmac_verify (constant-time compare) */
 #include "../drivers/uart/uart.h"
 #include "../lib/log/log.h"
@@ -58,7 +58,7 @@ err_t login_authenticate(void)
         (void)clen;
 
         bool pw_ok   = _check_password(pw, pwlen);
-        err_t otp_e  = hotp_verify(code);
+        err_t otp_e  = totp_verify(code);
 
         /* Scrub secrets from the stack immediately. */
         memset(pw, 0, sizeof(pw));

@@ -25,7 +25,7 @@
 #include "../vse/seal.h"             /* VSE Phase 4 */
 #include "../vse/fault_detect.h"     /* VSE Phase 5 */
 #include "../vse/failover.h"         /* VSE Phase 6 */
-#include "../vse/hotp.h"             /* Operator login: HOTP */
+#include "../vse/totp.h"             /* Operator login: TOTP (RFC 6238) */
 #include "../vse/login.h"            /* Operator login: 2FA prompt */
 #include "../vse/ids.h"              /* IDS: runtime intrusion detection */
 #include "../drivers/uart/uart.h"
@@ -184,19 +184,19 @@ void hyp_main(u32 cpu_id, paddr_t dtb_pa)
     }
 
     /*
-     * Operator login — two-factor (password + HOTP).
+     * Operator login — two-factor (password + TOTP, RFC 6238).
      *
      * Runs AFTER all VSE integrity/trust/seal phases so the platform has
-     * proven its own integrity before any human is let in, and AFTER
-     * seal_init() (Phase 4) so the HOTP counter can be unsealed. No RTC on
-     * this platform, so HOTP (counter-based) is used instead of TOTP.
+     * proven its own integrity before any human is let in. TOTP uses
+     * lib/rtc (ARM generic timer + provisioned epoch) as its time source —
+     * no hardware RTC required. T = unix_now / 30; window ±1 step.
      *
      * On lockout (too many failed attempts) we panic rather than boot guests.
      */
-    LOG_INFO("Operator login: initializing HOTP...");
-    e = hotp_init();
-    if (FAIL(e)) LOG_WARN("Operator login: hotp_init failed (err=%d)", (int)e);
-    hotp_selftest();   /* logs PASS/FAIL; non-fatal */
+    LOG_INFO("Operator login: initializing TOTP...");
+    e = totp_init();
+    if (FAIL(e)) LOG_WARN("Operator login: totp_init failed (err=%d)", (int)e);
+    totp_selftest();   /* logs PASS/FAIL; non-fatal */
 
     e = login_authenticate();
     if (FAIL(e))

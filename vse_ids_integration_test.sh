@@ -106,6 +106,18 @@ echo "── Audit / evidence ────────────────�
 check "Audit log was produced"                "VSE IDS: Audit Log"
 check "Operator login reached (system armed)" "Operator Login|monitor ready"
 
+echo
+echo "── IDS monitor (Activity 1.2.3) ────────────────────────────"
+# Run the IDS monitor in headless mode on the captured boot log.
+# This verifies the Python parser works without a display.
+if python3 scripts/ids_monitor.py --once --headless "$LOG" >/dev/null 2>&1; then
+    echo -e "  [${G}PASS${N}] IDS headless monitor parsed boot log (Activity 1.2.3)"
+    pass_n=$((pass_n+1))
+else
+    echo -e "  [${R}FAIL${N}] IDS headless monitor failed (scripts/ids_monitor.py --headless)"
+    fail_n=$((fail_n+1))
+fi
+
 # ── 4. Result ─────────────────────────────────────────────────────────────
 echo
 total=$((pass_n+fail_n))

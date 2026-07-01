@@ -3,7 +3,8 @@
  *
  * Two-factor operator authentication at hypervisor boot:
  *   1. A password, verified against a stored SHA-256 hash (never plaintext).
- *   2. An HOTP one-time code (vse/hotp.c), since there is no RTC for TOTP.
+ *   2. A TOTP one-time code (vse/totp.c, RFC 6238) using lib/rtc as the
+ *      time source (ARM generic timer + provisioned epoch — no hardware RTC).
  *
  * Called from boot/main.c after the VSE integrity/trust/seal phases, before
  * the scheduler starts — so no guest runs until the operator authenticates,
