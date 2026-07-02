@@ -86,19 +86,6 @@ static vcpu_t *find_next_rr(u32 *dur_out)
     return NULL;
 }
 
-/* Find next best-effort (non-RT) runnable slot */
-static vcpu_t *find_next_be(u32 *dur_out)
-{
-    u32 start = _cur;
-    do {
-        _cur = (_cur + 1) % _nslots;
-        if (slot_is_rt(_cur)) continue;
-        vcpu_t *vc = slot_vcpu(_cur);
-        if (vc) { *dur_out = _slots[_cur].duration_us; return vc; }
-    } while (_cur != start);
-    return NULL;
-}
-
 /*
  * do_switch — perform context switch with logging and stats update.
  *

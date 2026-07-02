@@ -1,6 +1,9 @@
+/* host_shim.h MUST come first: it establishes the host size_t/uintptr_t and
+ * pulls in the hypervisor's types.h with those renamed aside, so the host and
+ * hypervisor type worlds don't collide when we build with the host libc. */
+#include "host_shim.h"
 #include <stdio.h>
 #include <assert.h>
-#include "../../include/types.h"
 #include "../../lib/str/string.c"
 int main(void){
     u8 buf[16]; memset(buf,0xAB,16);

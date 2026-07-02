@@ -56,21 +56,21 @@ static u8 _master_key[32];  /* filled from keystore at init (audit #3) */
  * enforce build never silently passes.
  *
  * NOTE: .text and .rodata golden values are build-specific. After ANY
- * source change, re-derive them in learn mode. .rodata in particular
- * contains _golden_components[] itself; deriving it is self-referential
- * but stable because the golden bytes are part of the measured range
- * only AFTER they are set. See "self-reference" note in the design doc.
+ * source change, re-derive them in learn mode (or via reprovision_golden.sh).
+ * .rodata in particular contains _golden_components[] itself; deriving it is
+ * self-referential but stable because the .rodata measurement below skips the
+ * golden table. See "self-reference" note in the design doc.
  */
 static const u8 _golden_components[VSE_NUM_COMPONENTS][HMAC_SIZE] = {
-    /* [0] .text — re-derived after ipc_init + sched_stats_init wired in main.c */
+    /* [0] .text — re-derived after entry.S guest-x1 save fix (audit #9) */
     {
-        0x82, 0x61, 0x3f, 0x08, 0xa1, 0xb3, 0x63, 0x95,
-        0x79, 0x0d, 0x16, 0x57, 0x7a, 0x9d, 0x1d, 0xd2,
-        0x68, 0xc5, 0x38, 0xd1, 0xa6, 0x86, 0x56, 0x43,
-        0xb5, 0xaa, 0x8d, 0xce, 0x71, 0x47, 0xc8, 0xc1,
+        0x04, 0x34, 0x72, 0xdd, 0x7e, 0xf3, 0x56, 0x2c,
+        0x6d, 0x82, 0x6a, 0x9c, 0x61, 0x47, 0x92, 0xfa,
+        0x78, 0x73, 0xfe, 0xfd, 0x6b, 0x04, 0xb1, 0x66,
+        0x52, 0xd7, 0xfd, 0x21, 0x2f, 0x78, 0x6a, 0x52,
     },
 #if VSE_NUM_COMPONENTS > 1
-    /* [1] .rodata — re-derived after mailbox device profile entries added */
+    /* [1] .rodata — unchanged from prior trusted build (audit #9) */
     {
         0xfa, 0x4d, 0x35, 0xe6, 0x27, 0x38, 0x5c, 0xa2,
         0x8e, 0xb0, 0xc1, 0x80, 0x7b, 0x29, 0xf0, 0x14,

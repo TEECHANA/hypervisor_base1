@@ -68,27 +68,10 @@
  */
 #define PSCI_VERSION_1_1  ((1UL << 16) | 1UL)
 
-/* Remove 'static inline' — use static only, forces a real function */
-static bool psci_is_supported(u64 func_id)
-{
-    switch (func_id) {
-    case PSCI_VERSION:
-    case PSCI_CPU_SUSPEND_32:
-    case PSCI_CPU_SUSPEND_64:
-    case PSCI_CPU_OFF:
-    case PSCI_CPU_ON_32:
-    case PSCI_CPU_ON_64:
-    case PSCI_AFFINITY_INFO_32:
-    case PSCI_AFFINITY_INFO_64:
-    case PSCI_MIGRATE_INFO_TYPE:
-    case PSCI_SYSTEM_OFF:
-    case PSCI_SYSTEM_RESET:
-    case PSCI_PSCI_FEATURES:
-        return true;
-    default:
-        return false;
-    }
-}
+/* NOTE: the set of supported PSCI functions is enumerated inline in the
+ * PSCI_PSCI_FEATURES case below (kept as an explicit comparison so the
+ * optimizer can't fold it). A separate psci_is_supported() helper used to
+ * duplicate that list but was unreferenced — removed to keep one source. */
 
 void psci_handler(u64 *regs)
 {
@@ -166,6 +149,7 @@ void psci_handler(u64 *regs)
         u64 lowest_affinity = regs[2];
         LOG_DEBUG("PSCI: AFFINITY_INFO mpidr=0x%lx lvl=%lu",
                   target_mpidr, lowest_affinity);
+        UNUSED(lowest_affinity);  /* only read by LOG_DEBUG (compiled out at LOG_LEVEL<4) */
         /* Only CPU 0 (mpidr=0) is ON; all others are OFF */
         regs[0] = (target_mpidr == 0) ? PSCI_AFFINITY_LEVEL_ON
                                        : PSCI_AFFINITY_LEVEL_OFF;

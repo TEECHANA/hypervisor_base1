@@ -265,9 +265,12 @@ _hyp_vectors:
 /* ───────────────── HANDLERS ───────────────── */
 
 _guest64_sync:
-    mrs x1, esr_el2           /* x1 = ESR — must preserve across SAVE_GUEST_REGS */
+    /* Save guest GPRs FIRST — do not touch x1 beforehand, or the guest's
+     * real x1 is lost. SAVE_GUEST_REGS uses only x16/x17 as scratch and
+     * leaves esr_el2 intact, so we read ESR into x1 afterwards. (Prior bug:
+     * a premature "mrs x1, esr_el2" clobbered guest x1 before it was saved,
+     * so HVC arg1 — e.g. fuel rpm — always arrived as the ESR value.) */
     SAVE_GUEST_REGS
-    /* Re-read ESR after SAVE_GUEST_REGS since x1 was clobbered */
     mrs x1, esr_el2
     adrp x0, g_current_vcpu
     add  x0, x0, :lo12:g_current_vcpu

@@ -16,7 +16,8 @@
 #define HCR_AMO   BIT(5)
 #define HCR_TSC   BIT(19)
 #define HCR_RW    BIT(31)
-#define HCR_GUEST (HCR_VM|HCR_RW|HCR_IMO|HCR_FMO|HCR_AMO|HCR_TSC)
+/* HCR_GUEST is defined locally in core/sched/sched.c (it adds the TWI bit,
+ * required for QEMU cortex-a57 WFI wakeup). Kept single-sourced there. */
 
 /* SPSR to ERET into EL1h, all interrupts unmasked */
 #define SPSR_EL1H   0x000003C5ULL
@@ -74,8 +75,9 @@
 
 #define S2_VALID       (1ULL << 0)
 
-/* Memory attribute index */
-#define S2_MEMATTR_DEV (0ULL << 2)
+/* Memory attribute index.
+ * S2_MEMATTR_DEV is single-sourced in vre/mmu/stage2.h (0x1ULL<<2, the value
+ * the Stage-2 code is actually built against); do not re-add it here. */
 #define S2_MEMATTR_WB  (0xFULL << 2)
 
 /* Stage-2 access permissions */
@@ -90,7 +92,6 @@
 /* Access flag */
 #define S2_AF          (1ULL << 10)
 
-/* Execute-never */
-#define S2_XN          (1ULL << 54)
+/* Execute-never: single-sourced in vre/mmu/stage2.h (2ULL<<53 == bit 54). */
 
 #endif /* ARM_REGS_H */
