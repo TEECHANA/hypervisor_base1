@@ -127,6 +127,13 @@ static void do_switch(vcpu_t *prev, vcpu_t *next,
         LOG_INFO("CTX[%u]: %s -> %s (%ums, %s)",
                  sw, prev_name, next_name, ms, reason);
 
+        /* Surface the driver state of the VM that just ran alongside the CTX
+         * line — the "output during context switch" requirement. This is what
+         * makes the RTOS fuel/OBD and Android audio HVC traffic visible, e.g.
+         * "[AUDIO->HYP] frames=... playing". */
+        extern void sched_on_driver_ctx(u32 prev_vm_id, u32 next_vm_id);
+        sched_on_driver_ctx(prev_vm_id, next_vm_id);
+
         /* Audit fix #4: periodic IDS monitor (heartbeat + trust-downgrade scan).
          * Header targets ~10s; switches are 0.5-2s, so poll every 8th VM change.
          * Single-core assumption: ids_poll reads g_ids/g_trust with no lock;
