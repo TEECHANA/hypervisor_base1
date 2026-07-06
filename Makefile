@@ -147,6 +147,7 @@ run-with-guests: $(HYP_ELF) check-guests
 	    -device loader,file=$(LINUX_IMG),addr=0x41200000,force-raw=on \
 	    -device loader,file=guests/linux/initramfs.cpio.gz,addr=0x47000000,force-raw=on \
 	    -device loader,file=$(RTOS_IMG),addr=0x60008000,force-raw=on \
+	    -device loader,file=$(RTOS_IMG),addr=0x90000000,force-raw=on \
 	    -device loader,file=$(ANDROID_IMG),addr=0x70200000,force-raw=on
 
 # ── Debug Mode ─────────────────────────────────────────────────
@@ -157,6 +158,7 @@ debug: $(HYP_ELF) check-guests
 	    -device loader,file=$(LINUX_IMG),addr=0x41000000,force-raw=on \
 	    -device loader,file=guests/linux/initramfs.cpio.gz,addr=0x47000000,force-raw=on \
 	    -device loader,file=$(RTOS_IMG),addr=0x60008000,force-raw=on \
+	    -device loader,file=$(RTOS_IMG),addr=0x90000000,force-raw=on \
 	    -device loader,file=$(ANDROID_IMG),addr=0x70200000,force-raw=on \
 	    -s -S
 
