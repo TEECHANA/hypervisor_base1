@@ -13,3 +13,4 @@ __pycache__/
 guests/**/*.bin
 guests/**/*.elf
 guests/**/*.o
+*.bak
