@@ -95,6 +95,14 @@ typedef struct {
 #define HVC_FUEL_GET_STATE  0x0061u
 #define HVC_FUEL_SET_RPM    0x0062u
 
+/* Virtual DMA controller front-end. A guest requests a DMA transfer to a
+ * target IPA; the hypervisor validates it against the guest's Stage-2 map via
+ * the DMA guard. An out-of-bounds target is a real DMA-isolation violation and
+ * is reported to the trust engine (dma_guard_log_violation -> fdetect). This is
+ * the path a genuinely misbehaving guest uses to attempt illegal DMA.
+ *   x1 = target IPA, x2 = size (bytes), x3 = stream id  ->  x0 = E_OK/E_DENIED */
+#define HVC_DMA_XFER        0x0068u
+
 #define HVC_AUDIO_STATUS    0x0070u
 #define HVC_AUDIO_PLAY      0x0071u
 #define HVC_AUDIO_STOP      0x0072u
