@@ -7,21 +7,36 @@
 #include "hotp.h"
 #include "hmac.h"
 #include "seal.h"
+#include "keystore.h"
 #include "../lib/log/log.h"
 #include "../lib/str/string.h"
 
 /*
- * Shared HOTP secret. In a real deployment this is provisioned per-device and
- * NOT committed to source — bake it in at build time (e.g. injected by
- * seal_wrapper.sh) or derive it from a per-unit fuse. This default exists so
- * the subsystem self-tests and so scripts/hotp_gen.py has a matching value for
- * development. Treat it as non-secret until provisioning replaces it.
+ * Shared HOTP secret. No longer a hard-coded blob: it is derived at runtime
+ * from the VSE master key via vse_derive_secret() (see keystore.h). On real
+ * hardware the master key comes from the per-device OTP fuse, so this secret is
+ * automatically device-unique. In the QEMU/dev build it derives from the dev
+ * master key — scripts/totp_gen.py mirrors the same derivation so login stays
+ * testable. The plaintext secret never appears in source.
  */
-static const u8 _hotp_secret[20] = {
-    0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0xde, 0xad,
-    0xbe, 0xef, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc,
-    0xde, 0xf0, 0x11, 0x22,
-};
+#define HOTP_SECRET_LABEL  "vse-hotp-secret-v1"
+#define HOTP_SECRET_LEN    20u
+
+static u8   _hotp_secret[HOTP_SECRET_LEN];
+static bool _secret_ready = false;
+
+/* Derive the HOTP secret from the master key on first use (idempotent). */
+static err_t _ensure_secret(void)
+{
+    if (_secret_ready) return E_OK;
+    err_t e = vse_derive_secret(HOTP_SECRET_LABEL, _hotp_secret, sizeof(_hotp_secret));
+    if (FAIL(e)) {
+        LOG_ERROR("HOTP: secret derivation failed (err=%d)", (int)e);
+        return e;
+    }
+    _secret_ready = true;
+    return E_OK;
+}
 
 /*
  * Fixed reserved RAM region for the sealed counter blob.
@@ -83,12 +98,15 @@ err_t hotp_compute(u64 counter, char *out, u32 out_sz)
 {
     if (!out || out_sz < (HOTP_DIGITS + 1u)) return E_INVAL;
 
+    err_t e = _ensure_secret();
+    if (FAIL(e)) return e;
+
     u8 ctr[8];
     u8 mac[HMAC_SIZE];
     _u64_be(counter, ctr);
 
-    err_t e = hmac_sha256(_hotp_secret, (u32)sizeof(_hotp_secret),
-                          ctr, sizeof(ctr), mac);
+    e = hmac_sha256(_hotp_secret, (u32)sizeof(_hotp_secret),
+                    ctr, sizeof(ctr), mac);
     if (FAIL(e)) return e;
 
     /* RFC 4226 dynamic truncation. */

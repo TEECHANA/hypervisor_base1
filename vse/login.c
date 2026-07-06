@@ -4,39 +4,47 @@
 
 #include "login.h"
 #include "totp.h"
-#include "hmac.h"            /* sha256_*, hmac_verify (constant-time compare) */
+#include "hmac.h"            /* hmac_sha256, hmac_verify (constant-time compare) */
+#include "keystore.h"       /* vse_derive_secret — single provisioning root     */
 #include "../drivers/uart/uart.h"
 #include "../lib/log/log.h"
 #include "../lib/str/string.h"
 
 /*
- * Stored password hash = SHA-256("changeme").
+ * Stored password verifier = HMAC-SHA256(pepper, password), where
+ *     pepper = vse_derive_secret("vse-login-pepper-v1")   (device-bound)
  *
- * Provision a real one with scripts/hotp_gen.py --pwhash <password> and paste
- * the 32 bytes here (or have seal_wrapper.sh inject it at build time). The
- * plaintext password is NEVER stored on the device. Default shown so the
- * subsystem is testable out of the box — change before deployment.
+ * This replaces the old bare SHA-256(password): the pepper is derived from the
+ * VSE master key, so the same password yields a different verifier on every
+ * device (defeats precomputed/rainbow-table attacks and binds the credential to
+ * the unit). The plaintext password is NEVER stored on the device.
  *
- * SHA-256("changeme") =
- *   057ba03d6c44104863dc7361fe4578965d1887360f90a0895882e58a6248fc86
+ * The value below is the dev default: HMAC(dev-pepper, "changeme"). Regenerate
+ * for a real password/device with scripts/totp_gen.py --pwverify <password>
+ * (which mirrors this exact derivation). Change before deployment.
  */
-static const u8 _pw_hash[32] = {
-    0x05,0x7b,0xa0,0x3d,0x6c,0x44,0x10,0x48,
-    0x63,0xdc,0x73,0x61,0xfe,0x45,0x78,0x96,
-    0x5d,0x18,0x87,0x36,0x0f,0x90,0xa0,0x89,
-    0x58,0x82,0xe5,0x8a,0x62,0x48,0xfc,0x86,
+#define LOGIN_PEPPER_LABEL  "vse-login-pepper-v1"
+
+static const u8 _pw_verifier[HMAC_SIZE] = {
+    0x21, 0x34, 0xf2, 0xdf, 0x9d, 0x60, 0xa8, 0x41,
+    0x3f, 0xb2, 0x15, 0x89, 0x56, 0xfa, 0x02, 0x7a,
+    0x19, 0xf4, 0x2f, 0xfd, 0x4b, 0xe7, 0x3a, 0x9e,
+    0x9e, 0x17, 0xdb, 0x24, 0x77, 0xdc, 0xed, 0xf5,
 };
 
 static bool _check_password(const char *pw, u32 len)
 {
-    u8 digest[32];
-    sha256_ctx_t ctx;
-    sha256_init(&ctx);
-    sha256_update(&ctx, (const u8 *)pw, len);
-    sha256_final(&ctx, digest);
+    u8 pepper[VSE_MASTER_KEY_LEN];
+    if (FAIL(vse_derive_secret(LOGIN_PEPPER_LABEL, pepper, sizeof(pepper))))
+        return false;
 
-    bool ok = hmac_verify(_pw_hash, digest, sizeof(digest)); /* constant-time */
-    memset(digest, 0, sizeof(digest));
+    u8 mac[HMAC_SIZE];
+    err_t e = hmac_sha256(pepper, sizeof(pepper), (const u8 *)pw, len, mac);
+    memset(pepper, 0, sizeof(pepper));         /* scrub the pepper */
+    if (FAIL(e)) { memset(mac, 0, sizeof(mac)); return false; }
+
+    bool ok = hmac_verify(_pw_verifier, mac, sizeof(mac)); /* constant-time */
+    memset(mac, 0, sizeof(mac));
     return ok;
 }
 

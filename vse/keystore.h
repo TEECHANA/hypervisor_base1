@@ -26,4 +26,20 @@
  * Returns E_OK on success, E_INVAL if out is NULL or len too small. */
 err_t vse_get_master_key(u8 *out, u32 len);
 
+/*
+ * Derive a purpose-specific secret from the master key:
+ *     out = HMAC-SHA256(master_key, label)[0:len]
+ *
+ * This is the single provisioning root: the login password pepper and the
+ * HOTP/TOTP secret are both derived from the one master key rather than being
+ * independent hard-coded blobs. On real hardware the master key comes from the
+ * per-device OTP fuse (VSE_HW_FUSE_KEY), so every derived secret is automatically
+ * device-unique with no extra provisioning step.
+ *
+ * `label` is a NUL-terminated domain-separation string (e.g. "vse-hotp-secret-v1").
+ * `len` must be 1..VSE_MASTER_KEY_LEN (single HMAC block; ample for our secrets).
+ * Returns E_OK, or E_INVAL on bad args, or the master-key provider's error.
+ */
+err_t vse_derive_secret(const char *label, u8 *out, u32 len);
+
 #endif /* VSE_KEYSTORE_H */
