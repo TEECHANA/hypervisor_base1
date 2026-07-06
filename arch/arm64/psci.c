@@ -69,7 +69,8 @@
 #define PSCI_VERSION_1_1  ((1UL << 16) | 1UL)
 
 /* Remove 'static inline' — use static only, forces a real function */
-static bool psci_is_supported(u64 func_id)
+/* Retained as a validation helper for future SMCCC gating; not yet wired in. */
+__attribute__((unused)) static bool psci_is_supported(u64 func_id)
 {
     switch (func_id) {
     case PSCI_VERSION:
@@ -163,9 +164,8 @@ void psci_handler(u64 *regs)
     case PSCI_AFFINITY_INFO_32:
     case PSCI_AFFINITY_INFO_64: {
         u64 target_mpidr    = regs[1];
-        u64 lowest_affinity = regs[2];
         LOG_DEBUG("PSCI: AFFINITY_INFO mpidr=0x%lx lvl=%lu",
-                  target_mpidr, lowest_affinity);
+                  target_mpidr, regs[2]);
         /* Only CPU 0 (mpidr=0) is ON; all others are OFF */
         regs[0] = (target_mpidr == 0) ? PSCI_AFFINITY_LEVEL_ON
                                        : PSCI_AFFINITY_LEVEL_OFF;

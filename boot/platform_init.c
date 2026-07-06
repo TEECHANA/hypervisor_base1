@@ -52,7 +52,7 @@
 #define LINUX_INITRD_END_IPA   (LINUX_INITRD_START_IPA + INITRD_SIZE)
 
 /* GIC distributor local emulation stub (unused on QEMU passthrough) */
-static err_t gic_dist_emulate_local(u64 addr, bool wr, u64 *val, void *priv)
+__attribute__((unused)) static err_t gic_dist_emulate_local(u64 addr, bool wr, u64 *val, void *priv)
 {
     UNUSED(addr); UNUSED(wr); UNUSED(val); UNUSED(priv);
     return E_OK;

@@ -265,9 +265,11 @@ _hyp_vectors:
 /* ───────────────── HANDLERS ───────────────── */
 
 _guest64_sync:
-    mrs x1, esr_el2           /* x1 = ESR — must preserve across SAVE_GUEST_REGS */
+    /* Save guest GPRs FIRST — must not touch x1 before it is saved, or the
+     * guest's x1 (HVC arg) is lost. hvc_dispatch reads args from the saved
+     * register array, so x[1] must hold the guest value, not ESR. */
     SAVE_GUEST_REGS
-    /* Re-read ESR after SAVE_GUEST_REGS since x1 was clobbered */
+    /* Now read ESR for the C handler (guest x1 already safely saved). */
     mrs x1, esr_el2
     adrp x0, g_current_vcpu
     add  x0, x0, :lo12:g_current_vcpu

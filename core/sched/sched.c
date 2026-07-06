@@ -87,7 +87,7 @@ static vcpu_t *find_next_rr(u32 *dur_out)
 }
 
 /* Find next best-effort (non-RT) runnable slot */
-static vcpu_t *find_next_be(u32 *dur_out)
+__attribute__((unused)) static vcpu_t *find_next_be(u32 *dur_out)
 {
     u32 start = _cur;
     do {
