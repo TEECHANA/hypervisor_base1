@@ -68,6 +68,23 @@ else
     fails=$((fails + 1))
 fi
 
+echo "=== Phase 6 failover: organic quarantine -> real backup restore ==="
+# The organic VM2 quarantine (above) must drive trust_quarantine ->
+# failover_on_quarantine -> _do_failover: stop, restore from the DISTINCT backup
+# region via real memcpy, re-finalize, restart. Each step is checked on the same
+# capture so a regression in the quarantine->failover wiring is caught.
+if grep -qE "quarantine of critical VM2 — invoking failover" "$LOG"; then echo "  PASS: failover invoked on VM2 quarantine"
+  else echo "  FAIL: failover not invoked on VM2 quarantine"; fails=$((fails + 1)); fi
+if grep -qE "FAILOVER VM2 'rtos' attempt [1-9]" "$LOG"; then echo "  PASS: failover_trigger fired (restart from backup OS)"
+  else echo "  FAIL: failover_trigger did not fire"; fails=$((fails + 1)); fi
+# Real restore: a distinct-region memcpy must run, NOT the same-image stub.
+if grep -qE "VM2 restored [1-9][0-9]* bytes from backup 0x[0-9a-fx]+ -> live 0x[0-9a-fx]+" "$LOG"; then echo "  PASS: real backup restore (distinct-region memcpy)"
+  else echo "  FAIL: no real backup restore observed"; fails=$((fails + 1)); fi
+if grep -q "no distinct backup region" "$LOG"; then echo "  FAIL: restore fell back to same-image stub (not a real failover)"; fails=$((fails + 1))
+  else echo "  PASS: not a same-image stub"; fi
+if grep -qE "VSE Phase 6: VM2 'rtos' recovered via backup OS" "$LOG"; then echo "  PASS: VM2 recovered + restarted (system continues)"
+  else echo "  FAIL: VM2 did not recover via backup OS"; fails=$((fails + 1)); fi
+
 if [[ $fails -eq 0 ]]; then
     echo "All integration checks passed."
 else
