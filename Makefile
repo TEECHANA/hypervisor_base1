@@ -132,11 +132,18 @@ guest-android:
 	$(MAKE) -C guests/android_stub CROSS=$(CROSS)
 
 # ── Validate Guest Images ───────────────────────────────────────
-check-guests:
+# Rebuild the source-built guests (rtos, android) from scratch, then verify
+# every guest image's hash matches its golden in vse/guest_measure.c. This
+# catches golden drift (guest source changed without re-provisioning) at build
+# time, before boot-time attestation would reject the guest. Linux is a
+# prebuilt blob — not rebuilt here, only hash-verified.
+check-guests: guest-rtos guest-android
 	@test -f $(LINUX_IMG)   || (echo "ERROR: Missing $(LINUX_IMG)"; exit 1)
 	@test -f $(RTOS_IMG)    || (echo "ERROR: Missing $(RTOS_IMG)"; exit 1)
 	@test -f $(ANDROID_IMG) || (echo "ERROR: Missing $(ANDROID_IMG)"; exit 1)
-	@echo "  ✓ All guest images present"
+	@echo "  Verifying guest images against goldens (vse/guest_measure.c)..."
+	@python3 scripts/verify_guest_goldens.py
+	@echo "  ✓ All guest images present and match goldens"
 
 # ── Run Hypervisor Only ─────────────────────────────────────────
 qemu-run: $(HYP_ELF)
