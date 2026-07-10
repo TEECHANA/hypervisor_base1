@@ -9,10 +9,11 @@
 #         ->  fdetect_dma_violation  ->  trust_report_fault + ids_notify_fault
 #         ->  IDS STORM detector  ->  IDS ENFORCE  ->  trust_quarantine(VM2)
 #
-# This is the REAL guest-driven path, NOT the synthetic -DVSE_IDS_STORM_DEMO
-# injection (which fabricates fdetect_mem_fault() on VM3 at boot). The test
+# This is the REAL guest-driven path. The old synthetic -DVSE_IDS_STORM_DEMO
+# injection (which fabricated fdetect_mem_fault() on VM3 at boot) has been
+# retired — there is no longer any injected fault in the build. The test
 # explicitly asserts that NO injected memory/permission fault is attributed to
-# VM2 — every VM2 fault here is a DMA-isolation violation (fault type 0x2)
+# VM2 — every VM2 fault is a DMA-isolation violation (fault type 0x2)
 # originating from the guest's own request.
 #
 # Usage:
