@@ -16,8 +16,10 @@ CFLAGS += -ffreestanding -nostdlib -nostdinc
 CFLAGS += -mcpu=cortex-a57 -mabi=lp64
 CFLAGS += -DPLATFORM_$(shell echo $(PLATFORM) | tr a-z A-Z)
 CFLAGS += -I.
-#CFLAGS += -DVSE_IDS_DEMO   # IDS attack demo on boot; build with VSE_IDS_DEMO=0 to disable
-CFLAGS += -DVSE_IDS_STORM_DEMO   # inject a 5-fault storm to exercise IDS enforcement (demo/test)
+# Synthetic IDS attack demos retired — the IDS is now exercised organically by
+# the VSE_ROGUE_DMA rtos guest (VM2). See boot/main.c and guests/rtos/rtos.c.
+#CFLAGS += -DVSE_IDS_DEMO         # (retired) inject a single VM3 permission fault at boot
+#CFLAGS += -DVSE_IDS_STORM_DEMO   # (retired) inject a 5-fault VM3 storm at boot
 CFLAGS += -DINITRD_SIZE=$(INITRD_SIZE)  # <--- ADD THIS LINE
 ASM_SRCS = arch/arm64/entry.S arch/arm64/context.S arch/arm64/mmu.S
 

@@ -14,8 +14,8 @@
 #     dma_guard -> fdetect -> IDS -> quarantine chain (delegated to
 #     rogue_dma_verify.sh, run against the SAME capture to avoid re-booting).
 #
-# The synthetic -DVSE_IDS_STORM_DEMO injection (VM3, boot-time) is left intact
-# and is independent of the organic VM2 path checked here.
+# The synthetic -DVSE_IDS_STORM_DEMO injection (VM3, boot-time) has been retired;
+# the storm/enforcement here is entirely organic, driven by VM2's own DMA burst.
 
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -158,7 +158,6 @@ void hyp_main(u32 cpu_id, paddr_t dtb_pa)
     LOG_INFO("VSE IDS: initializing intrusion detection...");
     e = ids_init();
     if (FAIL(e)) LOG_WARN("VSE IDS: ids_init failed (err=%d)", (int)e);
-    /* DEMO: exercise the IDS so it produces audit records (remove later) */
 
     /*
      * VSE Phase 6 — Backup OS failover.
@@ -184,28 +183,13 @@ void hyp_main(u32 cpu_id, paddr_t dtb_pa)
         LOG_INFO("VSE Phase 6: failover service initialized");
 
     /*
-     * NOTE: the DMA fault storm is no longer fabricated here. With VSE_ROGUE_DMA
-x     * the RTOS guest (VM2) issues real out-of-bounds DMA requests via
-     * HVC_DMA_XFER once it is scheduled; those flow through the genuine
+     * NOTE: the DMA fault storm is NOT fabricated here. With VSE_ROGUE_DMA the
+     * RTOS guest (VM2) issues real out-of-bounds DMA requests via HVC_DMA_XFER
+     * once it is scheduled; those flow through the genuine
      * dma_guard -> fdetect -> IDS -> quarantine path. See guests/rtos/rtos.c.
+     * The IDS heartbeat (ids_poll) runs periodically from the scheduler; no
+     * synthetic fdetect_mem_fault() injection is performed at boot.
      */
-#ifdef VSE_IDS_DEMO
-    LOG_INFO("VSE IDS: running detection demo (VM3 permission fault only)...");
-    fdetect_mem_fault(3, 0xBEEF000, 0x0C, true);                /* perm fault VM3 */
-    ids_poll();                                                 /* heartbeat + downgrade scan */
-    ids_print_summary();
-    ids_print_log();
-#endif /* VSE_IDS_DEMO */
-
-#ifdef VSE_IDS_STORM_DEMO
-    LOG_INFO("VSE IDS: running STORM demo (5 rapid faults on VM3)...");
-    for (int _f = 0; _f < 5; _f++) {
-        fdetect_mem_fault(3, 0xBEEF000 + (u64)(_f * 0x1000), 0x0C, true);
-    }
-    ids_poll();
-    ids_print_summary();
-    ids_print_log();
-#endif /* VSE_IDS_STORM_DEMO */
     }
 
     /*
