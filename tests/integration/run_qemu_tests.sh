@@ -48,6 +48,17 @@ chk "VM3 'android' -> TRUSTED"
 chk "Operator Login"
 chk "Access granted."
 
+echo "=== Guest liveness / x1-trapframe regression ==="
+# Regression guard for the entry.S guest-x1 save bug: if the guest's x1 were
+# clobbered by ESR before SAVE_GUEST_REGS, HVC arg1 (fuel rpm) would arrive as
+# garbage/zero. A sane non-zero rpm proves x1 is preserved across the trap.
+# (Salvaged from the retired fix/fuel-x1-trapframe-and-warnings branch.)
+if grep -qE "FUEL HVC: rpm=[1-9][0-9]*" "$LOG"; then echo "  PASS: RTOS fuel rpm non-zero (x1 preserved)"
+  else echo "  FAIL: RTOS fuel rpm non-zero (possible x1-trapframe regression)"; fails=$((fails + 1)); fi
+# Scheduler is actually time-slicing between guests.
+if grep -qE "CTX\[[0-9]+\]:" "$LOG"; then echo "  PASS: scheduler time-slicing (CTX switches)"
+  else echo "  FAIL: scheduler time-slicing (no CTX switches)"; fails=$((fails + 1)); fi
+
 echo "=== Organic rogue-DMA path (VM2, guest runtime) ==="
 # Reuse this capture — do not boot a second time.
 if ROGUE_LOG="$LOG" bash "$HERE/rogue_dma_verify.sh"; then
