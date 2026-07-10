@@ -16,7 +16,9 @@
 #define HCR_AMO   BIT(5)
 #define HCR_TSC   BIT(19)
 #define HCR_RW    BIT(31)
-#define HCR_GUEST (HCR_VM|HCR_RW|HCR_IMO|HCR_FMO|HCR_AMO|HCR_TSC)
+/* HCR_GUEST is defined canonically in core/sched/sched.c (its only user),
+ * which additionally sets TWI (bit 13) to trap guest WFI; do not define a
+ * competing version here. */
 
 /* SPSR to ERET into EL1h, all interrupts unmasked */
 #define SPSR_EL1H   0x000003C5ULL
@@ -75,7 +77,8 @@
 #define S2_VALID       (1ULL << 0)
 
 /* Memory attribute index */
-#define S2_MEMATTR_DEV (0ULL << 2)
+/* S2_MEMATTR_DEV is defined canonically in vre/mmu/stage2.h (the actual user,
+ * core/vm/vm.c, includes that header); do not redefine it here. */
 #define S2_MEMATTR_WB  (0xFULL << 2)
 
 /* Stage-2 access permissions */
@@ -90,7 +93,7 @@
 /* Access flag */
 #define S2_AF          (1ULL << 10)
 
-/* Execute-never */
-#define S2_XN          (1ULL << 54)
+/* Execute-never: S2_XN is defined canonically in vre/mmu/stage2.h
+ * (numerically identical: 2<<53 == 1<<54); do not redefine it here. */
 
 #endif /* ARM_REGS_H */

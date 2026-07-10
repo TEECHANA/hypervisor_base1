@@ -7,3 +7,10 @@
 build/
 __pycache__/
 *.pyc
+
+# Guest build outputs — guest *source* is tracked, compiled images are not
+# (the large prebuilt images like guests/linux/Image stay out of git too).
+guests/**/*.bin
+guests/**/*.elf
+guests/**/*.o
+*.bak

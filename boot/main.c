@@ -178,18 +178,34 @@ void hyp_main(u32 cpu_id, paddr_t dtb_pa)
     } else {
         /* Register VM1 (Linux) as critical with a backup at its load PA. */
         /* VM2 (rtos): backup @0x90000000, live @0x60008000, size, entry 0x8000 */
-        failover_register(2u, 0x90000000ULL, 0x60008000ULL, 4904ULL, 0x8000ULL);
+        /* Backup copy size: 8 KiB covers the RTOS image (~5 KiB) with headroom
+         * so small code-size growth doesn't truncate the restored image. */
+        failover_register(2u, 0x90000000ULL, 0x60008000ULL, 0x2000ULL, 0x8000ULL);
         LOG_INFO("VSE Phase 6: failover service initialized");
 
+    /*
+     * NOTE: the DMA fault storm is no longer fabricated here. With VSE_ROGUE_DMA
+x     * the RTOS guest (VM2) issues real out-of-bounds DMA requests via
+     * HVC_DMA_XFER once it is scheduled; those flow through the genuine
+     * dma_guard -> fdetect -> IDS -> quarantine path. See guests/rtos/rtos.c.
+     */
 #ifdef VSE_IDS_DEMO
-    LOG_INFO("VSE IDS: running detection demo...");
-    for (int i = 0; i < 6; i++)
-        fdetect_dma_violation(2, 0xDEAD0000 + i, 0x1000, 1);   /* storm on VM2 */
+    LOG_INFO("VSE IDS: running detection demo (VM3 permission fault only)...");
     fdetect_mem_fault(3, 0xBEEF000, 0x0C, true);                /* perm fault VM3 */
     ids_poll();                                                 /* heartbeat + downgrade scan */
     ids_print_summary();
     ids_print_log();
 #endif /* VSE_IDS_DEMO */
+
+#ifdef VSE_IDS_STORM_DEMO
+    LOG_INFO("VSE IDS: running STORM demo (5 rapid faults on VM3)...");
+    for (int _f = 0; _f < 5; _f++) {
+        fdetect_mem_fault(3, 0xBEEF000 + (u64)(_f * 0x1000), 0x0C, true);
+    }
+    ids_poll();
+    ids_print_summary();
+    ids_print_log();
+#endif /* VSE_IDS_STORM_DEMO */
     }
 
     /*

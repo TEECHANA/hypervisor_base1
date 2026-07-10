@@ -234,6 +234,11 @@ void hvc_dispatch(void *regs)
         hvc_obd_read_all(x);
         break;
     }
+    case HVC_DMA_XFER: {
+        extern void hvc_dma_xfer(u64 *x);
+        hvc_dma_xfer(x);
+        break;
+    }
     case HVC_FUEL_UPDATE: {
         extern void hvc_fuel_update(u64 *x);
         hvc_fuel_update(x);

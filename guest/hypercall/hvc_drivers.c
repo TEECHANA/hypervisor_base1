@@ -28,6 +28,7 @@
 #include "../../lib/str/string.h"
 #include "../../core/vcpu/vcpu.h"
 #include "../../core/vm/vm.h"
+#include "../../vre/dma/dma_guard.h"   /* real DMA-isolation check + violation report */
 
 /* ── Shared driver state (hypervisor-side storage) ── */
 
@@ -207,6 +208,40 @@ void hvc_audio_stop(u64 *x)
 {
     g_audio.playing = false;
     x[0] = (u64)E_OK;
+}
+
+/* ── Virtual DMA controller — a guest requests a DMA transfer ── */
+/*
+ * Called from hvc_dispatch() case HVC_DMA_XFER (0x0068).
+ *   x[1] = target IPA, x[2] = size (bytes), x[3] = stream id
+ *
+ * The hypervisor validates the target against the CALLING VM's Stage-2 map via
+ * the DMA guard. A legitimate in-bounds transfer returns E_OK. An out-of-bounds
+ * target is a genuine DMA-isolation violation: it is reported to the trust
+ * engine via dma_guard_log_violation() — the SAME real path the SMMU fault
+ * handler uses — which drives fdetect -> IDS -> quarantine. Nothing is
+ * fabricated: the offending address comes from the guest's own request.
+ */
+void hvc_dma_xfer(u64 *x)
+{
+    ipa_t   ipa  = (ipa_t)x[1];
+    u64     size = x[2] ? x[2] : 0x1000ULL;
+    u32     sid  = (u32)x[3];
+
+    vcpu_t *vc = g_current_vcpu[0];
+    vm_t   *vm = vc ? vc->vm : NULL;
+    if (!vm) { x[0] = (u64)(s64)E_INVAL; return; }
+
+    err_t e = dma_guard_check_ipa(vm, ipa, size);
+    if (OK(e)) {
+        /* In-bounds: a real DMA engine would program the descriptor here. */
+        x[0] = (u64)E_OK;
+        return;
+    }
+
+    /* Out-of-bounds DMA request — funnel through the real violation path. */
+    dma_guard_log_violation(sid, vm->id, (paddr_t)ipa, size);
+    x[0] = (u64)(s64)E_DENIED;
 }
 
 /* ── Context switch driver log ── */

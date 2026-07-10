@@ -16,7 +16,8 @@ CFLAGS += -ffreestanding -nostdlib -nostdinc
 CFLAGS += -mcpu=cortex-a57 -mabi=lp64
 CFLAGS += -DPLATFORM_$(shell echo $(PLATFORM) | tr a-z A-Z)
 CFLAGS += -I.
-CFLAGS += -DVSE_IDS_DEMO   # IDS attack demo on boot; build with VSE_IDS_DEMO=0 to disable
+#CFLAGS += -DVSE_IDS_DEMO   # IDS attack demo on boot; build with VSE_IDS_DEMO=0 to disable
+CFLAGS += -DVSE_IDS_STORM_DEMO   # inject a 5-fault storm to exercise IDS enforcement (demo/test)
 CFLAGS += -DINITRD_SIZE=$(INITRD_SIZE)  # <--- ADD THIS LINE
 ASM_SRCS = arch/arm64/entry.S arch/arm64/context.S arch/arm64/mmu.S
 
@@ -147,6 +148,7 @@ run-with-guests: $(HYP_ELF) check-guests
 	    -device loader,file=$(LINUX_IMG),addr=0x41200000,force-raw=on \
 	    -device loader,file=guests/linux/initramfs.cpio.gz,addr=0x47000000,force-raw=on \
 	    -device loader,file=$(RTOS_IMG),addr=0x60008000,force-raw=on \
+	    -device loader,file=$(RTOS_IMG),addr=0x90000000,force-raw=on \
 	    -device loader,file=$(ANDROID_IMG),addr=0x70200000,force-raw=on
 
 # ── Debug Mode ─────────────────────────────────────────────────
@@ -157,6 +159,7 @@ debug: $(HYP_ELF) check-guests
 	    -device loader,file=$(LINUX_IMG),addr=0x41000000,force-raw=on \
 	    -device loader,file=guests/linux/initramfs.cpio.gz,addr=0x47000000,force-raw=on \
 	    -device loader,file=$(RTOS_IMG),addr=0x60008000,force-raw=on \
+	    -device loader,file=$(RTOS_IMG),addr=0x90000000,force-raw=on \
 	    -device loader,file=$(ANDROID_IMG),addr=0x70200000,force-raw=on \
 	    -s -S
 

@@ -9,18 +9,32 @@ typedef signed char         s8;
 typedef signed short        s16;
 typedef signed int          s32;
 typedef signed long long    s64;
+/*
+ * size_t/uintptr_t/intptr_t/bool/NULL: the freestanding hypervisor build has no
+ * libc, so we define them here. Host-side unit tests (compiled with -DUNIT_TEST)
+ * DO have libc — pulling in <stdio.h> etc. would clash with these typedefs, so
+ * in that mode we defer to the standard headers instead. The freestanding branch
+ * below is byte-identical to the original, so the hypervisor image is unchanged.
+ */
+#ifdef UNIT_TEST
+#include <stddef.h>    /* size_t, NULL          */
+#include <stdint.h>    /* uintptr_t, intptr_t   */
+#include <stdbool.h>   /* bool, true, false     */
+#else
 typedef u64                 size_t;
 typedef u64                 uintptr_t;
 typedef s64                 intptr_t;
-typedef u64                 paddr_t;   /* physical address          */
-typedef u64                 vaddr_t;   /* virtual  address          */
-typedef u64                 ipa_t;     /* intermediate physical (guest PA) */
 typedef u8                  bool;
 #define true  ((bool)1)
 #define false ((bool)0)
 #ifndef NULL
 #define NULL ((void*)0)
 #endif
+#endif /* UNIT_TEST */
+
+typedef u64                 paddr_t;   /* physical address          */
+typedef u64                 vaddr_t;   /* virtual  address          */
+typedef u64                 ipa_t;     /* intermediate physical (guest PA) */
 
 #define BIT(n)            (1ULL<<(n))
 #define ARRAY_SIZE(a)     (sizeof(a)/sizeof((a)[0]))

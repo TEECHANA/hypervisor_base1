@@ -9,6 +9,7 @@
  * (NXP S32G / RPi4), which requires hardware not present under QEMU.
  */
 #include "keystore.h"
+#include "hmac.h"
 #include "../include/types.h"
 #include "../include/error.h"
 #include "../lib/str/string.h"
@@ -38,4 +39,25 @@ err_t vse_get_master_key(u8 *out, u32 len)
     memcpy(out, _dev_master_key, VSE_MASTER_KEY_LEN);
     return E_OK;
 #endif
+}
+
+err_t vse_derive_secret(const char *label, u8 *out, u32 len)
+{
+    if (!label || !out || len == 0u || len > VSE_MASTER_KEY_LEN) return E_INVAL;
+
+    u32 llen = 0u;
+    while (label[llen]) llen++;
+
+    u8 mk[VSE_MASTER_KEY_LEN];
+    err_t e = vse_get_master_key(mk, sizeof(mk));
+    if (FAIL(e)) return e;
+
+    u8 mac[HMAC_SIZE];
+    e = hmac_sha256(mk, VSE_MASTER_KEY_LEN, (const u8 *)label, llen, mac);
+    memset(mk, 0, sizeof(mk));                 /* scrub the master key copy */
+    if (FAIL(e)) { memset(mac, 0, sizeof(mac)); return e; }
+
+    memcpy(out, mac, len);
+    memset(mac, 0, sizeof(mac));
+    return E_OK;
 }
