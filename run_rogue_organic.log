@@ -161,49 +161,6 @@ ABCDMHHYP [INF] ====================================
 HYP [INF] VSE Phase 6: failover service ready (max attempts=3)
 HYP [INF] VSE Phase 6: VM2 'rtos' registered for failover (backup PA=0x0x0000000090000000 live PA=0x0x0000000060008000 size=0x0x0000000000002000 entry=0x0x0000000000008000)
 HYP [INF] VSE Phase 6: failover service initialized
-HYP [INF] VSE IDS: running STORM demo (5 rapid faults on VM3)...
-HYP [WRN] VSE Phase 5: VM3 PERMISSION fault IPA=0x0x000000000beef000 write — possible cross-VM/NX violation
-HYP [WRN] VSE Phase 3: VM3 fault type=0x0x0000000000000001 detail=0x0x800000000beef000 (count=1)
-HYP [WRN] VSE Phase 5: VM3 PERMISSION fault IPA=0x0x000000000bef0000 write — possible cross-VM/NX violation
-HYP [WRN] VSE Phase 3: VM3 fault type=0x0x0000000000000001 detail=0x0x800000000bef0000 (count=2)
-HYP [WRN] VSE Phase 5: VM3 PERMISSION fault IPA=0x0x000000000bef1000 write — possible cross-VM/NX violation
-HYP [WRN] VSE Phase 3: VM3 fault type=0x0x0000000000000001 detail=0x0x800000000bef1000 (count=3)
-HYP [ERR] VSE IDS: ALERT VM3 repeated fault type=0x0x0000000000000001 x3
-HYP [WRN] VSE Phase 5: VM3 PERMISSION fault IPA=0x0x000000000bef2000 write — possible cross-VM/NX violation
-HYP [WRN] VSE Phase 3: VM3 fault type=0x0x0000000000000001 detail=0x0x800000000bef2000 (count=4)
-HYP [WRN] VSE Phase 5: VM3 PERMISSION fault IPA=0x0x000000000bef3000 write — possible cross-VM/NX violation
-HYP [WRN] VSE Phase 3: VM3 fault type=0x0x0000000000000001 detail=0x0x800000000bef3000 (count=5)
-HYP [INF] VSE Phase 3: VM3 trust TRUSTED -> DEGRADED
-HYP [ERR] VSE IDS: ALERT VM3 fault STORM 5 faults in <1000ms
-HYP [ERR] VSE IDS: ENFORCING — quarantining VM3 (STORM)
-HYP [ERR] VSE Phase 3: QUARANTINING VM3 'android'
-HYP [INF] VSE Phase 3: VM3 trust DEGRADED -> QUARANTINE
-HYP [INF] Power: gating VM3 'android' (0 devices)
-HYP [INF] Power: VM3 gated
-HYP [INF] VM 3 'android' suspended
-HYP [ERR] VSE IDS: ALERT VM3 RAPID escalation to QUARANTINE in 3ms
-HYP [WRN] VSE IDS: VM3 trust dropped TRUSTED -> QUARANTINE
-HYP [INF] VSE IDS: poll heartbeat — total_faults=5 new_anom=1
-HYP [INF] === VSE IDS: Summary ===
-HYP [INF]   records=11 anomalies=4 alerts=5 enforcements=1
-HYP [INF]   faults: mem=5 dma=0 irq=0 total=5
-HYP [INF]   VM1 trust=TRUSTED faults=0
-HYP [INF]   VM2 trust=TRUSTED faults=0
-HYP [INF]   VM3 trust=QUARANTINE faults=5
-HYP [INF] ========================
-HYP [INF] === VSE IDS: Audit Log (11 records) ===
-HYP [INF]   [1608531 us] VM3 FAULT WARN ft=0x0x0000000000000001 detail=0x0x800000000beef000 trust=TRUSTED
-HYP [INF]   [1609406 us] VM3 FAULT WARN ft=0x0x0000000000000001 detail=0x0x800000000bef0000 trust=TRUSTED
-HYP [INF]   [1610160 us] VM3 FAULT WARN ft=0x0x0000000000000001 detail=0x0x800000000bef1000 trust=TRUSTED
-HYP [INF]   [1610176 us] VM3 REPEAT ALERT ft=0x0x0000000000000001 detail=0x0x0000000000000003 trust=TRUSTED
-HYP [INF]   [1611156 us] VM3 FAULT WARN ft=0x0x0000000000000001 detail=0x0x800000000bef2000 trust=TRUSTED
-HYP [INF]   [1612143 us] VM3 FAULT WARN ft=0x0x0000000000000001 detail=0x0x800000000bef3000 trust=DEGRADED
-HYP [INF]   [1612156 us] VM3 STORM ALERT ft=0x0x0000000000000001 detail=0x0x0000000000000005 trust=DEGRADED
-HYP [INF]   [1613639 us] VM3 ENFORCE ALERT ft=0x0x0000000000000001 detail=0x0x0000000000000005 trust=QUARANTINE
-HYP [INF]   [1613682 us] VM3 RAPID-ESC ALERT ft=0x0x0000000000000001 detail=0x0x0000000000000e40 trust=QUARANTINE
-HYP [INF]   [1614075 us] VM3 TRUST-DROP ALERT ft=0x0x0000000000000000 detail=0x0x0000000000000103 trust=QUARANTINE
-HYP [INF]   [1614335 us] VM0 POLL INFO ft=0x0x0000000000000000 detail=0x0x0000000000000005 trust=UNKNOWN
-HYP [INF] =======================================
 HYP [INF] Operator login: initializing TOTP...
 HYP [INF] TOTP: initialized (RFC 6238, step=30s, current T=58377600)
 HYP [INF] TOTP: code verified (T=58377600, window=T)
@@ -343,9 +300,17 @@ HYP [INF] HVC: func=0x0x0000000000000068
 HYP [INF] HVC: func=0x0x0000000000000060
 HYP [INF] FUEL RAW: x1=0x0x0005001e05580320 x2=0x0x000000000000320f x3=0x0x0000006400000001 x4=0x0x0000000000000026
 HYP [INF] FUEL HVC: rpm=800 cool=30 thr=5 map=38 seq=1
-HYP [INF] CTX[0]: rtos -> linux (2000ms, wfi)
+HYP [INF] CTX[0]: rtos -> android (2000ms, wfi)
 HYP [INF]   [FUEL→HYP] RPM=800 inj=1368us thr=5% temp=30C seq=1
 HYP [INF]   [FUEL→HYP] Cyl1:OK Cyl2:OK Cyl3:OK Cyl4:OK DTC:none
+
+[ANDROID] Guest boot: Android audio VM
+[ANDROID] Audio HAL: PCM 44100Hz stereo 16-bit
+[ANDROID] Android VM booted successfully
+[AUDIO] >> PLAY track 01 - startup_chime.pcm
+HYP [INF] HVC: func=0x0x0000000000000071
+HYP [INF] CTX[1]: android -> linux (2000ms, wfi)
+HYP [INF]   [AUDIO→HYP] frames=0 dropped=0 lat=0ms playing
 [    0.000000] Booting Linux on physical CPU 0x0000000000 [0x411fd070]
 [    0.000000] Linux version 6.6.0 (rishi@BLRTESLTP-11854) (aarch64-linux-gnu-gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, GNU ld (GNU Binutils for Ubuntu) 2.42) #1 SMP PREEMPT Thu May 21 15:21:50 IST 2026
 [    0.000000] KASLR disabled due to lack of seed
@@ -448,242 +413,121 @@ gicv3_dist_read: invalid guest read at offset 000000000000000c size 4
 [    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
 [    0.000000] arch_timer: cp15 timer(s) running at 62.50MHz (virt).
 [    0.000000] clocksource: arch_sys_counter: mask: 0x1ffffffffffffff max_cycles: 0x1cd42e208c, max_idle_ns: 881590405314 ns
-[    0.000220] sched_clock: 57 bits at 63MHz, resolution 16ns, wraps every 4398046511096ns
+[    0.000618] sched_clock: 57 bits at 63MHz, resolution 16ns, wraps every 4398046511096ns
 HYP [INF] HVC: func=0x0x0000000080000001
 HYP [INF] PSCI/SMCCC: func=0x0x0000000080000001
 HYP [INF] PSCI: SMCCC_ARCH_FEATURES func=0x0x00000000c5000020 -> not supported
-[    0.023433] Console: colour dummy device 80x25
-[    0.029935] Calibrating delay loop (skipped), value calculated using timer frequency.. 125.00 BogoMIPS (lpj=250000)
-[    0.031200] pid_max: default: 32768 minimum: 301
-[    0.035457] LSM: initializing lsm=capability,integrity
-[    0.041379] Mount-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
-[    0.042178] Mountpoint-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
-[    0.112241] cacheinfo: Unable to detect cache hierarchy for CPU 0
-[    0.136327] RCU Tasks: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1.
-[    0.138792] RCU Tasks Trace: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1.
-[    0.142184] rcu: Hierarchical SRCU implementation.
-[    0.142511] rcu: 	Max phase no-delay instances is 1000.
-[    0.150084] EFI services will not be available.
-[    0.154216] smp: Bringing up secondary CPUs ...
-[    0.157052] smp: Brought up 1 node, 1 CPU
-[    0.157498] SMP: Total of 1 processors activated.
-[    0.158061] CPU features: detected: 32-bit EL0 Support
-[    0.158521] CPU features: detected: 32-bit EL1 Support
-[    0.159069] CPU features: detected: CRC32 instructions
+[    0.024382] Console: colour dummy device 80x25
+[    0.031220] Calibrating delay loop (skipped), value calculated using timer frequency.. 125.00 BogoMIPS (lpj=250000)
+[    0.032503] pid_max: default: 32768 minimum: 301
+[    0.036805] LSM: initializing lsm=capability,integrity
+[    0.042949] Mount-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    0.043719] Mountpoint-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    0.102619] cacheinfo: Unable to detect cache hierarchy for CPU 0
+[    0.117587] RCU Tasks: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1.
+[    0.118922] RCU Tasks Trace: Setting shift to 0 and lim to 1 rcu_task_cb_adjust=1.
+[    0.122530] rcu: Hierarchical SRCU implementation.
+[    0.122837] rcu: 	Max phase no-delay instances is 1000.
+[    0.130235] EFI services will not be available.
+[    0.132489] smp: Bringing up secondary CPUs ...
+[    0.134789] smp: Brought up 1 node, 1 CPU
+[    0.135075] SMP: Total of 1 processors activated.
+[    0.135415] CPU features: detected: 32-bit EL0 Support
+[    0.135694] CPU features: detected: 32-bit EL1 Support
+[    0.136014] CPU features: detected: CRC32 instructions
 HYP [INF] HVC: func=0x0x0000000080000001
 HYP [INF] PSCI/SMCCC: func=0x0x0000000080000001
 HYP [INF] PSCI: SMCCC_ARCH_FEATURES func=0x0x0000000080008000 -> not supported
 HYP [INF] HVC: func=0x0x0000000080000001
 HYP [INF] PSCI/SMCCC: func=0x0x0000000080000001
 HYP [INF] PSCI: SMCCC_ARCH_FEATURES func=0x0x0000000080007fff -> not supported
-[    0.167045] CPU: All CPU(s) started at EL1
-[    0.168180] alternatives: applying system-wide alternatives
-[    0.203270] devtmpfs: initialized
-[    0.225050] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
-[    0.225774] futex hash table entries: 256 (order: 2, 16384 bytes, linear)
-[    0.233933] pinctrl core: initialized pinctrl subsystem
-[    0.252601] DMI not present or invalid.
-[    0.289400] NET: Registered PF_NETLINK/PF_ROUTE protocol family
-[    0.313440] DMA: preallocated 128 KiB GFP_KERNEL pool for atomic allocations
-[    0.314817] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
-[    0.316260] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
-[    0.317056] audit: initializing netlink subsys (disabled)
-[    0.320237] audit: type=2000 audit(0.264:1): state=initialized audit_enabled=0 res=1
-[    0.328815] thermal_sys: Registered thermal governor 'step_wise'
-[    0.328886] thermal_sys: Registered thermal governor 'power_allocator'
-[    0.329789] cpuidle: using governor menu
-[    0.332206] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
-[    0.333392] ASID allocator initialised with 65536 entries
-[    0.344061] Serial: AMBA PL011 UART driver
-[    0.363304] 9000000.pl011: ttyAMA0 at MMIO 0x9000000 (irq = 13, base_baud = 0) is a PL011 rev1
-[    0.365592] printk: console [ttyAMA0] enabled
-[    0.365592] printk: console [ttyAMA0] enabled
-[    0.366723] printk: bootconsole [pl11] disabled
-[    0.366723] printk: bootconsole [pl11] disabled
-[    0.386765] Modules: 22432 pages in range for non-PLT usage
-[    0.386817] Modules: 513952 pages in range for PLT usage
-[    0.393866] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
-[    0.394460] HugeTLB: 0 KiB vmemmap can be freed for a 1.00 GiB page
-[    0.394809] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
-[    0.395115] HugeTLB: 0 KiB vmemmap can be freed for a 32.0 MiB page
-[    0.395394] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
-[    0.395965] HugeTLB: 0 KiB vmemmap can be freed for a 2.00 MiB page
-[    0.396271] HugeTLB: registered 64.0 KiB page size, pre-allocated 0 pages
-[    0.396590] HugeTLB: 0 KiB vmemmap can be freed for a 64.0 KiB page
-[    0.412440] ACPI: Interpreter disabled.
-[    0.419070] iommu: Default domain type: Translated
-[    0.419369] iommu: DMA domain TLB invalidation policy: strict mode
-[    0.421644] SCSI subsystem initialized
-[    0.422997] libata version 3.00 loaded.
-[    0.425533] usbcore: registered new interface driver usbfs
-[    0.426087] usbcore: registered new interface driver hub
-[    0.426598] usbcore: registered new device driver usb
-[    0.428592] pps_core: LinuxPPS API ver. 1 registered
-[    0.428849] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
-[    0.429351] PTP clock support registered
-[    0.430368] EDAC MC: Ver: 3.0.0
-[    0.432915] scmi_core: SCMI protocol bus registered
-[    0.436287] FPGA manager framework
-[    0.437581] Advanced Linux Sound Architecture Driver Initialized.
-[    0.453013] vgaarb: loaded
-[    0.456606] clocksource: Switched to clocksource arch_sys_counter
-[    0.461731] VFS: Disk quotas dquot_6.6.0
-[    0.462223] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
-[    0.464951] pnp: PnP ACPI: disabled
-[    0.494102] NET: Registered PF_INET protocol family
-[    0.496904] IP idents hash table entries: 32768 (order: 6, 262144 bytes, linear)
-[    0.505549] tcp_listen_portaddr_hash hash table entries: 1024 (order: 2, 16384 bytes, linear)
-[    0.506076] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
-[    0.506514] TCP established hash table entries: 16384 (order: 5, 131072 bytes, linear)
-[    0.507434] TCP bind hash table entries: 16384 (order: 7, 524288 bytes, linear)
-[    0.508992] TCP: Hash tables configured (established 16384 bind 16384)
-[    0.511141] UDP hash table entries: 1024 (order: 3, 32768 bytes, linear)
-[    0.512153] UDP-Lite hash table entries: 1024 (order: 3, 32768 bytes, linear)
-[    0.514944] NET: Registered PF_UNIX/PF_LOCAL protocol family
-[    0.520554] RPC: Registered named UNIX socket transport module.
-[    0.521269] RPC: Registered udp transport module.
-[    0.521527] RPC: Registered tcp transport module.
-[    0.521769] RPC: Registered tcp-with-tls transport module.
-[    0.522009] RPC: Registered tcp NFSv4.1 backchannel transport module.
-[    0.522445] PCI: CLS 0 bytes, default 64
-[    0.525402] kvm [1]: HYP mode not available
-[    0.531753] Unpacking initramfs...
-[    0.535734] Initialise system trusted keyrings
-[    0.543245] workingset: timestamp_bits=42 max_order=18 bucket_order=0
-[    0.550668] squashfs: version 4.0 (2009/01/31) Phillip Lougher
-[    0.558668] NFS: Registering the id_resolver key type
-[    0.559963] Key type id_resolver registered
-[    0.560228] Key type id_legacy registered
-[    0.564985] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
-[    0.565426] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
-[    0.566894] 9p: Installing v9fs 9p2000 file system support
-[    0.754873] Freeing initrd memory: 1428K
-[    0.759513] Key type asymmetric registered
-[    0.759845] Asymmetric key parser 'x509' registered
-[    0.760914] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 245)
-[    0.761510] io scheduler mq-deadline registered
-[    0.761805] io scheduler kyber registered
-[    0.762428] io scheduler bfq registered
-[    0.792210] EINJ: ACPI disabled.
-[    0.842610] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
-[    0.853382] SuperH (H)SCI(F) driver initialized
-[    0.854443] msm_serial: driver initialized
-[    0.856020] STM32 USART driver initialized
-[    0.885605] loop: module loaded
-[    0.889134] megasas: 07.725.01.00-rc1
-[    0.906339] tun: Universal TUN/TAP device driver, 1.6
-[    0.909243] thunder_xcv, ver 1.0
-[    0.909567] thunder_bgx, ver 1.0
-[    0.909875] nicpf, ver 1.0
-[    0.912759] hns3: Hisilicon Ethernet Network Driver for Hip08 Family - version
-[    0.913116] hns3: Copyright (c) 2017 Huawei Corporation.
-[    0.913830] hclge is initializing
-[    0.914187] e1000: Intel(R) PRO/1000 Network Driver
-[    0.914429] e1000: Copyright (c) 1999-2006 Intel Corporation.
-[    0.914832] e1000e: Intel(R) PRO/1000 Network Driver
-[    0.915074] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
-[    0.915487] igb: Intel(R) Gigabit Ethernet Network Driver
-[    0.915756] igb: Copyright (c) 2007-2014 Intel Corporation.
-[    0.916113] igbvf: Intel(R) Gigabit Virtual Function Network Driver
-[    0.916634] igbvf: Copyright (c) 2009 - 2012 Intel Corporation.
-[    0.917555] sky2: driver version 1.30
-[    0.920694] VFIO - User Level meta-driver version: 0.3
-[    0.927886] usbcore: registered new interface driver usb-storage
-[    0.934348] i2c_dev: i2c /dev entries driver
-[    0.948177] sdhci: Secure Digital Host Controller Interface driver
-[    0.948711] sdhci: Copyright(c) Pierre Ossman
-[    0.949996] Synopsys Designware Multimedia Card Interface Driver
-[    0.951656] sdhci-pltfm: SDHCI platform and OF driver helper
-[    0.955275] ledtrig-cpu: registered to indicate activity on CPUs
-[    0.961366] usbcore: registered new interface driver usbhid
-[    0.961798] usbhid: USB HID core driver
-[    0.980096] NET: Registered PF_PACKET protocol family
-[    0.982727] 9pnet: Installing 9P2000 support
-[    0.983385] Key type dns_resolver registered
-[    1.018047] registered taskstats version 1
-[    1.020121] Loading compiled-in X.509 certificates
-[    1.050726] clk: Disabling unused clocks
-[    1.051323] ALSA device list:
-[    1.051595]   No soundcards found.
-[    1.059033] uart-pl011 9000000.pl011: no DMA platform data
-HYP [INF] CTX[1]: linux -> rtos (500ms, timer)
-HYP [INF]   [OBD→HYP] RPM=800 speed=21km/h cool=30C seq=1
-HYP [INF]   [HYP→FUEL] Last seq=1 — RTOS will update
-
-[RTOS] *** Tessolve RTOS — Fuel Injection ECU v1.0 ***
-[RTOS] Engine: 4-cyl 2.0L gasoline, Bosch-style injection
-[RTOS] self-test tick 1
-[RTOS] self-test tick 2
-[RTOS] self-test tick 3
-[RTOS] self-test tick 4
-[RTOS] self-test tick 5
-[RTOS] self-test tick 6
-[RTOS] self-test tick 7
-[RTOS] self-test tick 8
-[RTOS] self-test tick 9
-[RTOS] self-test tick 10
-[RTOS] Self-test complete — starting fuel ECU loop
-[RTOS] !! ROGUE: issuing out-of-bounds DMA burst @IPA 0x50000000
-HYP [INF] HVC: func=0x0x0000000000000068
-HYP [WRN] DMA: VM2 IPA=0x0x0000000050000000+0x0x0000000000001000 not in S2 — DENIED
-HYP [ERR] DMA VIOLATION: stream=47824 VM2 PA=0x0x0000000050000000 size=0x0x0000000000001000
-HYP [ERR] DMA VIOLATION: peripheral attempted out-of-bounds DMA
-HYP [ERR] VSE Phase 5: VM2 DMA violation stream=47824 PA=0x0x0000000050000000 size=0x0x0000000000001000
-HYP [WRN] VSE Phase 3: VM2 fault type=0x0x0000000000000002 detail=0x0x0000000050000000 (count=9)
-HYP [INF] HVC: func=0x0x0000000000000068
-HYP [WRN] DMA: VM2 IPA=0x0x0000000050001000+0x0x0000000000001000 not in S2 — DENIED
-HYP [ERR] DMA VIOLATION: stream=47825 VM2 PA=0x0x0000000050001000 size=0x0x0000000000001000
-HYP [ERR] DMA VIOLATION: peripheral attempted out-of-bounds DMA
-HYP [ERR] VSE Phase 5: VM2 DMA violation stream=47825 PA=0x0x0000000050001000 size=0x0x0000000000001000
-HYP [WRN] VSE Phase 3: VM2 fault type=0x0x0000000000000002 detail=0x0x0000000050001000 (count=10)
-HYP [INF] HVC: func=0x0x0000000000000068
-HYP [WRN] DMA: VM2 IPA=0x0x0000000050002000+0x0x0000000000001000 not in S2 — DENIED
-HYP [ERR] DMA VIOLATION: stream=47826 VM2 PA=0x0x0000000050002000 size=0x0x0000000000001000
-HYP [ERR] DMA VIOLATION: peripheral attempted out-of-bounds DMA
-HYP [ERR] VSE Phase 5: VM2 DMA violation stream=47826 PA=0x0x0000000050002000 size=0x0x0000000000001000
-HYP [WRN] VSE Phase 3: VM2 fault type=0x0x0000000000000002 detail=0x0x0000000050002000 (count=11)
-HYP [INF] HVC: func=0x0x0000000000000068
-HYP [WRN] DMA: VM2 IPA=0x0x0000000050003000+0x0x0000000000001000 not in S2 — DENIED
-HYP [ERR] DMA VIOLATION: stream=47827 VM2 PA=0x0x0000000050003000 size=0x0x0000000000001000
-HYP [ERR] DMA VIOLATION: peripheral attempted out-of-bounds DMA
-HYP [ERR] VSE Phase 5: VM2 DMA violation stream=47827 PA=0x0x0000000050003000 size=0x0x0000000000001000
-HYP [WRN] VSE Phase 3: VM2 fault type=0x0x0000000000000002 detail=0x0x0000000050003000 (count=12)
-HYP [INF] HVC: func=0x0x0000000000000068
-HYP [WRN] DMA: VM2 IPA=0x0x0000000050004000+0x0x0000000000001000 not in S2 — DENIED
-HYP [ERR] DMA VIOLATION: stream=47828 VM2 PA=0x0x0000000050004000 size=0x0x0000000000001000
-HYP [ERR] DMA VIOLATION: peripheral attempted out-of-bounds DMA
-HYP [ERR] VSE Phase 5: VM2 DMA violation stream=47828 PA=0x0x0000000050004000 size=0x0x0000000000001000
-HYP [WRN] VSE Phase 3: VM2 fault type=0x0x0000000000000002 detail=0x0x0000000050004000 (count=13)
-HYP [ERR] VSE IDS: ALERT VM2 fault STORM 5 faults in <1000ms
-HYP [ERR] VSE IDS: ENFORCING — quarantining VM2 (STORM)
-HYP [ERR] VSE Phase 3: QUARANTINING VM2 'rtos'
-HYP [INF] VSE Phase 3: VM2 trust DEGRADED -> QUARANTINE
-HYP [INF] Power: gating VM2 'rtos' (0 devices)
-HYP [INF] Power: VM2 gated
-HYP [INF] VM 2 'rtos' suspended
-HYP [WRN] VSE Phase 6: quarantine of critical VM2 — invoking failover
-HYP [ERR] VSE Phase 6: FAILOVER VM2 'rtos' attempt 2 — restarting from backup OS
-HYP [INF] S2 UNMAP IPA=0x0x0000000000000000 size=0x0x000000000f000000 VM=2
-HYP [INF] S2 UNMAP IPA=0x0x0000000009000000 size=0x0x0000000000001000 VM=2
-HYP [INF] S2 UNMAP IPA=0x0x000000000b001000 size=0x0x0000000000001000 VM=2
-HYP [INF] VM 2 'rtos' stopped
-HYP [INF] VSE Phase 6: VM2 restored 8192 bytes from backup 0x0x0000000090000000 -> live 0x0x0000000060008000
-HYP [INF] VM finalize start
-HYP [INF] MEM FLAGS raw=0x0x0000000000000007 MEM_X=0x0x0000000000000004 result=0
-HYP [INF] S2 MAP START IPA=0x0x0000000000000000 -> PA=0x0x0000000060000000 size=0x0x000000000f000000
-HYP [INF] FAULT PAGE MAP IPA=0x0x0000000002236000 PA=0x0x0000000062236000 DESC=0x0x00000000622367ff
-HYP [INF] Mapped Linux fault page IPA=0x0x0000000002bff000 -> PA=0x0x0000000062bff000
-HYP [INF] MEM FLAGS raw=0x0x000000000000000b MEM_X=0x0x0000000000000000 result=1
-HYP [INF] S2 MAP START IPA=0x0x0000000009000000 -> PA=0x0x0000000009000000 size=0x0x0000000000001000
-HYP [INF] MEM FLAGS raw=0x0x000000000000000b MEM_X=0x0x0000000000000000 result=1
-HYP [INF] S2 MAP START IPA=0x0x000000000b001000 -> PA=0x0x000000000b001000 size=0x0x0000000000001000
-HYP [INF] vCPU 0 init VM 2
-HYP [INF]   entry IPA : 0x0x0000000000008000
-HYP [INF]   DTB IPA   : 0x0x0000000000000000
-HYP [INF]   VTTBR     : 0x0x0002000040413000
-HYP [INF] VM 2 'rtos' finalized (1 vCPUs)
-HYP [INF] VSE Phase 6: VM2 vCPU0 entry reset to 0x0x0000000000008000
-HYP [INF] VM 2 'rtos' started
-HYP [INF] VSE Phase 3: VM2 trust QUARANTINE -> DEGRADED
-HYP [INF] VSE Phase 6: VM2 'rtos' recovered via backup OS (attempt 2)
-qemu-system-aarch64: terminating on signal 15 from pid 52519 (timeout)
+[    0.140708] CPU: All CPU(s) started at EL1
+[    0.141786] alternatives: applying system-wide alternatives
+[    0.169153] devtmpfs: initialized
+[    0.193440] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.194168] futex hash table entries: 256 (order: 2, 16384 bytes, linear)
+[    0.201227] pinctrl core: initialized pinctrl subsystem
+[    0.218797] DMI not present or invalid.
+[    0.255466] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.278774] DMA: preallocated 128 KiB GFP_KERNEL pool for atomic allocations
+[    0.280833] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.282550] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.283821] audit: initializing netlink subsys (disabled)
+[    0.288945] audit: type=2000 audit(0.248:1): state=initialized audit_enabled=0 res=1
+[    0.303144] thermal_sys: Registered thermal governor 'step_wise'
+[    0.303264] thermal_sys: Registered thermal governor 'power_allocator'
+[    0.304743] cpuidle: using governor menu
+[    0.308825] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[    0.310365] ASID allocator initialised with 65536 entries
+[    0.326749] Serial: AMBA PL011 UART driver
+[    0.361212] 9000000.pl011: ttyAMA0 at MMIO 0x9000000 (irq = 13, base_baud = 0) is a PL011 rev1
+[    0.365636] printk: console [ttyAMA0] enabled
+[    0.365636] printk: console [ttyAMA0] enabled
+[    0.367324] printk: bootconsole [pl11] disabled
+[    0.367324] printk: bootconsole [pl11] disabled
+[    0.404767] Modules: 22432 pages in range for non-PLT usage
+[    0.404854] Modules: 513952 pages in range for PLT usage
+[    0.416413] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+[    0.417378] HugeTLB: 0 KiB vmemmap can be freed for a 1.00 GiB page
+[    0.417951] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
+[    0.418687] HugeTLB: 0 KiB vmemmap can be freed for a 32.0 MiB page
+[    0.419199] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[    0.419723] HugeTLB: 0 KiB vmemmap can be freed for a 2.00 MiB page
+[    0.420183] HugeTLB: registered 64.0 KiB page size, pre-allocated 0 pages
+[    0.420697] HugeTLB: 0 KiB vmemmap can be freed for a 64.0 KiB page
+[    0.443456] ACPI: Interpreter disabled.
+[    0.453420] iommu: Default domain type: Translated
+[    0.453949] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.457718] SCSI subsystem initialized
+[    0.459899] libata version 3.00 loaded.
+[    0.464229] usbcore: registered new interface driver usbfs
+[    0.465166] usbcore: registered new interface driver hub
+[    0.466230] usbcore: registered new device driver usb
+[    0.469345] pps_core: LinuxPPS API ver. 1 registered
+[    0.469810] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.471008] PTP clock support registered
+[    0.472328] EDAC MC: Ver: 3.0.0
+[    0.476649] scmi_core: SCMI protocol bus registered
+[    0.481729] FPGA manager framework
+[    0.484005] Advanced Linux Sound Architecture Driver Initialized.
+[    0.509615] vgaarb: loaded
+[    0.520981] clocksource: Switched to clocksource arch_sys_counter
+[    0.526395] VFS: Disk quotas dquot_6.6.0
+[    0.527083] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+[    0.531250] pnp: PnP ACPI: disabled
+[    0.581768] NET: Registered PF_INET protocol family
+[    0.586952] IP idents hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[    0.600950] tcp_listen_portaddr_hash hash table entries: 1024 (order: 2, 16384 bytes, linear)
+[    0.601871] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.603833] TCP established hash table entries: 16384 (order: 5, 131072 bytes, linear)
+[    0.605708] TCP bind hash table entries: 16384 (order: 7, 524288 bytes, linear)
+[    0.608508] TCP: Hash tables configured (established 16384 bind 16384)
+[    0.612029] UDP hash table entries: 1024 (order: 3, 32768 bytes, linear)
+[    0.613298] UDP-Lite hash table entries: 1024 (order: 3, 32768 bytes, linear)
+[    0.616736] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    0.624507] RPC: Registered named UNIX socket transport module.
+[    0.625097] RPC: Registered udp transport module.
+[    0.625504] RPC: Registered tcp transport module.
+[    0.625876] RPC: Registered tcp-with-tls transport module.
+[    0.626588] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.627351] PCI: CLS 0 bytes, default 64
+[    0.634572] kvm [1]: HYP mode not available
+[    0.647858] Initialise system trusted keyrings
+[    0.650848] Unpacking initramfs...
+[    0.655893] workingset: timestamp_bits=42 max_order=18 bucket_order=0
+[    0.665117] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.676398] NFS: Registering the id_resolver key type
+[    0.677822] Key type id_resolver registered
+[    0.682392] Key type id_legacy registered
+[    0.683676] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.684374] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[    0.690864] 9p: Installing v9fs 9p2000 file system support
+[    0.899645] Key type asymmetric registered
+[    0.900032] Asymmetric key parser 'x509' registered
+[    0.900794] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 245)
+[    0.901375] io scheduler mq-deadline registered
+[    0.901714] io scheduler kyber registered
+[    0.906580] io scheduler bfq registered
+[    0.916998] Freeing initrd memory: 1428K
+[    0.957941] EINJ: ACPI disabled.
+qemu-system-aarch64: terminating on signal 15 from pid 65180 (bash)
