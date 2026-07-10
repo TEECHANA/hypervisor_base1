@@ -28,7 +28,9 @@
  * (e.g. `ls -l guests/linux/Image`).
  */
 typedef struct {
-    const char *name;        /* matches vm->name */
+    char        name[12];    /* matches vm->name; fixed array (no pointer reloc)
+                              * so the const table lands in .rodata, not
+                              * .data.rel.ro — see the const note on _guests[]. */
     u64         load_pa;     /* physical address the image was loaded to */
     u64         image_size;  /* bytes to hash (file size) */
     bool        provisioned; /* is a golden hash set below? */
@@ -46,7 +48,9 @@ typedef struct {
  * golden[] starts unprovisioned (provisioned=false) → learn mode logs the hash.
  * After learning, paste the 32 bytes and set provisioned=true.
  */
-static guest_desc_t _guests[] = {
+/* const so the golden table lands in .rodata and is covered by the Phase 2
+ * component measurement (guest goldens are then integrity-protected too). */
+static const guest_desc_t _guests[] = {
     { "linux", 0x41200000ULL, 41656832ULL, true, {
         0x27, 0x40, 0x7c, 0xef, 0xc6, 0x0c, 0xe5, 0x6c,
         0xe1, 0x0b, 0xaf, 0xbb, 0xa4, 0x0b, 0x84, 0x3e,
@@ -73,12 +77,12 @@ static guest_desc_t _guests[] = {
 /* Hash chunk size for streaming. */
 #define GMEAS_CHUNK 4096u
 
-static guest_desc_t *_find(const char *name)
+static const guest_desc_t *_find(const char *name)
 {
     for (u32 i = 0; i < NUM_GUESTS; i++)
         if (strcmp(_guests[i].name, name) == 0)
             return &_guests[i];
-    return (guest_desc_t *)0;
+    return (const guest_desc_t *)0;
 }
 
 static void _hash_region(u64 pa, u64 len, u8 out[SHA256_DIGEST])
@@ -108,7 +112,7 @@ static void _log_hash(const char *name, const u8 h[SHA256_DIGEST])
 gmeas_result_t guest_measure_vm(u32 vm_id, const char *name)
 {
     (void)vm_id;
-    guest_desc_t *g = _find(name);
+    const guest_desc_t *g = _find(name);
     if (!g) {
         LOG_WARN("VSE: guest '%s' has no measurement descriptor — SKIP", name);
         return GMEAS_SKIP;
