@@ -3,6 +3,7 @@
  */
 
 #include "login.h"
+#include "pw_verifier.h"    /* VSE_PW_VERIFIER — provisioned per deployment    */
 #include "totp.h"
 #include "hmac.h"            /* hmac_sha256, hmac_verify (constant-time compare) */
 #include "keystore.h"       /* vse_derive_secret — single provisioning root     */
@@ -19,18 +20,16 @@
  * device (defeats precomputed/rainbow-table attacks and binds the credential to
  * the unit). The plaintext password is NEVER stored on the device.
  *
- * The value below is the dev default: HMAC(dev-pepper, "changeme"). Regenerate
- * for a real password/device with scripts/totp_gen.py --pwverify <password>
- * (which mirrors this exact derivation). Change before deployment.
+ * The verifier bytes are NOT hardcoded here — they come from VSE_PW_VERIFIER
+ * (vse/pw_verifier.h), which defaults to HMAC(dev-pepper, "changeme"). Set the
+ * operator password per deployment WITHOUT editing this file:
+ *     scripts/provision_password.sh '<password>'   (regenerates pw_verifier.h)
+ * or override at build time with -DVSE_PW_VERIFIER='{...}'. Either way the dev
+ * default is preserved for tests. See pw_verifier.h.
  */
 #define LOGIN_PEPPER_LABEL  "vse-login-pepper-v1"
 
-static const u8 _pw_verifier[HMAC_SIZE] = {
-    0x21, 0x34, 0xf2, 0xdf, 0x9d, 0x60, 0xa8, 0x41,
-    0x3f, 0xb2, 0x15, 0x89, 0x56, 0xfa, 0x02, 0x7a,
-    0x19, 0xf4, 0x2f, 0xfd, 0x4b, 0xe7, 0x3a, 0x9e,
-    0x9e, 0x17, 0xdb, 0x24, 0x77, 0xdc, 0xed, 0xf5,
-};
+static const u8 _pw_verifier[HMAC_SIZE] = VSE_PW_VERIFIER;
 
 static bool _check_password(const char *pw, u32 len)
 {

@@ -69,15 +69,61 @@ def totp(secret, unix_time, step=STEP_S):
     return T, hotp(secret, T)
 
 
-def pwverify(password, master_key=DEV_MASTER_KEY):
+def pwverify_bytes(password, master_key=DEV_MASTER_KEY):
     """Mirror vse/login.c: HMAC(pepper, password), pepper=derive(pepper_label,32)."""
     pepper = derive_secret(LOGIN_PEPPER_LABEL, 32, master_key)
-    d = hmac.new(pepper, password.encode(), hashlib.sha256).digest()
+    return hmac.new(pepper, password.encode(), hashlib.sha256).digest()
+
+
+def pwverify(password, master_key=DEV_MASTER_KEY):
+    """C-array body (four comma-separated rows) for _pw_verifier[]."""
+    d = pwverify_bytes(password, master_key)
     lines = []
     for i in range(0, 32, 8):
         chunk = d[i:i+8]
         lines.append("    " + ", ".join(f"0x{b:02x}" for b in chunk) + ",")
     return "\n".join(lines)
+
+
+def pw_header(password, master_key=DEV_MASTER_KEY, is_dev=True):
+    """Full text of vse/pw_verifier.h defining VSE_PW_VERIFIER for `password`.
+
+    login.c does `static const u8 _pw_verifier[HMAC_SIZE] = VSE_PW_VERIFIER;`
+    so this header (never login.c) is what a deployment edits. The #ifndef guard
+    also lets a build override it with -DVSE_PW_VERIFIER='{...}'.
+    """
+    d = pwverify_bytes(password, master_key)
+    rows = []
+    for i in range(0, 32, 8):
+        rows.append("    " + ", ".join(f"0x{b:02x}" for b in d[i:i+8]) + ", \\")
+    body = "\n".join(rows)
+    # Describe the KEY source only — never echo the password (the whole point is
+    # the plaintext is never stored). is_dev tracks dev-key vs device-key, not
+    # whether the password is the "changeme" default.
+    keysrc = ("dev/QEMU master key" if is_dev
+              else "device master key (per-deployment)")
+    return (
+        "/*\n"
+        " * pw_verifier.h — provisioned VSE operator password verifier.\n"
+        " *\n"
+        " * Defines VSE_PW_VERIFIER = HMAC(login-pepper, password), the value\n"
+        " * login.c stores in _pw_verifier[]. Set the operator password per\n"
+        " * deployment by REGENERATING THIS FILE (never edit login.c):\n"
+        " *     scripts/provision_password.sh '<password>'\n"
+        " * or override at build time with -DVSE_PW_VERIFIER='{...}'.\n"
+        " *\n"
+        f" * Derived with the {keysrc}. The committed default is HMAC(., \"changeme\").\n"
+        " *\n"
+        " * NOTE: this array lives in the Phase 2-measured .rodata. Changing it\n"
+        " * changes the .rodata golden ONLY (never .text); reprovision slot [1]\n"
+        " * of _golden_components[] (manual LEARN-mode boot) after a real change.\n"
+        " */\n"
+        "#ifndef VSE_PW_VERIFIER\n"
+        "#define VSE_PW_VERIFIER { \\\n"
+        f"{body}\n"
+        "}\n"
+        "#endif\n"
+    )
 
 
 def main():
@@ -89,12 +135,32 @@ def main():
                    help="Seconds since boot (added to --epoch)")
     p.add_argument("--step",    type=int, help="Explicit T step (skips time computation)")
     p.add_argument("--pwverify", type=str, help="Print _pw_verifier[] C array for PASSWORD")
+    p.add_argument("--pw-header", type=str, metavar="PASSWORD",
+                   help="Print full vse/pw_verifier.h defining VSE_PW_VERIFIER for PASSWORD")
+    p.add_argument("--master-key", type=str, metavar="HEX",
+                   help="Device master key as 64 hex chars (default: dev/QEMU key). "
+                        "Real deployments derive the pepper from the device key.")
     args = p.parse_args()
 
+    master_key = DEV_MASTER_KEY
+    is_dev = True
+    if args.master_key:
+        hexs = args.master_key.strip().replace(" ", "").replace("0x", "")
+        if len(hexs) != 64:
+            print("ERROR: --master-key must be 64 hex chars (32 bytes)", file=sys.stderr)
+            sys.exit(2)
+        master_key = bytes.fromhex(hexs)
+        is_dev = False
+
+    if args.pw_header is not None:
+        print(pw_header(args.pw_header, master_key, is_dev), end="")
+        return
+
     if args.pwverify:
-        print(f"_pw_verifier = HMAC(dev-pepper, {args.pwverify!r}) — paste into vse/login.c:")
+        origin = "dev-pepper" if is_dev else "device-pepper"
+        print(f"_pw_verifier = HMAC({origin}, {args.pwverify!r}) — paste into vse/pw_verifier.h:")
         print("static const u8 _pw_verifier[HMAC_SIZE] = {")
-        print(pwverify(args.pwverify))
+        print(pwverify(args.pwverify, master_key))
         print("};")
         return
 
