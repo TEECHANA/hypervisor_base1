@@ -1,0 +1,43 @@
+name: CI
+
+# Runs the guest-golden check, host-side unit tests, and the QEMU
+# integration suite on every pull request (and on pushes to main).
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Toolchain: aarch64 cross-compiler builds the hypervisor + source
+      # guests; qemu-system-aarch64 boots the integration test; python3 is
+      # used by the golden verifier and the TOTP generator.
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gcc-aarch64-linux-gnu qemu-system-arm python3
+
+      # check-guests rebuilds the source guests (rtos, android) and verifies
+      # every guest image against its Phase 2 golden.
+      - name: make check-guests
+        run: make check-guests
+
+      # Host-side unit tests (compiled with the native gcc, -DUNIT_TEST).
+      - name: make test-unit
+        run: make test-unit
+
+      # test-integration boots build/qemu/hypervisor.elf in QEMU, so the ELF
+      # must exist first. None of the three test targets build it, so build it
+      # here. (check-guests already produced the source-guest images above.)
+      - name: Build hypervisor ELF
+        run: make qemu
+
+      # Boot the hypervisor + 3 guests in QEMU, drive the 2FA login, and verify
+      # the end-to-end attestation / rogue-DMA / failover path.
+      - name: make test-integration
+        run: make test-integration
