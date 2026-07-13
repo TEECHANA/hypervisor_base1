@@ -34,9 +34,10 @@ if ! make -C "$ROOT" qemu BUILD_DIR="$BDIR" \
 fi
 ELF="$BDIR/hypervisor.elf"
 
-# Guests (rtos/android built from source; linux is a prebuilt blob). VM3 must
-# pass genuineness in trust_init to be TRUSTED before the self-test downgrades it.
-make -C "$ROOT" guest-rtos guest-android >/dev/null 2>&1
+# Guests are committed canonical blobs (their bytes ARE the goldens). Do NOT
+# rebuild — a rebuild on a different toolchain would drift from the golden and
+# fail VM3's genuineness check. VM3 must pass genuineness in trust_init to be
+# TRUSTED before the self-test downgrades it.
 LINUX="$ROOT/guests/linux/Image"; INITRD="$ROOT/guests/linux/initramfs.cpio.gz"
 RTOS="$ROOT/guests/rtos/rtos.bin"; ANDROID="$ROOT/guests/android_stub/android.bin"
 for g in "$LINUX" "$INITRD" "$RTOS" "$ANDROID"; do

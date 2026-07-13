@@ -138,18 +138,26 @@ guest-android:
 	$(MAKE) -C guests/android_stub CROSS=$(CROSS)
 
 # ── Validate Guest Images ───────────────────────────────────────
-# Rebuild the source-built guests (rtos, android) from scratch, then verify
-# every guest image's hash matches its golden in vse/guest_measure.c. This
-# catches golden drift (guest source changed without re-provisioning) at build
-# time, before boot-time attestation would reject the guest. Linux is a
-# prebuilt blob — not rebuilt here, only hash-verified.
-check-guests: guest-rtos guest-android
+# Verify every COMMITTED guest image's hash matches its golden in
+# vse/guest_measure.c. All three images (linux, rtos, android) are committed
+# canonical artifacts, so this is bit-reproducible on any machine (it does NOT
+# rebuild — source-built guests are not bit-identical across toolchains, which
+# is why CI on a different runner would otherwise fail). This is the boot-time
+# attestation check, run at build time.
+check-guests:
 	@test -f $(LINUX_IMG)   || (echo "ERROR: Missing $(LINUX_IMG)"; exit 1)
 	@test -f $(RTOS_IMG)    || (echo "ERROR: Missing $(RTOS_IMG)"; exit 1)
 	@test -f $(ANDROID_IMG) || (echo "ERROR: Missing $(ANDROID_IMG)"; exit 1)
-	@echo "  Verifying guest images against goldens (vse/guest_measure.c)..."
+	@echo "  Verifying committed guest images against goldens (vse/guest_measure.c)..."
 	@python3 scripts/verify_guest_goldens.py
 	@echo "  ✓ All guest images present and match goldens"
+
+# Local drift guard (NOT in CI): rebuild the source-built guests and confirm the
+# fresh bytes still match the committed golden. Only meaningful on the toolchain
+# that provisioned them — a mismatch means guest source changed (re-commit the
+# .bin and re-provision its golden) OR the toolchain differs.
+.PHONY: check-guests-rebuild
+check-guests-rebuild: guest-rtos guest-android check-guests
 
 # ── Run Hypervisor Only ─────────────────────────────────────────
 qemu-run: $(HYP_ELF)
