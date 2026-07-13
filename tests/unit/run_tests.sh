@@ -35,6 +35,20 @@ run phase4b          tests/unit/test_phase4b.c
 run phase4c          tests/unit/test_phase4c.c
 run phase4d          tests/unit/test_phase4d.c
 
+# Python host tests (not compiled — run directly). run_py counts pass/fail the
+# same way as the C tests so a failure is reported, not silently swallowed.
+run_py(){ local n="$1" s="$2"
+    if [[ ! -f "$s" ]]; then echo "SKIP $n (missing $s)"; return; fi
+    if python3 "$s" >"$RUNLOG" 2>&1; then
+        echo "PASS $n"; PASS=$((PASS + 1))
+    else
+        echo "FAIL $n"; FAIL=$((FAIL + 1))
+        sed 's/^/    /' "$RUNLOG" 2>/dev/null | head -20
+    fi
+}
+
+run_py ids_monitor_headless tests/unit/test_ids_monitor.py
+
 echo "Passed:$PASS  Failed:$FAIL"
 rm -f "$BIN" "$CCLOG" "$RUNLOG"
 [[ $FAIL -eq 0 ]]

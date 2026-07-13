@@ -22,9 +22,10 @@ of the hypervisor's '0x0x' hex prefix quirk and the freestanding logger format.
 import sys
 import os
 import re
-import time
-import tkinter as tk
-from tkinter import ttk, scrolledtext
+
+# tkinter is imported lazily inside main() only when the GUI is launched, so the
+# --headless path (and its unit test) run on machines with no python3-tk / no
+# display. The module-level names `tk` / `scrolledtext` are bound there.
 
 DEFAULT_LOG = "/tmp/key.log"
 POLL_MS = 400  # how often the GUI re-reads the log
@@ -47,6 +48,9 @@ RE_TRUST_DROP = re.compile(r"VSE IDS: VM(\d+) trust dropped\s+(\w+)\s*->\s*(\w+)
 RE_PHASE_TRUST= re.compile(r"VSE Phase 3: VM(\d+)\s+'([^']*)'\s*->\s*(\w+)")
 RE_HEARTBEAT  = re.compile(r"VSE IDS: poll heartbeat\s*[—-]+\s*total_faults=(\d+)\s+new_anom=(\d+)")
 RE_FAULT      = re.compile(r"VM(\d+)\s+(?:DMA violation|memory fault|PERMISSION fault|fault type)")
+# ── Phase 6 failover (organic quarantine -> restart from backup OS) ──
+RE_FO_ATTEMPT = re.compile(r"FAILOVER VM(\d+)\s+'([^']*)'\s+attempt\s+(\d+)")
+RE_FO_RECOVER = re.compile(r"VM(\d+)\s+'([^']*)'\s+recovered via backup OS\s*\(attempt\s+(\d+)\)")
 
 
 class IDSMonitor:
@@ -115,6 +119,7 @@ class IDSMonitor:
         self.feed.tag_config("alert", foreground="#ff7b72")
         self.feed.tag_config("enforce", foreground="#cf222e")
         self.feed.tag_config("quarantine", foreground="#cf222e")
+        self.feed.tag_config("failover", foreground="#58a6ff")
         self.feed.tag_config("trust", foreground="#d29922")
         self.feed.tag_config("beat", foreground="#3fb950")
         self.feed.tag_config("info", foreground="#8b949e")
@@ -211,6 +216,21 @@ class IDSMonitor:
             self._feed(f"VM{vm}  QUARANTINED", "quarantine")
             return
 
+        m = RE_FO_ATTEMPT.search(line)
+        if m:
+            vm, name, att = m.group(1), m.group(2), m.group(3)
+            self._set_vm(vm, name=name or None)
+            self._feed(f"VM{vm}  FAILOVER attempt {att} — restart from backup OS",
+                       "failover")
+            return
+
+        m = RE_FO_RECOVER.search(line)
+        if m:
+            vm, name, att = m.group(1), m.group(2), m.group(3)
+            self._set_vm(vm, name=name or None)
+            self._feed(f"VM{vm}  recovered via backup OS (attempt {att})", "failover")
+            return
+
         m = RE_PHASE_TRUST.search(line)
         if m:
             vm, name, level = m.group(1), m.group(2), m.group(3)
@@ -232,7 +252,7 @@ class IDSMonitor:
 def run_headless(log_path, follow):
     """Parse the log and print a summary to stdout — no tkinter required."""
     vm_trust = {}
-    counts = {"alerts": 0, "enforcements": 0, "faults": 0, "polls": 0}
+    counts = {"alerts": 0, "enforcements": 0, "faults": 0, "polls": 0, "failovers": 0}
     events = []
 
     def _parse(line):
@@ -263,6 +283,17 @@ def run_headless(log_path, follow):
             vm_trust[vm] = ("QUARANTINE", name or vm_trust.get(vm, ("", f"vm{vm}"))[1])
             events.append(f"[QUARANTINE] VM{vm}")
             return
+        m = RE_FO_ATTEMPT.search(line)
+        if m:
+            vm, name, att = m.group(1), m.group(2), m.group(3)
+            counts["failovers"] += 1
+            events.append(f"[FAILOVER] VM{vm} attempt {att} restart from backup OS")
+            return
+        m = RE_FO_RECOVER.search(line)
+        if m:
+            vm, name, att = m.group(1), m.group(2), m.group(3)
+            events.append(f"[FAILOVER] VM{vm} recovered via backup OS (attempt {att})")
+            return
         m = RE_PHASE_TRUST.search(line)
         if m:
             vm, name, level = m.group(1), m.group(2), m.group(3)
@@ -288,7 +319,8 @@ def run_headless(log_path, follow):
     print("=== VSE / IDS Headless Report ===")
     print(f"  source : {log_path}")
     print(f"  alerts={counts['alerts']}  enforcements={counts['enforcements']}"
-          f"  faults={counts['faults']}  polls={counts['polls']}")
+          f"  faults={counts['faults']}  polls={counts['polls']}"
+          f"  failovers={counts['failovers']}")
     print("--- Guest Trust State ---")
     for vm_id in sorted(vm_trust):
         level, name = vm_trust[vm_id]
@@ -299,7 +331,8 @@ def run_headless(log_path, follow):
     print("=================================")
     print(f"  SUMMARY: {counts['alerts']} alerts, "
           f"{counts['enforcements']} enforcements, "
-          f"{counts['polls']} polls")
+          f"{counts['polls']} polls, "
+          f"{counts['failovers']} failovers")
 
 
 def main():
@@ -317,6 +350,11 @@ def main():
     if headless:
         run_headless(log_path, follow)
     else:
+        # Bind tkinter into module scope only now — the GUI classes reference
+        # the module globals `tk` / `scrolledtext`, and headless never needs them.
+        global tk, scrolledtext
+        import tkinter as tk
+        from tkinter import scrolledtext
         root = tk.Tk()
         IDSMonitor(root, log_path, follow=follow)
         root.mainloop()
