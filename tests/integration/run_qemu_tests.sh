@@ -85,6 +85,21 @@ if grep -q "no distinct backup region" "$LOG"; then echo "  FAIL: restore fell b
 if grep -qE "VSE Phase 6: VM2 'rtos' recovered via backup OS" "$LOG"; then echo "  PASS: VM2 recovered + restarted (system continues)"
   else echo "  FAIL: VM2 did not recover via backup OS"; fails=$((fails + 1)); fi
 
+echo "=== Console restored after recovery (VM2 rtos-uart passthrough) ==="
+# VM2's rtos-uart is a 1:1 passthrough of the real console UART (0x09000000).
+# After failover restores VM2's Stage-2 mappings, the restarted RTOS must write
+# to the console again — i.e. raw guest lines ([RTOS]/[FUEL], no HYP prefix) must
+# appear AFTER the recovery marker in this same capture. This guards against a
+# failover/S2-remap change silently dropping the recovered guest's console.
+if awk '/recovered via backup OS/{r=1; next}
+        r && /^\[(RTOS|FUEL)\]/{found=1}
+        END{exit !found}' "$LOG"; then
+    echo "  PASS: RTOS console output resumes after recovery"
+else
+    echo "  FAIL: no RTOS console output after recovery (console not restored)"
+    fails=$((fails + 1))
+fi
+
 echo "=== .rodata Stage-1 write-protection (Audit #7b regression) ==="
 # Separate build+boot: needs a -DRODATA_WP_SELFTEST image in an isolated dir, so
 # it does NOT reuse the capture above. Proves a store to .rodata faults at EL2.
