@@ -54,13 +54,21 @@ typedef enum {
 #define TRUST_THRESH_QUARANTINE  15u
 #endif
 
+/* ── Auto-promotion: a DEGRADED VM with no new fault for this long (in
+ * microseconds, timer_now_us() base) is promoted back to TRUSTED. Overridable
+ * at build time (the runtime self-test shortens it). Default 30 s. ── */
+#ifndef TRUST_CLEAN_PERIOD_US
+#define TRUST_CLEAN_PERIOD_US    30000000ull
+#endif
+
 /* ── Per-VM trust record ── */
 typedef struct {
     trust_level_t level;
     u32           fault_count;     /* cumulative faults reported */
     u32           last_fault_type; /* most recent TRUST_FAULT_* */
     u64           last_fault_detail;
-    u64           downgrade_time;  /* cntpct when last downgraded */
+    u64           downgrade_time;  /* time (us) of last level change */
+    u64           last_fault_us;   /* time (us) of most recent fault */
 } trust_record_t;
 
 /* ── Trust engine state (indexed by vm_id-1) ── */
@@ -95,6 +103,16 @@ err_t trust_set(u32 vm_id, trust_level_t level);
  *   - REVOKED    → vm_stop()
  */
 err_t trust_report_fault(u32 vm_id, u32 fault_type, u64 detail);
+
+/*
+ * trust_auto_promote_tick — periodic upgrade scan (symmetric to the IDS
+ * downgrade watch). Any VM in DEGRADED that has gone TRUST_CLEAN_PERIOD_US
+ * with no new fault is promoted back to TRUSTED. `now_us` is the current
+ * timer_now_us() value (passed in so the caller owns the clock / so it is
+ * mockable under UNIT_TEST). Returns the number of VMs promoted.
+ * Called from ids_poll().
+ */
+u32 trust_auto_promote_tick(u64 now_us);
 
 /* ── Explicit enforcement (callable by policy / operator) ── */
 err_t trust_quarantine(u32 vm_id);  /* suspend + mark QUARANTINE */

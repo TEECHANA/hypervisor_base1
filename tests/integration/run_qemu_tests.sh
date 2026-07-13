@@ -95,6 +95,16 @@ else
     fails=$((fails + 1))
 fi
 
+echo "=== Trust auto-promotion (DEGRADED -> TRUSTED after clean period) ==="
+# Separate build+boot: a self-test image drives VM3 to DEGRADED then observes the
+# real ids_poll -> trust_auto_promote_tick promote it once the clean period lapses.
+if bash "$HERE/trust_promote_verify.sh"; then
+    echo "  PASS: trust auto-promotion regression"
+else
+    echo "  FAIL: trust auto-promotion regression"
+    fails=$((fails + 1))
+fi
+
 if [[ $fails -eq 0 ]]; then
     echo "All integration checks passed."
 else

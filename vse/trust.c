@@ -20,13 +20,19 @@
 
 trust_state_t g_trust;
 
-/* ── Internal: read ARM64 system counter for timestamps ── */
-static inline u64 _cntpct(void)
-{
-    u64 v;
-    asm volatile("mrs %0, cntpct_el0" : "=r"(v));
-    return v;
-}
+/* ── Internal: monotonic microsecond clock for trust timestamps ──
+ *
+ * Uses the platform timer at runtime. Under UNIT_TEST it reads a settable
+ * global instead, so the auto-promotion clean-period logic can be driven
+ * deterministically host-side with no ARM timer / asm dependency.
+ */
+#ifdef UNIT_TEST
+u64 g_trust_test_now_us = 0;               /* test-controlled clock */
+static inline u64 _now_us(void) { return g_trust_test_now_us; }
+#else
+#include "../drivers/timer/timer.h"        /* timer_now_us() */
+static inline u64 _now_us(void) { return timer_now_us(); }
+#endif
 
 /* ── Internal: validate vm_id and return zero-based index, or -1 ── */
 static inline s32 _idx(u32 vm_id)
@@ -121,7 +127,7 @@ err_t trust_set(u32 vm_id, trust_level_t level)
     trust_level_t old = g_trust.vm[ix].level;
     if (old != level) {
         g_trust.vm[ix].level = level;
-        g_trust.vm[ix].downgrade_time = _cntpct();
+        g_trust.vm[ix].downgrade_time = _now_us();
         LOG_INFO("VSE Phase 3: VM%u trust %s -> %s",
                  vm_id, trust_level_str(old), trust_level_str(level));
     }
@@ -237,6 +243,7 @@ err_t trust_report_fault(u32 vm_id, u32 fault_type, u64 detail)
     r->fault_count++;
     r->last_fault_type   = fault_type;
     r->last_fault_detail = detail;
+    r->last_fault_us     = _now_us();   /* for the auto-promote clean period */
     g_trust.total_faults++;
 
     LOG_WARN("VSE Phase 3: VM%u fault type=0x%x detail=0x%lx (count=%u)",
@@ -251,6 +258,36 @@ err_t trust_report_fault(u32 vm_id, u32 fault_type, u64 detail)
             trust_set(vm_id, TRUST_DEGRADED);
     }
     return E_OK;
+}
+
+/* ── trust_auto_promote_tick ──
+ *
+ * Periodic upgrade scan. A VM that was downgraded to DEGRADED (by faults) and
+ * has since stayed quiet for TRUST_CLEAN_PERIOD_US is promoted back to TRUSTED
+ * and its fault counter cleared. Only DEGRADED is auto-promoted: QUARANTINE and
+ * REVOKED require explicit restore/policy (a quarantined VM must be recovered,
+ * not silently re-trusted). Iterates g_trust directly (no vm_t dependency).
+ */
+u32 trust_auto_promote_tick(u64 now_us)
+{
+    if (!g_trust.initialized) return 0u;
+
+    u32 promoted = 0u;
+    for (u32 i = 0; i < MAX_VMS; i++) {
+        trust_record_t *r = &g_trust.vm[i];
+        if (r->level != TRUST_DEGRADED) continue;
+
+        /* Guard against a not-yet-stamped record and clock going backwards. */
+        if (now_us < r->last_fault_us) continue;
+        if ((now_us - r->last_fault_us) < (u64)TRUST_CLEAN_PERIOD_US) continue;
+
+        r->fault_count = 0u;
+        trust_set(i + 1u, TRUST_TRUSTED);
+        LOG_INFO("VSE Phase 3: VM%u trust DEGRADED -> TRUSTED "
+                 "(clean period elapsed)", i + 1u);
+        promoted++;
+    }
+    return promoted;
 }
 
 /* ── trust_print_status ── */

@@ -203,6 +203,10 @@ u32 ids_poll(void)
         g_ids.mon[i].last_seen_level = cur;
     }
 
+    /* Symmetric upgrade scan: promote DEGRADED VMs that have stayed clean long
+     * enough back to TRUSTED (Phase 3 auto-recovery). Uses the same `now`. */
+    trust_auto_promote_tick(now);
+
     /* Heartbeat record (carries the global fault total as detail). */
     _log(0u, IDS_EV_POLL, IDS_SEV_INFO, 0, (u64)g_trust.total_faults);
     LOG_INFO("VSE IDS: poll heartbeat — total_faults=%u new_anom=%u",

@@ -34,6 +34,7 @@ run phase4a_pmu      tests/unit/test_phase4a.c
 run phase4b          tests/unit/test_phase4b.c
 run phase4c          tests/unit/test_phase4c.c
 run phase4d          tests/unit/test_phase4d.c
+run trust_promote    tests/unit/test_trust_promote.c
 
 # Python host tests (not compiled — run directly). run_py counts pass/fail the
 # same way as the C tests so a failure is reported, not silently swallowed.
