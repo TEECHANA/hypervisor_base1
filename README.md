@@ -1,5 +1,7 @@
 # Tessolve Hypervisor with Guest OSes
 
+[![CI](https://github.com/TEECHANA/hypervisor_base1/actions/workflows/ci.yml/badge.svg)](https://github.com/TEECHANA/hypervisor_base1/actions/workflows/ci.yml)
+
 Type-1 ARM64 bare-metal hypervisor running **Linux**, **RTOS** and **Android**
 concurrently. Targets QEMU virt / Raspberry Pi 4 / NXP S32G.
 
