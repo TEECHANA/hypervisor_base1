@@ -15,8 +15,8 @@
 #
 # IMPORTANT — Phase 2 golden: the verifier lives in the measured .rodata.
 # Changing the password changes the .rodata golden ONLY (never .text). After
-# running this you MUST rebuild and reprovision slot [1] of _golden_components[]
-# by hand (LEARN-mode boot) — reprovision_golden.sh only handles .text (slot 0).
+# running this, rebuild and re-provision the goldens with:
+#     make reprovision-goldens        # auto-fixes BOTH .text and .rodata
 # The dev default ("changeme") is measurement-neutral and needs no reprovision.
 set -euo pipefail
 
@@ -58,9 +58,5 @@ if [[ ${#MK_ARGS[@]} -eq 0 ]]; then
 fi
 echo
 echo "Next steps:"
-echo "  1. make qemu           # rebuild with the new verifier"
-echo "  2. reprovision the Phase 2 .rodata golden (slot [1]) by hand:"
-echo "       - boot once, copy the Phase 2 .rodata 'Computed:' block"
-echo "       - paste into _golden_components[1] in vse/component_check.c"
-echo "       - rebuild"
-echo "     (reprovision_golden.sh only auto-fixes .text / slot [0].)"
+echo "  1. make reprovision-goldens   # rebuild + auto re-provision BOTH Phase 2"
+echo "                                # goldens (.text + .rodata) for the new verifier"

@@ -188,6 +188,14 @@ rpi4:
 s32g:
 	$(MAKE) PLATFORM=s32g CROSS=aarch64-linux-gnu-
 
+# ── Golden re-provisioning ─────────────────────────────────────
+# Auto re-derive BOTH Phase 2 component goldens (.text slot [0] and .rodata
+# slot [1]) in vse/component_check.c after an intentional source change, via a
+# single learn-mode boot. Run after changing measured hypervisor code.
+.PHONY: reprovision-goldens
+reprovision-goldens:
+	bash scripts/reprovision_goldens.sh
+
 # ── Tests ─────────────────────────────────────────────────────
 test-unit:
 	bash tests/unit/run_tests.sh
