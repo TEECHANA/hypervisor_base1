@@ -2,6 +2,11 @@
 #
 # reprovision_golden.sh — auto-fix the VSE Phase 2 .text golden hash.
 #
+# SUPERSEDED: use `make reprovision-goldens` (scripts/reprovision_goldens.sh),
+# which re-provisions BOTH goldens (.text slot [0] AND .rodata slot [1]) via one
+# learn-mode boot. This legacy script only handles .text and its enforce-mode
+# capture cannot see .rodata's hash (Phase 2 panics on the first mismatch).
+#
 # WHY THIS EXISTS
 # ---------------
 # Any change to the hypervisor's code changes its .text section, so the Phase 2
