@@ -184,6 +184,35 @@ void hyp_main(u32 cpu_id, paddr_t dtb_pa)
     e = ids_init();
     if (FAIL(e)) LOG_WARN("VSE IDS: ids_init failed (err=%d)", (int)e);
 
+#ifdef TRUST_PROMOTE_SELFTEST
+    /*
+     * Auto-promotion self-test (GAP E) — deterministic, runs here (after IDS
+     * init, before login) so it does NOT depend on the scheduler's context-
+     * switch cadence (ids_poll is otherwise only reached every 8th switch, which
+     * a bounded capture rarely hits). It exercises the REAL path:
+     *   1. drive VM3 to DEGRADED with the DEGRADED-threshold of faults,
+     *   2. spin against the real timer until the (shortened) clean period lapses,
+     *   3. call the real ids_poll() -> trust_auto_promote_tick(), which promotes
+     *      VM3 DEGRADED -> TRUSTED.
+     * tests/integration/trust_promote_verify.sh asserts that in the boot log.
+     * Guarded out of every normal build.
+     */
+    {
+        extern u64 timer_now_us(void);
+        LOG_WARN("TRUST-PROMOTE-SELFTEST: injecting %u faults into VM3 -> DEGRADED",
+                 (unsigned)TRUST_THRESH_DEGRADED);
+        for (u32 f = 0; f < TRUST_THRESH_DEGRADED; f++)
+            trust_report_fault(3u, TRUST_FAULT_GENERIC, 0xE5u);
+
+        u64 t0 = timer_now_us();
+        while ((timer_now_us() - t0) <= (u64)TRUST_CLEAN_PERIOD_US)
+            ISB();   /* spin out the clean period against the real counter */
+
+        LOG_WARN("TRUST-PROMOTE-SELFTEST: clean period elapsed, running ids_poll()");
+        ids_poll();  /* real hook -> trust_auto_promote_tick() -> promote VM3 */
+    }
+#endif
+
     /*
      * VSE Phase 6 — Backup OS failover.
      * Registers critical VMs with a backup image. When the trust engine
