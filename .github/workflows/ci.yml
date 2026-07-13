@@ -1,7 +1,13 @@
 name: CI
 
-# Runs the guest-golden check, host-side unit tests, and the QEMU
-# integration suite on every pull request (and on pushes to main).
+# Fast, deterministic checks on every pull request (and pushes to main):
+# guest-golden verification, host-side unit tests, and a hypervisor build.
+#
+# The QEMU integration suite (make test-integration) is intentionally NOT run
+# here: it boots the EL2 hypervisor with a full Linux guest, which needs KVM /
+# nested virtualization to complete in reasonable time. GitHub-hosted runners
+# have no acceleration for this workload (pure TCG), so it is run locally or on
+# an accelerated/self-hosted host instead. See tests/integration/.
 on:
   pull_request:
   push:
@@ -13,17 +19,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Toolchain: aarch64 cross-compiler builds the hypervisor + source
-      # guests; qemu-system-aarch64 boots the integration test; python3 is
-      # used by the golden verifier and the TOTP generator.
+      # Toolchain: aarch64 cross-compiler builds the hypervisor; python3 runs
+      # the golden verifier. (No QEMU needed — no boots run in CI.)
       - name: Install toolchain
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            gcc-aarch64-linux-gnu qemu-system-arm python3
+            gcc-aarch64-linux-gnu python3
 
-      # check-guests rebuilds the source guests (rtos, android) and verifies
-      # every guest image against its Phase 2 golden.
+      # Verify the committed guest images (linux, rtos, android) against their
+      # Phase 2 goldens. Bit-reproducible: verifies committed blobs, no rebuild.
       - name: make check-guests
         run: make check-guests
 
@@ -31,13 +36,6 @@ jobs:
       - name: make test-unit
         run: make test-unit
 
-      # test-integration boots build/qemu/hypervisor.elf in QEMU, so the ELF
-      # must exist first. None of the three test targets build it, so build it
-      # here. (check-guests already produced the source-guest images above.)
+      # Build the hypervisor ELF — confirms the full image compiles and links.
       - name: Build hypervisor ELF
         run: make qemu
-
-      # Boot the hypervisor + 3 guests in QEMU, drive the 2FA login, and verify
-      # the end-to-end attestation / rogue-DMA / failover path.
-      - name: make test-integration
-        run: make test-integration
