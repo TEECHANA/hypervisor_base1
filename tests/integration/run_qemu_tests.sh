@@ -85,6 +85,16 @@ if grep -q "no distinct backup region" "$LOG"; then echo "  FAIL: restore fell b
 if grep -qE "VSE Phase 6: VM2 'rtos' recovered via backup OS" "$LOG"; then echo "  PASS: VM2 recovered + restarted (system continues)"
   else echo "  FAIL: VM2 did not recover via backup OS"; fails=$((fails + 1)); fi
 
+echo "=== .rodata Stage-1 write-protection (Audit #7b regression) ==="
+# Separate build+boot: needs a -DRODATA_WP_SELFTEST image in an isolated dir, so
+# it does NOT reuse the capture above. Proves a store to .rodata faults at EL2.
+if bash "$HERE/rodata_wp_verify.sh"; then
+    echo "  PASS: .rodata write-protection regression"
+else
+    echo "  FAIL: .rodata write-protection regression"
+    fails=$((fails + 1))
+fi
+
 if [[ $fails -eq 0 ]]; then
     echo "All integration checks passed."
 else

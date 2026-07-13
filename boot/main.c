@@ -63,6 +63,31 @@ void hyp_main(u32 cpu_id, paddr_t dtb_pa)
     LOG_INFO("  DTB PA   : 0x%lx", dtb_pa);
     LOG_INFO("====================================");
 
+#ifdef RODATA_WP_SELFTEST
+    /*
+     * .rodata write-protection self-test (Audit #7b regression guard).
+     *
+     * mmu.S maps .rodata (L2[1], 0x40200000) read-only via AP[2]=1. This block
+     * deliberately stores to it: on a correctly protected build the store raises
+     * an EL2 Stage-1 permission fault and the hypervisor panics HERE — the
+     * "store returned" line below is NEVER reached. If .rodata were writable the
+     * store would succeed and that error line would print.
+     *
+     * tests/integration/rodata_wp_verify.sh boots a build with this define and
+     * asserts exactly that (panic present, "store returned" absent). The define
+     * is never set in a normal/production build, so this costs nothing there.
+     */
+    {
+        extern const u8 __rodata_start[];
+        volatile u8 *ro = (volatile u8 *)__rodata_start;
+        LOG_WARN("RODATA-WP-SELFTEST: storing 0xA5 to .rodata @ 0x%lx",
+                 (unsigned long)ro);
+        *ro = 0xA5;
+        LOG_ERROR("RODATA-WP-SELFTEST: store returned -- .rodata is NOT "
+                  "write-protected");
+    }
+#endif
+
     /*
      * VSE Phase 1 — Configuration integrity check.
      *

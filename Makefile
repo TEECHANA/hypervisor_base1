@@ -3,7 +3,10 @@
 # ═══════════════════════════════════════════════════════════════════
 
 PLATFORM    ?= qemu
-BUILD_DIR   = build/$(PLATFORM)
+# BUILD_DIR is overridable so a throwaway/self-test build (e.g. the .rodata
+# write-protect regression test) can compile into an isolated dir without
+# clobbering the normal build/qemu artifacts.
+BUILD_DIR   ?= build/$(PLATFORM)
 HYP_ELF     = $(BUILD_DIR)/hypervisor.elf
 
 CROSS       ?= aarch64-linux-gnu-
@@ -21,6 +24,9 @@ CFLAGS += -I.
 #CFLAGS += -DVSE_IDS_DEMO         # (retired) inject a single VM3 permission fault at boot
 #CFLAGS += -DVSE_IDS_STORM_DEMO   # (retired) inject a 5-fault VM3 storm at boot
 CFLAGS += -DINITRD_SIZE=$(INITRD_SIZE)  # <--- ADD THIS LINE
+# Extra flags appended last so callers can inject defines (e.g.
+# EXTRA_CFLAGS=-DRODATA_WP_SELFTEST) without overriding the whole CFLAGS set.
+CFLAGS += $(EXTRA_CFLAGS)
 ASM_SRCS = arch/arm64/entry.S arch/arm64/context.S arch/arm64/mmu.S
 
 C_SRCS = \
