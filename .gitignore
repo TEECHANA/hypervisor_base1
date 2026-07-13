@@ -8,9 +8,15 @@ build/
 __pycache__/
 *.pyc
 
-# Guest build outputs — guest *source* is tracked, compiled images are not
-# (the large prebuilt images like guests/linux/Image stay out of git too).
+# Guest build outputs — guest *source* is tracked, compiled images are not.
 guests/**/*.bin
 guests/**/*.elf
 guests/**/*.o
+# EXCEPT the two source-built guest images we ship as canonical artifacts (like
+# guests/linux/Image): their exact bytes ARE the Phase 2 guest goldens, so they
+# are committed for reproducible check-guests + boot attestation across machines.
+# After intentionally changing guest source: rebuild, re-commit the .bin, and
+# re-provision that guest's golden in vse/guest_measure.c.
+!guests/rtos/rtos.bin
+!guests/android_stub/android.bin
 *.bak
