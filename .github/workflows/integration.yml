@@ -7,10 +7,11 @@ name: Integration (QEMU)
 # full Linux guest under QEMU, which is far heavier than the fast checks.
 #
 # NOTE: GitHub-hosted runners have no KVM/nested virtualization, so this runs
-# under pure TCG. The pull_request trigger below is here to MEASURE whether that
-# completes in a reasonable time (timeout-minutes caps it). If it is too slow or
-# flaky, drop the pull_request trigger and keep schedule + workflow_dispatch
-# (nightly / on-demand) rather than gating every PR on a slow QEMU boot.
+# under pure TCG. Measured on PR #15: the full suite completes in ~1.5 min —
+# boot_capture drives to the quarantine/failover point and stops, so it never
+# waits for full Linux userspace — which makes per-PR gating practical. The
+# schedule + workflow_dispatch triggers add nightly / on-demand runs;
+# timeout-minutes caps the job in case a future change slows the boot.
 on:
   pull_request:
   workflow_dispatch:
