@@ -3,7 +3,7 @@
 test_ids_monitor.py — unit coverage for scripts/ids_monitor.py (headless path).
 
 Drives the monitor's headless parser (`--headless --once`) against a REAL
-captured runtime log, run_rogue_organic.log, and asserts it correctly parses
+captured runtime log, run_current.log, and asserts it correctly parses
 the organic VM2 attack chain: the IDS storm/enforcement quarantine AND the
 Phase 6 failover (restart from backup OS -> recovery).
 
@@ -22,7 +22,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))          # tests/unit -> repo root
 MONITOR = os.path.join(ROOT, "scripts", "ids_monitor.py")
-LOG = os.path.join(ROOT, "run_rogue_organic.log")
+LOG = os.path.join(ROOT, "run_current.log")
 
 _fails = []
 
@@ -50,7 +50,7 @@ def main():
         capture_output=True, text=True,
     )
     out = proc.stdout
-    print("=== ids_monitor --headless --once run_rogue_organic.log ===")
+    print("=== ids_monitor --headless --once run_current.log ===")
     check(proc.returncode == 0, f"exit code 0 (got {proc.returncode})")
     if proc.stderr.strip():
         print("  (stderr)\n" + proc.stderr)
