@@ -120,6 +120,17 @@ else
     fails=$((fails + 1))
 fi
 
+echo "=== Operator password provisioning (new password works, changeme fails) ==="
+# Separate build+boot: provisions a non-default password, then proves login
+# succeeds with it and is denied with the old dev default. Restores the committed
+# changeme default afterward.
+if bash "$HERE/password_provision_verify.sh"; then
+    echo "  PASS: password provisioning regression"
+else
+    echo "  FAIL: password provisioning regression"
+    fails=$((fails + 1))
+fi
+
 if [[ $fails -eq 0 ]]; then
     echo "All integration checks passed."
 else
