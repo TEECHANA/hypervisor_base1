@@ -209,7 +209,10 @@ reprovision-goldens:
 test-unit:
 	bash tests/unit/run_tests.sh
 
-test-integration:
+# Depends on the hypervisor ELF (built) and the guest images (committed blobs,
+# verified against their goldens by check-guests) so it runs from a clean tree —
+# the boot capture in run_qemu_tests.sh needs $(HYP_ELF) and the guest images.
+test-integration: $(HYP_ELF) check-guests
 	bash tests/integration/run_qemu_tests.sh
 
 # ── Clean ─────────────────────────────────────────────────────
