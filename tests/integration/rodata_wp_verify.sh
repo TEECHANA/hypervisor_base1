@@ -31,7 +31,15 @@ dump_and_die() { echo "$1"; echo "---- captured boot log ----"; cat "$LOG"; exit
 
 echo "=== .rodata write-protection regression test ==="
 echo "Building self-test image (-DRODATA_WP_SELFTEST) in isolated dir..."
-if ! make -C "$ROOT" qemu BUILD_DIR="$BDIR" EXTRA_CFLAGS=-DRODATA_WP_SELFTEST \
+# Also build with -DVSE_COMPONENTS_LEARN (like trust_promote_verify.sh): the probe
+# shifts .text/.rodata, so the Phase 2 goldens no longer match. In LEARN mode
+# Phase 2 is non-fatal, so on an UNPROTECTED build the boot continues cleanly past
+# the probe and the "store returned" line is reliably captured -> an honest
+# "WRITABLE, protection NOT enforced" FAIL, instead of a Phase 2 panic that some
+# hosts drop as empty output. On a PROTECTED build the probe faults and panics
+# before Phase 2 is ever reached, so learn mode is moot there.
+if ! make -C "$ROOT" qemu BUILD_DIR="$BDIR" \
+        EXTRA_CFLAGS="-DRODATA_WP_SELFTEST -DVSE_COMPONENTS_LEARN" \
         >"$BDIR/build.log" 2>&1; then
     echo "  FAIL: self-test build failed"; tail -20 "$BDIR/build.log"; exit 1
 fi
@@ -81,10 +89,10 @@ if grep -qF "store returned" "$LOG"; then
     exit 1
 fi
 # The panic must be AT the probe: on a protected build the store faults before
-# Phase 1 runs, so the boot must NOT reach "Phase 1 ... verified". (If the store
-# had instead succeeded and corrupted .text, the boot would panic LATER at the
-# Phase 2 golden check — that downstream panic must not be mistaken for a fault
-# at the probe.)
+# Phase 1 runs, so the boot must NOT reach "Phase 1 ... verified". (On an
+# unprotected build the store instead RETURNS and the boot sails on through the
+# now non-fatal learn-mode Phase 2 — that case is already caught above by the
+# "store returned" check, so it never reaches here.)
 if grep -qF "** PANIC:" "$LOG" && ! grep -qF "VSE Phase 1: configuration verified" "$LOG"; then
     echo "  PASS: store to .rodata FAULTED at the probe (halted before Phase 1)."
     echo ".rodata write-protection verified at runtime."
