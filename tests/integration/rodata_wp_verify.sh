@@ -37,7 +37,7 @@ echo "Booting hypervisor-only and capturing serial..."
 # guest images are needed. Bounded run; the probe panics almost immediately.
 timeout 25 qemu-system-aarch64 \
     -machine virt,gic-version=3,virtualization=on,iommu=smmuv3 \
-    -cpu cortex-a57 -m 2G -smp 4 -nographic -serial mon:stdio -no-reboot \
+    -cpu cortex-a57 -m 2G -smp 4 -nographic -serial mon:stdio -no-reboot -nic none \
     -d guest_errors -kernel "$ELF" >"$LOG" 2>&1 || true
 
 fails=0

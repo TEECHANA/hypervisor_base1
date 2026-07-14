@@ -74,6 +74,7 @@ boot_capture() {
     qemu-system-aarch64 \
         -machine virt,gic-version=3,virtualization=on,iommu=smmuv3 \
         -cpu cortex-a57 -m 2G -smp 4 -nographic -serial mon:stdio -no-reboot \
+        -nic none \
         -d guest_errors \
         -kernel "$ELF" \
         -device loader,file="$LINUX",addr=0x41200000,force-raw=on \
