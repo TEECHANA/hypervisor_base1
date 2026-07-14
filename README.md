@@ -3,6 +3,8 @@
 [![CI](https://github.com/TEECHANA/hypervisor_base1/actions/workflows/ci.yml/badge.svg)](https://github.com/TEECHANA/hypervisor_base1/actions/workflows/ci.yml)
 [![Integration (QEMU)](https://github.com/TEECHANA/hypervisor_base1/actions/workflows/integration.yml/badge.svg)](https://github.com/TEECHANA/hypervisor_base1/actions/workflows/integration.yml)
 
+<sub>CI = guest goldens + host unit tests + build. Integration (QEMU) = full end-to-end boot proofs (attestation, 2FA login, rogue-DMA → quarantine → failover, `.rodata` write-protect, trust auto-promote, password provisioning).</sub>
+
 Type-1 ARM64 bare-metal hypervisor running **Linux**, **RTOS** and **Android**
 concurrently. Targets QEMU virt / Raspberry Pi 4 / NXP S32G.
 
