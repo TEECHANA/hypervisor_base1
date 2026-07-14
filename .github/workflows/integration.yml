@@ -1,0 +1,46 @@
+name: Integration (QEMU)
+
+# The strong end-to-end proofs: boots the EL2 hypervisor + 3 guests in QEMU and
+# runs make test-integration (2FA login, attestation, organic rogue-DMA ->
+# quarantine -> real failover restore, console-restore, .rodata write-protect,
+# trust auto-promote). This is separate from the fast ci.yml because it boots a
+# full Linux guest under QEMU, which is far heavier than the fast checks.
+#
+# NOTE: GitHub-hosted runners have no KVM/nested virtualization, so this runs
+# under pure TCG. Measured on PR #15: the full suite completes in ~1.5 min —
+# boot_capture drives to the quarantine/failover point and stops, so it never
+# waits for full Linux userspace — which makes per-PR gating practical. The
+# schedule + workflow_dispatch triggers add nightly / on-demand runs;
+# timeout-minutes caps the job in case a future change slows the boot.
+on:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'   # nightly 03:00 UTC
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30    # fail clearly instead of hanging if TCG is too slow
+    steps:
+      - uses: actions/checkout@v4
+
+      # aarch64 cross-compiler builds the hypervisor; qemu-system-aarch64 boots
+      # it; python3 drives the TOTP login. Guests are committed blobs (no build).
+      - name: Install toolchain + QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gcc-aarch64-linux-gnu qemu-system-arm python3
+
+      # Verify committed guest blobs match their goldens (also proves the images
+      # boot attestation will accept are present).
+      - name: make check-guests
+        run: make check-guests
+
+      # test-integration boots build/qemu/hypervisor.elf, so build it first.
+      - name: Build hypervisor ELF
+        run: make qemu
+
+      - name: make test-integration
+        run: make test-integration

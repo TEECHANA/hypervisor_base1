@@ -47,7 +47,7 @@ done
 echo "Booting with guests (promotion runs at boot, clean period ${CLEAN_US} us)..."
 timeout 40 qemu-system-aarch64 \
     -machine virt,gic-version=3,virtualization=on,iommu=smmuv3 \
-    -cpu cortex-a57 -m 2G -smp 4 -nographic -serial mon:stdio -no-reboot -d guest_errors \
+    -cpu cortex-a57 -m 2G -smp 4 -nographic -serial mon:stdio -no-reboot -d guest_errors -nic none \
     -kernel "$ELF" \
     -device loader,file="$LINUX",addr=0x41200000,force-raw=on \
     -device loader,file="$INITRD",addr=0x47000000,force-raw=on \

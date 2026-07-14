@@ -92,6 +92,7 @@ QEMU_BASE = qemu-system-aarch64 \
     -nographic \
     -serial mon:stdio \
     -no-reboot \
+    -nic none \
     -d guest_errors
     #-d guest_errors,unimp
 
