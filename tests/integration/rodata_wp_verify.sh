@@ -3,24 +3,31 @@
 # rodata_wp_verify.sh — regression test for .rodata Stage-1 write-protection.
 #
 # Audit #7b (commit c0a0858) maps .rodata read-only at EL2 (mmu.S L2[1],
-# AP[2]=1). That protection had never been exercised — no test wrote to
-# .rodata, so a future mmu.S / linker change could silently drop it.
+# AP[2]=1). This test builds a hypervisor with -DRODATA_WP_SELFTEST (a guarded
+# probe in boot/main.c that stores 0xA5 to .rodata early in hyp_main) and boots
+# it: on a protected build the store raises an EL2 permission fault and the
+# hypervisor PANICS at the probe, before Phase 1; the "store returned" line is
+# never printed.
 #
-# This test builds a hypervisor with -DRODATA_WP_SELFTEST (a guarded probe in
-# boot/main.c that stores to .rodata early in hyp_main), boots it hypervisor-
-# only, and asserts the store faults: the boot must reach the probe, panic, and
-# NEVER print the "store returned" line. If .rodata were writable the store
-# would succeed and that line would appear -> FAIL.
+# SOUND VERDICT (this is a rewrite — the old logic could vacuously "PASS" the
+# read-only check from the ABSENCE of a string, e.g. when the boot produced no
+# output at all). We only conclude "protected" from POSITIVE evidence, and gate
+# on the self-test actually having run:
+#   Gate A: the probe is compiled into the ELF        (else: define didn't reach build)
+#   Gate B: the boot produced output                  (else: QEMU didn't run — inconclusive)
+#   Gate C: the probe executed (store attempted)       (else: inconclusive)
+#   Verdict: store RETURNED -> NOT protected (fail); store FAULTED at probe -> PASS.
+# Any gate failing is a LOUD, unambiguous failure — never a partial/contradictory pass.
 #
-# The special build goes into an isolated BUILD_DIR so the normal build/qemu
-# artifacts are untouched.
+# The special build goes into an isolated BUILD_DIR so build/qemu is untouched.
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
 
-BDIR="$(mktemp -d)"
-LOG="$(mktemp)"
+BDIR="$(mktemp -d)"; LOG="$(mktemp)"
 trap 'rm -rf "$BDIR" "$LOG"' EXIT
+
+dump_and_die() { echo "$1"; echo "---- captured boot log ----"; cat "$LOG"; exit 1; }
 
 echo "=== .rodata write-protection regression test ==="
 echo "Building self-test image (-DRODATA_WP_SELFTEST) in isolated dir..."
@@ -28,9 +35,18 @@ if ! make -C "$ROOT" qemu BUILD_DIR="$BDIR" EXTRA_CFLAGS=-DRODATA_WP_SELFTEST \
         >"$BDIR/build.log" 2>&1; then
     echo "  FAIL: self-test build failed"; tail -20 "$BDIR/build.log"; exit 1
 fi
-
 ELF="$BDIR/hypervisor.elf"
 [[ -f "$ELF" ]] || { echo "  FAIL: no ELF produced"; exit 1; }
+
+# Gate A — the define actually reached the build (probe present in the image).
+# Distinguishes "define didn't compile in" from any runtime conclusion.
+if grep -aqF "RODATA-WP-SELFTEST" "$ELF"; then
+    echo "  ok  : probe is compiled into the self-test image (-D reached the build)"
+else
+    echo "  FAIL: -DRODATA_WP_SELFTEST did NOT reach the build (probe absent from ELF)."
+    echo "        Cannot test .rodata write-protection — INCONCLUSIVE."
+    exit 1
+fi
 
 echo "Booting hypervisor-only and capturing serial..."
 # The probe runs right after the boot banner, before any VM is created, so no
@@ -40,41 +56,35 @@ timeout 25 qemu-system-aarch64 \
     -cpu cortex-a57 -m 2G -smp 4 -nographic -serial mon:stdio -no-reboot -nic none \
     -d guest_errors -kernel "$ELF" >"$LOG" 2>&1 || true
 
-fails=0
+# Gate B — QEMU actually ran and the hypervisor produced output. An empty/no-boot
+# log is the failure mode that used to vacuously "pass" the old read-only check.
+if ! grep -qF "Tessolve Hypervisor v1.0" "$LOG"; then
+    dump_and_die "  FAIL: self-test image produced no boot output (QEMU did not run) — INCONCLUSIVE."
+fi
 
-# 1. The probe must actually have run (guards against a build that silently
-#    dropped the define, which would make the test vacuously "pass").
+# Gate C — the probe executed (the store was attempted). Without this, nothing
+# can be said about .rodata.
 if grep -qF "RODATA-WP-SELFTEST: storing 0xA5 to .rodata" "$LOG"; then
-    echo "  PASS: self-test probe reached (store attempted)"
+    echo "  ok  : probe executed (store to .rodata attempted)"
 else
-    echo "  FAIL: probe never ran — define not compiled in?"; fails=$((fails + 1))
+    dump_and_die "  FAIL: probe did not execute despite being compiled in — INCONCLUSIVE."
 fi
 
-# 2. The "store returned" line must be ABSENT — its presence means the store
-#    succeeded, i.e. .rodata is writable (protection broken).
+# Verdict — decide from POSITIVE evidence only.
 if grep -qF "store returned" "$LOG"; then
-    echo "  FAIL: .rodata store RETURNED — NOT write-protected"; fails=$((fails + 1))
-else
-    echo "  PASS: store never returned (.rodata is read-only)"
-fi
-
-# 3. The panic must occur AT the probe: on a protected build the store faults
-#    before Phase 1 runs, so the boot must NOT reach "Phase 1 ... verified".
-#    (A naive "any panic" check is not enough: if the store succeeded, the probe
-#    corrupts .text and the boot panics LATER at the Phase 2 golden check — a
-#    downstream panic that must NOT be mistaken for the store faulting.)
-if grep -qF "** PANIC:" "$LOG" && ! grep -qF "VSE Phase 1: configuration verified" "$LOG"; then
-    echo "  PASS: hypervisor halted at the probe (store faulted, no further boot)"
-else
-    echo "  FAIL: boot continued past the probe — store did not fault there"
-    fails=$((fails + 1))
-fi
-
-if [[ $fails -eq 0 ]]; then
-    echo ".rodata write-protection verified at runtime."
-    exit 0
-else
-    echo "$fails check(s) FAILED — .rodata write-protection regression."
-    echo "---- captured boot log (tail) ----"; tail -25 "$LOG"
+    echo "  FAIL: the store to .rodata RETURNED — .rodata is WRITABLE, protection NOT enforced."
+    echo "---- relevant lines ----"; grep -E "RODATA-WP-SELFTEST|PANIC" "$LOG"
     exit 1
 fi
+# The panic must be AT the probe: on a protected build the store faults before
+# Phase 1 runs, so the boot must NOT reach "Phase 1 ... verified". (If the store
+# had instead succeeded and corrupted .text, the boot would panic LATER at the
+# Phase 2 golden check — that downstream panic must not be mistaken for a fault
+# at the probe.)
+if grep -qF "** PANIC:" "$LOG" && ! grep -qF "VSE Phase 1: configuration verified" "$LOG"; then
+    echo "  PASS: store to .rodata FAULTED at the probe (halted before Phase 1)."
+    echo ".rodata write-protection verified at runtime."
+    exit 0
+fi
+
+dump_and_die "  FAIL: the store neither returned nor faulted at the probe — INCONCLUSIVE."
