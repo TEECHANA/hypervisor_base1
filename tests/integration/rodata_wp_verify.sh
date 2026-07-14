@@ -50,11 +50,15 @@ fi
 
 echo "Booting hypervisor-only and capturing serial..."
 # The probe runs right after the boot banner, before any VM is created, so no
-# guest images are needed. Bounded run; the probe panics almost immediately.
+# guest images are needed. The image emits only ~9 lines then HALTS at the panic;
+# capture the serial with '-serial file:' so QEMU writes it straight to the file
+# as it is produced. (The old '-serial mon:stdio > file' relied on QEMU flushing
+# stdio before `timeout` kills it — on some hosts that tiny pre-halt output was
+# lost, yielding an empty log and a spurious "no boot output" INCONCLUSIVE.)
 timeout 25 qemu-system-aarch64 \
     -machine virt,gic-version=3,virtualization=on,iommu=smmuv3 \
-    -cpu cortex-a57 -m 2G -smp 4 -nographic -serial mon:stdio -no-reboot -nic none \
-    -d guest_errors -kernel "$ELF" >"$LOG" 2>&1 || true
+    -cpu cortex-a57 -m 2G -smp 4 -nographic -serial "file:$LOG" -no-reboot -nic none \
+    -d guest_errors -kernel "$ELF" >/dev/null 2>&1 || true
 
 # Gate B — QEMU actually ran and the hypervisor produced output. An empty/no-boot
 # log is the failure mode that used to vacuously "pass" the old read-only check.
