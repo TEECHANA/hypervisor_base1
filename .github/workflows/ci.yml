@@ -3,11 +3,11 @@ name: CI
 # Fast, deterministic checks on every pull request (and pushes to main):
 # guest-golden verification, host-side unit tests, and a hypervisor build.
 #
-# The QEMU integration suite (make test-integration) is intentionally NOT run
-# here: it boots the EL2 hypervisor with a full Linux guest, which needs KVM /
-# nested virtualization to complete in reasonable time. GitHub-hosted runners
-# have no acceleration for this workload (pure TCG), so it is run locally or on
-# an accelerated/self-hosted host instead. See tests/integration/.
+# The full QEMU integration suite (make test-integration) runs in the separate
+# .github/workflows/integration.yml — also on every pull request, plus nightly.
+# It boots the EL2 hypervisor + guests under pure TCG (hosted runners have no
+# KVM) and still completes in ~1.5 min, because boot_capture stops at the
+# quarantine/failover point rather than waiting for full Linux userspace.
 on:
   pull_request:
   push:
