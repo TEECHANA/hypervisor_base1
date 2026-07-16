@@ -98,6 +98,23 @@ static void _hash_region(u64 pa, u64 len, u8 out[SHA256_DIGEST])
     sha256_final(&ctx, out);
 }
 
+/*
+ * Format a digest as a single lowercase hex string (64 chars + NUL for a
+ * 32-byte SHA-256) for one clean INFO line. Deliberately built as a plain
+ * string logged via %s — NOT the 0x%x-per-byte pattern, which (with
+ * uart_puthex owning the 0x prefix) would print 16-digit-per-byte noise.
+ * out must be >= 2*SHA256_DIGEST + 1 bytes.
+ */
+static void _hex_str(const u8 h[SHA256_DIGEST], char *out)
+{
+    static const char hx[] = "0123456789abcdef";
+    for (u32 i = 0; i < SHA256_DIGEST; i++) {
+        out[i * 2]     = hx[(h[i] >> 4) & 0xFu];
+        out[i * 2 + 1] = hx[h[i] & 0xFu];
+    }
+    out[SHA256_DIGEST * 2] = '\0';
+}
+
 static void _log_hash(const char *name, const u8 h[SHA256_DIGEST])
 {
     /* Print as the same 4x8 byte layout used by component_check learn mode. */
@@ -136,9 +153,11 @@ gmeas_result_t guest_measure_vm(u32 vm_id, const char *name)
     }
     /* Constant-time compare against golden. */
     bool ok = hmac_verify(g->golden, measured, SHA256_DIGEST);
+    char hexbuf[2 * SHA256_DIGEST + 1];
+    _hex_str(measured, hexbuf);          /* the measured image hash is not secret */
     memset(measured, 0, sizeof(measured));
     if (ok) {
-        LOG_INFO("VSE: guest '%s' genuineness VERIFIED", name);
+        LOG_INFO("VSE: guest '%s' genuineness VERIFIED (sha256=%s)", name, hexbuf);
         return GMEAS_MATCH;
     }
     LOG_ERROR("VSE: guest '%s' GENUINENESS CHECK FAILED — image not trusted", name);
