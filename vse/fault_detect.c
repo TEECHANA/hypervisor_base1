@@ -62,11 +62,11 @@ void fdetect_mem_fault(u32 vm_id, u64 ipa, u64 esr, bool is_write)
 
     if (_stats.mem_faults <= FDETECT_LOG_LIMIT) {
         if (perm)
-            LOG_WARN("VSE Phase 5: VM%u PERMISSION fault IPA=0x%lx %s "
+            LOG_WARN("VSE Phase 5: VM%u PERMISSION fault IPA=%lx %s "
                      "— possible cross-VM/NX violation",
                      vm_id, ipa, is_write ? "write" : "read");
         else
-            LOG_WARN("VSE Phase 5: VM%u memory fault IPA=0x%lx ESR=0x%lx",
+            LOG_WARN("VSE Phase 5: VM%u memory fault IPA=%lx ESR=%lx",
                      vm_id, ipa, esr);
     }
 
@@ -89,7 +89,7 @@ void fdetect_dma_violation(u32 vm_id, u64 fault_pa, u64 size, u32 stream_id)
     _stats.total++;
 
     if (_stats.dma_violations <= FDETECT_LOG_LIMIT)
-        LOG_ERROR("VSE Phase 5: VM%u DMA violation stream=%u PA=0x%lx size=0x%lx",
+        LOG_ERROR("VSE Phase 5: VM%u DMA violation stream=%u PA=%lx size=%lx",
                   vm_id, stream_id, fault_pa, size);
 
     if (vm_id == 0u || vm_id > MAX_VMS) return;

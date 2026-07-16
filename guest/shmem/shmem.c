@@ -40,7 +40,7 @@ err_t shmem_map(u32 src_id, u32 dst_id, ipa_t ipa, u64 sz)
     if(FAIL(e)){ s2_unmap(src,ipa,sz); return e; }
 
     _regions[_nr++]=(shm_t){pa,sz,src_id,dst_id,ipa,true};
-    LOG_INFO("SHMEM: VM%d<->VM%d IPA=0x%lx PA=0x%lx sz=0x%lx",
+    LOG_INFO("SHMEM: VM%d<->VM%d IPA=%lx PA=%lx sz=%lx",
              src_id,dst_id,ipa,pa,sz);
     return E_OK;
 }

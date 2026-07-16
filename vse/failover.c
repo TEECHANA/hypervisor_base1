@@ -65,7 +65,7 @@ err_t failover_register(u32 vm_id, u64 backup_pa, u64 live_pa,
     _backup[ix].failover_count = 0u;
 
     LOG_INFO("VSE Phase 6: VM%u '%s' registered for failover "
-             "(backup PA=0x%lx live PA=0x%lx size=0x%lx entry=0x%lx)",
+             "(backup PA=%lx live PA=%lx size=%lx entry=%lx)",
              vm_id, vm->name, backup_pa, live_pa, backup_size, entry_ipa);
     return E_OK;
 }
@@ -113,7 +113,7 @@ static err_t _do_failover(u32 vm_id, backup_desc_t *bd)
                (const void *)(uintptr_t)bd->backup_pa,
                bd->backup_size);
         LOG_INFO("VSE Phase 6: VM%u restored %lu bytes from backup "
-                 "0x%lx -> live 0x%lx",
+                 "%lx -> live %lx",
                  vm_id, bd->backup_size, bd->backup_pa, bd->live_pa);
     } else {
         LOG_WARN("VSE Phase 6: VM%u no distinct backup region — "
@@ -137,7 +137,7 @@ static err_t _do_failover(u32 vm_id, backup_desc_t *bd)
      */
     if (vm->num_vcpus > 0 && vm->vcpus[0]) {
         vcpu_set_entry(vm->vcpus[0], (paddr_t)bd->entry_ipa, 0u);
-        LOG_INFO("VSE Phase 6: VM%u vCPU0 entry reset to 0x%lx",
+        LOG_INFO("VSE Phase 6: VM%u vCPU0 entry reset to %lx",
                  vm_id, bd->entry_ipa);
     }
 
@@ -220,7 +220,7 @@ void failover_print_status(void)
         if (ix < 0) continue;
         backup_desc_t *bd = &_backup[ix];
         if (bd->registered)
-            LOG_INFO("  VM%u %-8s backup=0x%lx entry=0x%lx attempts=%u",
+            LOG_INFO("  VM%u %-8s backup=%lx entry=%lx attempts=%u",
                      vm->id, vm->name, bd->backup_pa, bd->entry_ipa,
                      bd->failover_count);
         else

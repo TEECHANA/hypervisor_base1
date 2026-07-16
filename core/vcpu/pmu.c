@@ -119,7 +119,7 @@ void pmu_init(void)
 
     asm volatile("msr mdcr_el2, %0; isb" :: "r"(mdcr));
 
-    LOG_INFO("PMU: MDCR_EL2=0x%lx — guest PMU trapped to EL2", mdcr);
+    LOG_INFO("PMU: MDCR_EL2=%lx — guest PMU trapped to EL2", mdcr);
 }
 
 /* ── pmu_vcpu_init ── */

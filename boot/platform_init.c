@@ -83,7 +83,7 @@ static err_t create_linux_vm(void)
                         LINUX_INITRD_START_IPA, LINUX_INITRD_END_IPA,
                         &dtb_sz);
     if (FAIL(e)) LOG_WARN("Linux DTB build failed (err=%d)", (int)e);
-    else         LOG_INFO("Linux DTB built: %lu bytes at PA 0x%lx",
+    else         LOG_INFO("Linux DTB built: %lu bytes at PA %lx",
                           dtb_sz, LINUX_DTB_PA);
 
     LOG_INFO("Linux VM ready");
@@ -99,7 +99,7 @@ static err_t create_rtos_vm(void)
     vm->entry_ipa = RTOS_ENTRY_IPA;
     vm->dtb_ipa   = 0;
 
-    LOG_INFO("RTOS VM ready (entry IPA=0x%lx)", vm->entry_ipa);
+    LOG_INFO("RTOS VM ready (entry IPA=%lx)", vm->entry_ipa);
     return E_OK;
 }
 

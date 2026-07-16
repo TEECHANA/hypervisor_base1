@@ -103,7 +103,7 @@ static void _log_hash(const char *name, const u8 h[SHA256_DIGEST])
     /* Print as the same 4x8 byte layout used by component_check learn mode. */
     LOG_WARN("VSE: [GUEST-MEASURE] '%s' SHA-256:", name);
     for (u32 r = 0; r < 4; r++) {
-        LOG_WARN("    0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x,",
+        LOG_WARN("    %x, %x, %x, %x, %x, %x, %x, %x,",
                  h[r*8+0], h[r*8+1], h[r*8+2], h[r*8+3],
                  h[r*8+4], h[r*8+5], h[r*8+6], h[r*8+7]);
     }
@@ -122,7 +122,7 @@ gmeas_result_t guest_measure_vm(u32 vm_id, const char *name)
     _hash_region(g->load_pa, g->image_size, measured);
 
 #if GUEST_MEASURE_LEARN_MODE
-    LOG_WARN("VSE: [LEARN] measuring guest '%s' (%lu bytes @ 0x%lx)",
+    LOG_WARN("VSE: [LEARN] measuring guest '%s' (%lu bytes @ %lx)",
              name, g->image_size, g->load_pa);
     _log_hash(name, measured);
     memset(measured, 0, sizeof(measured));

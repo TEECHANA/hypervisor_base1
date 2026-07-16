@@ -54,7 +54,7 @@ err_t power_gate_vm(struct vm *vm)
     for (u32 i = 0; i < vm->num_dev; i++) {
         if (vm->dev[i].irq) {
             gic_disable_irq(vm->dev[i].irq);
-            LOG_DEBUG("Power: gated IRQ %u (VM%u device 0x%lx)",
+            LOG_DEBUG("Power: gated IRQ %u (VM%u device %lx)",
                       vm->dev[i].irq, vm->id, vm->dev[i].mmio_base);
         }
 
@@ -83,7 +83,7 @@ err_t power_ungate_vm(struct vm *vm)
     for (u32 i = 0; i < vm->num_dev; i++) {
         if (vm->dev[i].irq) {
             gic_enable_irq(vm->dev[i].irq);
-            LOG_DEBUG("Power: ungated IRQ %u (VM%u device 0x%lx)",
+            LOG_DEBUG("Power: ungated IRQ %u (VM%u device %lx)",
                       vm->dev[i].irq, vm->id, vm->dev[i].mmio_base);
         }
 

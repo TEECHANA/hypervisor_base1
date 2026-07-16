@@ -56,7 +56,7 @@ err_t pcie_init(void)
         return e;
     }
 
-    LOG_INFO("PCIe: bus manager initialised, ECAM=0x%lx size=0x%lx",
+    LOG_INFO("PCIe: bus manager initialised, ECAM=%lx size=%lx",
              PCIE_ECAM_BASE, PCIE_ECAM_SIZE);
     return E_OK;
 }
@@ -140,7 +140,7 @@ err_t pcie_ecam_emulate(u64 addr, bool is_write, u64 *val, void *priv)
     if (is_write) {
         /* Filter: log command register writes (bus mastering changes) */
         if (reg == 0x04)
-            LOG_INFO("PCIe: VM%u BDF %02x:%02x.%x CMD write 0x%lx",
+            LOG_INFO("PCIe: VM%u BDF %02x:%02x.%x CMD write %lx",
                      cur_vm, bus, dev, fn, val ? *val : 0);
         if (val) *cfg = (u32)*val;
     } else {

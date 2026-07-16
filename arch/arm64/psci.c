@@ -94,7 +94,7 @@ __attribute__((unused)) static bool psci_is_supported(u64 func_id)
 void psci_handler(u64 *regs)
 {
     u64 func = regs[0];
-    LOG_INFO("PSCI/SMCCC: func=0x%lx", func);
+    LOG_INFO("PSCI/SMCCC: func=%lx", func);
 
     switch (func) {
 
@@ -123,10 +123,10 @@ void psci_handler(u64 *regs)
     	    query == PSCI_PSCI_FEATURES  ||
     	    query == SMCCC_VERSION       ||
     	    query == SMCCC_ARCH_FEATURES) {
-    	    LOG_INFO("PSCI: FEATURES 0x%lx -> supported (0)", query);
+    	    LOG_INFO("PSCI: FEATURES %lx -> supported (0)", query);
     	    result = (u64)PSCI_RET_SUCCESS;   /* must be 0 */
     	} else {
-    	    LOG_INFO("PSCI: FEATURES 0x%lx -> NOT supported", query);
+    	    LOG_INFO("PSCI: FEATURES %lx -> NOT supported", query);
     	    result = (u64)(s64)PSCI_RET_NOT_SUPPORTED;  /* -1 */
     	}
     	regs[0] = result;
@@ -153,7 +153,7 @@ void psci_handler(u64 *regs)
         u64 target_mpidr = regs[1];
         u64 entry_pa     = regs[2];
         u64 context_id   = regs[3];
-        LOG_INFO("PSCI: CPU_ON mpidr=0x%lx entry=0x%lx ctx=0x%lx",
+        LOG_INFO("PSCI: CPU_ON mpidr=%lx entry=%lx ctx=%lx",
                  target_mpidr, entry_pa, context_id);
         /* Single-vCPU: secondary CPUs not supported yet */
         regs[0] = (u64)PSCI_RET_NOT_SUPPORTED;
@@ -164,7 +164,7 @@ void psci_handler(u64 *regs)
     case PSCI_AFFINITY_INFO_32:
     case PSCI_AFFINITY_INFO_64: {
         u64 target_mpidr    = regs[1];
-        LOG_DEBUG("PSCI: AFFINITY_INFO mpidr=0x%lx lvl=%lu",
+        LOG_DEBUG("PSCI: AFFINITY_INFO mpidr=%lx lvl=%lu",
                   target_mpidr, regs[2]);
         /* Only CPU 0 (mpidr=0) is ON; all others are OFF */
         regs[0] = (target_mpidr == 0) ? PSCI_AFFINITY_LEVEL_ON
@@ -199,12 +199,12 @@ void psci_handler(u64 *regs)
     	break;
 
     case SMCCC_ARCH_FEATURES:
-    	LOG_INFO("PSCI: SMCCC_ARCH_FEATURES func=0x%lx -> not supported", regs[1]);
+    	LOG_INFO("PSCI: SMCCC_ARCH_FEATURES func=%lx -> not supported", regs[1]);
     	regs[0] = (u64)(s64)PSCI_RET_NOT_SUPPORTED;
     	break;
 
     default:
-        LOG_WARN("PSCI: unhandled func=0x%lx", func);
+        LOG_WARN("PSCI: unhandled func=%lx", func);
         regs[0] = (u64)PSCI_RET_NOT_SUPPORTED;
         break;
     }

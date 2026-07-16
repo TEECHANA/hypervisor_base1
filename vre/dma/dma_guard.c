@@ -42,26 +42,26 @@ err_t dma_guard_check(struct vm *vm, paddr_t pa, u64 size)
 
             /* Verify the entire DMA range fits within this region */
             if (pa + size > r->pa_base + r->size) {
-                LOG_WARN("DMA: VM%d range PA=0x%lx+0x%lx crosses region boundary",
+                LOG_WARN("DMA: VM%d range PA=%lx+%lx crosses region boundary",
                          vm->id, pa, size);
                 return E_INVAL;
             }
 
             /* Verify Stage-2 mapping exists */
             if (!s2_ipa_is_mapped(vm, ipa, size)) {
-                LOG_WARN("DMA: VM%d IPA=0x%lx+0x%lx not mapped in S2",
+                LOG_WARN("DMA: VM%d IPA=%lx+%lx not mapped in S2",
                          vm->id, ipa, size);
                 return E_INVAL;
             }
 
-            LOG_DEBUG("DMA: VM%d PA=0x%lx+0x%lx OK (IPA=0x%lx)",
+            LOG_DEBUG("DMA: VM%d PA=%lx+%lx OK (IPA=%lx)",
                       vm->id, pa, size, ipa);
             return E_OK;
         }
     }
 
     /* PA not in any of this VM's regions */
-    LOG_WARN("DMA: VM%d PA=0x%lx+0x%lx outside all mapped regions — DENIED",
+    LOG_WARN("DMA: VM%d PA=%lx+%lx outside all mapped regions — DENIED",
              vm->id, pa, size);
     return E_INVAL;
 }
@@ -73,19 +73,19 @@ err_t dma_guard_check_ipa(struct vm *vm, ipa_t ipa, u64 size)
         size = (size + 0xFFF) & ~0xFFFULL;
 
     if (!s2_ipa_is_mapped(vm, ipa, size)) {
-        LOG_WARN("DMA: VM%d IPA=0x%lx+0x%lx not in S2 — DENIED",
+        LOG_WARN("DMA: VM%d IPA=%lx+%lx not in S2 — DENIED",
                  vm->id, ipa, size);
         return E_INVAL;
     }
 
-    LOG_DEBUG("DMA: VM%d IPA=0x%lx+0x%lx OK", vm->id, ipa, size);
+    LOG_DEBUG("DMA: VM%d IPA=%lx+%lx OK", vm->id, ipa, size);
     return E_OK;
 }
 
 void dma_guard_log_violation(u32 stream_id, u32 vm_id,
                               paddr_t fault_pa, u64 fault_size)
 {
-    LOG_ERROR("DMA VIOLATION: stream=%u VM%u PA=0x%lx size=0x%lx",
+    LOG_ERROR("DMA VIOLATION: stream=%u VM%u PA=%lx size=%lx",
               stream_id, vm_id, fault_pa, fault_size);
     LOG_ERROR("DMA VIOLATION: peripheral attempted out-of-bounds DMA");
 

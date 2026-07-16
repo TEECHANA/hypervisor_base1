@@ -54,7 +54,7 @@ err_t mmio_register(u64 base, u64 sz, mmio_fn fn, void *priv)
         .owner_vm_id  = 0,      /* shared — any VM */
         .violation_cnt = 0,
     };
-    LOG_DEBUG("MMIO: registered shared 0x%lx-0x%lx", base, base + sz);
+    LOG_DEBUG("MMIO: registered shared %lx-%lx", base, base + sz);
     return E_OK;
 }
 
@@ -71,7 +71,7 @@ err_t mmio_register_vm_device(u32 vm_id, u64 base, u64 sz,
         .owner_vm_id   = vm_id,
         .violation_cnt = 0,
     };
-    LOG_INFO("MMIO: VM%u owns device 0x%lx-0x%lx", vm_id, base, base + sz);
+    LOG_INFO("MMIO: VM%u owns device %lx-%lx", vm_id, base, base + sz);
     return E_OK;
 }
 
@@ -102,7 +102,7 @@ void mmio_handle(u64 fa, u64 esr, void *regs)
             _regs[i].owner_vm_id != _current_vm_id)
         {
             _regs[i].violation_cnt++;
-            LOG_WARN("MMIO VIOLATION: VM%u accessed VM%u device @ 0x%lx (%s) [#%u]",
+            LOG_WARN("MMIO VIOLATION: VM%u accessed VM%u device @ %lx (%s) [#%u]",
                      _current_vm_id,
                      _regs[i].owner_vm_id,
                      fa,
@@ -128,7 +128,7 @@ void mmio_handle(u64 fa, u64 esr, void *regs)
         if (_regs[i].fn) {
             err_t e = _regs[i].fn(fa, wr, &val, _regs[i].priv);
             if (e != E_OK) {
-                LOG_WARN("MMIO: handler error %d on %s @ 0x%lx",
+                LOG_WARN("MMIO: handler error %d on %s @ %lx",
                          (int)e, wr ? "WR" : "RD", fa);
             }
             /* For reads, write result back to destination register */
@@ -142,7 +142,7 @@ void mmio_handle(u64 fa, u64 esr, void *regs)
         return;
     }
 
-    LOG_WARN("MMIO: unhandled %s @ 0x%lx (VM%u)",
+    LOG_WARN("MMIO: unhandled %s @ %lx (VM%u)",
              wr ? "WR" : "RD", fa, _current_vm_id);
 }
 

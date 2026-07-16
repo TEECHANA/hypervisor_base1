@@ -151,7 +151,7 @@ err_t vse_unseal(const sealed_blob_t *blob, u8 *out, u32 *io_len)
     if (!blob || !out || !io_len) return E_INVAL;
     if (!_initialized)            return E_INVAL;
     if (blob->magic != SEAL_MAGIC) {
-        LOG_WARN("VSE Phase 4: unseal rejected — bad magic 0x%x", blob->magic);
+        LOG_WARN("VSE Phase 4: unseal rejected — bad magic %x", blob->magic);
         return E_INVAL;
     }
     if (blob->payload_len > SEAL_MAX_PAYLOAD) {

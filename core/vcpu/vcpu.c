@@ -54,9 +54,9 @@ err_t vcpu_init(vcpu_t *vc, struct vm *vm, u32 id)
     pmu_vcpu_init(&vc->pmu);
 
     LOG_INFO("vCPU %d init VM %d", id, vm->id);
-    LOG_INFO("  entry IPA : 0x%lx", vm->entry_ipa);
-    LOG_INFO("  DTB IPA   : 0x%lx", vm->dtb_ipa);
-    LOG_INFO("  VTTBR     : 0x%lx", vm->vttbr);
+    LOG_INFO("  entry IPA : %lx", vm->entry_ipa);
+    LOG_INFO("  DTB IPA   : %lx", vm->dtb_ipa);
+    LOG_INFO("  VTTBR     : %lx", vm->vttbr);
     return E_OK;
 }
 

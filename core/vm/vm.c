@@ -100,7 +100,7 @@ err_t vm_add_mem(vm_t *vm, paddr_t pa, ipa_t ipa, u64 sz, u32 flags)
      * s2_create() must have been called first (vm->s2_pgd != 0).
      */
     if (vm->s2_pgd != 0 && s2_ipa_is_mapped(vm, ipa, sz)) {
-        LOG_ERROR("VM %d: IPA range 0x%lx+0x%lx already mapped — overlap rejected",
+        LOG_ERROR("VM %d: IPA range %lx+%lx already mapped — overlap rejected",
                   vm->id, ipa, sz);
         return E_BUSY;
     }
@@ -111,7 +111,7 @@ err_t vm_add_mem(vm_t *vm, paddr_t pa, ipa_t ipa, u64 sz, u32 flags)
     vm->mem[vm->num_mem].flags    = flags;
     vm->num_mem++;
 
-    LOG_INFO("VM MAP ipa=0x%lx pa=0x%lx sz=0x%lx flags=0x%lx",
+    LOG_INFO("VM MAP ipa=%lx pa=%lx sz=%lx flags=%lx",
              ipa, pa, sz, (u64)flags);
     return E_OK;
 }
@@ -141,7 +141,7 @@ err_t vm_finalize(vm_t *vm)
         u64 s2flags = S2_AF | S2_SH_INNER | S2_S2AP_RW;
         u64 mem_x   = (u64)(r->flags & MEM_X);
 
-        LOG_INFO("MEM FLAGS raw=0x%lx MEM_X=0x%lx result=%d",
+        LOG_INFO("MEM FLAGS raw=%lx MEM_X=%lx result=%d",
                  (u64)r->flags, mem_x, (int)(!mem_x));
 
         if (r->flags & MEM_IO)

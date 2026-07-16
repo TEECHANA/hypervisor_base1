@@ -337,10 +337,10 @@ void sched_run(void)
     LOG_INFO("VM ID        : %d",    first->vm->id);
     LOG_INFO("VM Name      : %s",    first->vm->name);
     LOG_INFO("vCPU ID      : %d",    first->vcpu_id);
-    LOG_INFO("Entry PC     : 0x%lx", first->regs.elr_el2);
-    LOG_INFO("SPSR_EL2     : 0x%lx", first->regs.spsr_el2);
-    LOG_INFO("DTB arg (x0) : 0x%lx", first->regs.x[0]);
-    LOG_INFO("VTTBR_EL2    : 0x%lx", first->vttbr_el2);
+    LOG_INFO("Entry PC     : %lx", first->regs.elr_el2);
+    LOG_INFO("SPSR_EL2     : %lx", first->regs.spsr_el2);
+    LOG_INFO("DTB arg (x0) : %lx", first->regs.x[0]);
+    LOG_INFO("VTTBR_EL2    : %lx", first->vttbr_el2);
     LOG_INFO("----------------------------------");
 
     vcpu_restore_sysregs(&first->sysregs);
