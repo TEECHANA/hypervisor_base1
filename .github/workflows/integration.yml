@@ -39,8 +39,11 @@ jobs:
         run: make check-guests
 
       # test-integration boots build/qemu/hypervisor.elf, so build it first.
+      # pw_verifier.h is fail-closed (no default password); inject the changeme
+      # test verifier (the same one make test-integration's target-specific rule
+      # would use) so the login-driven boot works.
       - name: Build hypervisor ELF
-        run: make qemu
+        run: make qemu EXTRA_CFLAGS=-DVSE_PW_VERIFIER=$(python3 scripts/totp_gen.py --pw-define changeme)
 
       - name: make test-integration
         run: make test-integration

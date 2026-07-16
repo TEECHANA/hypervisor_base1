@@ -22,8 +22,11 @@ echo "Platform       : qemu"
 echo ""
 
 # Step 1 — Hypervisor
+# pw_verifier.h is fail-closed (no default password); inject the known "changeme"
+# dev verifier for this demo build (derived by the same script a deployment uses).
 echo "=== [1/4] Building hypervisor ==="
-make CROSS=$CROSS PLATFORM=qemu build/qemu/hypervisor.elf
+make CROSS=$CROSS PLATFORM=qemu build/qemu/hypervisor.elf \
+     EXTRA_CFLAGS=-DVSE_PW_VERIFIER=$(python3 scripts/totp_gen.py --pw-define changeme)
 
 # Step 2 — Linux demo guest
 echo ""

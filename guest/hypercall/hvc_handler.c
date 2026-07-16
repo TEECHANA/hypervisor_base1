@@ -54,7 +54,7 @@ void hvc_dispatch(void *regs)
 {
     u64  *x    = (u64 *)regs;
     u64   func = x[0];
-    LOG_INFO("HVC: func=0x%lx", func);
+    LOG_INFO("HVC: func=%lx", func);
 
     /* PSCI / SMCCC routing */
     u32 owner = (u32)((func >> 24) & 0x3F);
@@ -266,13 +266,13 @@ void hvc_dispatch(void *regs)
     }
     case HVC_LOG_WRITE:
         /* Safe: log IPA only, do not dereference guest memory at EL2 */
-        LOG_INFO("HVC_LOG_WRITE: VM%u IPA=0x%lx len=%lu",
+        LOG_INFO("HVC_LOG_WRITE: VM%u IPA=%lx len=%lu",
                  current_vm_id(), x[1], x[2]);
         x[0] = E_OK;
         break;
 
     default:
-        LOG_WARN("HVC: unknown id=0x%x (VM%u)", id, current_vm_id());
+        LOG_WARN("HVC: unknown id=%x (VM%u)", id, current_vm_id());
         x[0] = (u64)(s64)E_UNSUPPORTED;
     }
 }

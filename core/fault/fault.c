@@ -21,7 +21,7 @@ void fault_dabt(void *regs, u64 esr)
     u32 dfsc = (u32)(esr & 0x3F);
 
     if ((far & 0xFF000000) == 0x08000000) {
-        LOG_INFO("MMIO TRAP FAR=0x%lx ESR=0x%lx", far, esr);
+        LOG_INFO("MMIO TRAP FAR=%lx ESR=%lx", far, esr);
         mmio_handle(far, esr, regs);
         return;
     }
@@ -33,12 +33,12 @@ void fault_dabt(void *regs, u64 esr)
     
     /* Only log translation faults for now */
     if (dfsc >= 0x10 && dfsc <= 0x13) {
-        LOG_WARN("Stage-2 translation fault: FAR=0x%lx ESR=0x%lx DFSC=0x%x", far, esr, dfsc);
+        LOG_WARN("Stage-2 translation fault: FAR=%lx ESR=%lx DFSC=%x", far, esr, dfsc);
 
         u64 hpfar = READ_SYSREG(hpfar_el2);
         u64 ipa = ((hpfar & ~0xFULL) << 8) | (far & 0xFFFULL);
 
-        LOG_WARN("IPA=0x%lx", ipa);
+        LOG_WARN("IPA=%lx", ipa);
 
         /* VSE Phase 5: report to trust engine */
         {
@@ -66,9 +66,9 @@ void fault_dabt(void *regs, u64 esr)
     if (g_current_vcpu[0])
         g_current_vcpu[0]->regs.elr_el2 = elr + 4;
 
-   // LOG_WARN("DABT unhandled at 0x%lx, Advancing...", far);
+   // LOG_WARN("DABT unhandled at %lx, Advancing...", far);
     LOG_WARN(
-        "DABT: FAR=0x%lx ESR=0x%lx DFSC=0x%x ELR=0x%lx",
+        "DABT: FAR=%lx ESR=%lx DFSC=%x ELR=%lx",
         far,
         esr,
         dfsc,
@@ -86,10 +86,10 @@ void fault_iabt(void *regs, u64 esr)
     u64 vttbr = READ_SYSREG(vttbr_el2);
     u64 *root = (u64 *)(uintptr_t)(vttbr & 0x0000FFFFFFFFF000ULL);
 
-    LOG_WARN("IABT: FAR=0x%lx HPFAR=0x%lx IPA=0x%lx ESR=0x%lx EC=0x%lx ISS=0x%lx",
+    LOG_WARN("IABT: FAR=%lx HPFAR=%lx IPA=%lx ESR=%lx EC=%lx ISS=%lx",
              far, hpfar, ipa, esr, (esr >> 26) & 0x3F, esr & 0xFFFFFF);
 
-    LOG_WARN("Walking S2 tables for IPA=0x%lx", ipa);
+    LOG_WARN("Walking S2 tables for IPA=%lx", ipa);
     s2_walk(root, ipa);
 
     /*
@@ -101,6 +101,6 @@ void fault_iabt(void *regs, u64 esr)
     if (g_current_vcpu[0]) {
         u64 old_elr = g_current_vcpu[0]->regs.elr_el2;
         g_current_vcpu[0]->regs.elr_el2 = old_elr + 4;
-        LOG_WARN("Advanced ELR_EL2: 0x%lx -> 0x%lx", old_elr, old_elr + 4);
+        LOG_WARN("Advanced ELR_EL2: %lx -> %lx", old_elr, old_elr + 4);
     }
 }

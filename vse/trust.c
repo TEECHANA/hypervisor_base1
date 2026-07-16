@@ -246,7 +246,7 @@ err_t trust_report_fault(u32 vm_id, u32 fault_type, u64 detail)
     r->last_fault_us     = _now_us();   /* for the auto-promote clean period */
     g_trust.total_faults++;
 
-    LOG_WARN("VSE Phase 3: VM%u fault type=0x%x detail=0x%lx (count=%u)",
+    LOG_WARN("VSE Phase 3: VM%u fault type=%x detail=%lx (count=%u)",
              vm_id, fault_type, detail, r->fault_count);
 
     /* Escalate based on cumulative count */
@@ -300,7 +300,7 @@ void trust_print_status(void)
         s32 ix = _idx(vm->id);
         if (ix < 0) continue;
         trust_record_t *r = &g_trust.vm[ix];
-        LOG_INFO("  VM%u %-8s %-10s faults=%u lastType=0x%x",
+        LOG_INFO("  VM%u %-8s %-10s faults=%u lastType=%x",
                  vm->id, vm->name,
                  trust_level_str(r->level), r->fault_count,
                  r->last_fault_type);

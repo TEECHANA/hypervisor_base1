@@ -21,11 +21,12 @@
  * the unit). The plaintext password is NEVER stored on the device.
  *
  * The verifier bytes are NOT hardcoded here — they come from VSE_PW_VERIFIER
- * (vse/pw_verifier.h), which defaults to HMAC(dev-pepper, "changeme"). Set the
- * operator password per deployment WITHOUT editing this file:
+ * (vse/pw_verifier.h), which ships NO default and FAILS the build unless set.
+ * Provision the operator password per deployment WITHOUT editing this file:
  *     scripts/provision_password.sh '<password>'   (regenerates pw_verifier.h)
- * or override at build time with -DVSE_PW_VERIFIER='{...}'. Either way the dev
- * default is preserved for tests. See pw_verifier.h.
+ * or define it at build time with -DVSE_PW_VERIFIER='{...}'. Dev/test/CI builds
+ * inject a known test verifier for "changeme" (see the Makefile). See
+ * pw_verifier.h.
  */
 #define LOGIN_PEPPER_LABEL  "vse-login-pepper-v1"
 

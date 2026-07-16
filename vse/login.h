@@ -26,7 +26,7 @@
 /*
  * login_authenticate — run the interactive 2FA prompt on the console UART.
  * Returns E_OK on success, E_DENIED after LOGIN_MAX_TRIES failures.
- * Requires uart_init() done and hotp_init() done (so the counter is loaded).
+ * Requires uart_init() done and totp_init() done (so the soft RTC is running).
  */
 err_t login_authenticate(void);
 

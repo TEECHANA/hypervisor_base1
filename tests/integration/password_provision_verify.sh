@@ -5,11 +5,12 @@
 # Provisions a NON-default operator password with scripts/provision_password.sh,
 # builds an image with it, and drives the 2FA login twice to prove:
 #   - login SUCCEEDS with the newly provisioned password (+ valid TOTP), and
-#   - login FAILS with the old dev default "changeme".
+#   - login FAILS with the dev/test password "changeme".
 #
-# The committed default (changeme) is regenerated only long enough to build the
-# throwaway image, then RESTORED (git checkout), so the test harness keeps
-# working. The build uses -DVSE_COMPONENTS_LEARN: a non-default password moves
+# pw_verifier.h is fail-closed (no committed default): provision_password.sh
+# writes a concrete VSE_PW_VERIFIER header for NEWPW, which builds the throwaway
+# image, and then the committed fail-closed header is RESTORED (git checkout) so
+# the tree stays clean. The build uses -DVSE_COMPONENTS_LEARN: a non-default password moves
 # the Phase 2-measured .rodata (never .text), so learn mode lets the throwaway
 # image boot past attestation without a golden reprovision. A real deployment
 # would instead run `make reprovision-goldens`.
@@ -94,9 +95,9 @@ if grep -qE "Access denied|Maximum attempts exceeded" "$OLOG"; then
     echo "  PASS: 'changeme' login explicitly denied"
 else echo "  FAIL: no denial observed for 'changeme'"; fails=$((fails+1)); fi
 
-# The committed dev default must be intact so the test harness keeps working.
+# The committed fail-closed header must be intact so the tree stays clean.
 if git -C "$ROOT" diff --quiet -- vse/pw_verifier.h; then
-    echo "  PASS: committed pw_verifier.h (changeme default) left untouched"
+    echo "  PASS: committed pw_verifier.h (fail-closed #error) left untouched"
 else echo "  FAIL: pw_verifier.h was modified"; fails=$((fails+1)); fi
 
 if [[ $fails -eq 0 ]]; then

@@ -164,7 +164,7 @@ err_t gic_init(u64 gicd, u64 gicr)
     u64 vtr;
     asm volatile("mrs %0, ich_vtr_el2" : "=r"(vtr));
     _num_lrs = (u32)(vtr & ICH_VTR_LISTREGS_MASK) + 1;
-    LOG_INFO("GICv3: %u list registers available (ICH_VTR=0x%lx)", _num_lrs, vtr);
+    LOG_INFO("GICv3: %u list registers available (ICH_VTR=%lx)", _num_lrs, vtr);
 
     /* 6. Enable PPI 26 (CNTHP) and PPI 27 (virtual timer) */
     volatile u32 *gicr_sgi = (volatile u32 *)(uintptr_t)(gicr + 0x10100ULL);
@@ -189,7 +189,7 @@ err_t gic_init(u64 gicd, u64 gicr)
           gd_rd(GICD_IPRIORITYR(CNTHP_PPI / 4))
           | (0x80u << ((CNTHP_PPI % 4) * 8)));
 
-    LOG_INFO("GICv3 init: GICD=0x%lx", gicd);
+    LOG_INFO("GICv3 init: GICD=%lx", gicd);
     return E_OK;
 }
 

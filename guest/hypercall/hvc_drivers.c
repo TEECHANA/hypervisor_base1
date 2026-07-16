@@ -71,7 +71,7 @@ static hyp_audio_state_t g_audio = { .valid = false };
 void hvc_fuel_update(u64 *x)
 {
     u64 x1 = x[1], x2 = x[2], x3 = x[3], x4 = x[4];
-    LOG_INFO("FUEL RAW: x1=0x%lx x2=0x%lx x3=0x%lx x4=0x%lx", x1, x2, x3, x4);
+    LOG_INFO("FUEL RAW: x1=%lx x2=%lx x3=%lx x4=%lx", x1, x2, x3, x4);
 
     g_fuel.rpm           = (u32)(x1 & 0xFFFF);
     g_fuel.injection_us  = (u32)((x1 >> 16) & 0xFFFF);

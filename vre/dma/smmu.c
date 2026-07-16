@@ -92,14 +92,14 @@ err_t smmu_init(u64 base)
         ;
 
     if (!timeout) {
-        LOG_WARN("SMMU: hardware not present or not responding at 0x%lx", base);
+        LOG_WARN("SMMU: hardware not present or not responding at %lx", base);
         LOG_WARN("SMMU: DMA hw isolation disabled (software guard active)");
         _smmu_present = false;
         return E_OK;   /* Not fatal — software DMA guard still works */
     }
 
     _smmu_present = true;
-    LOG_INFO("SMMU: hardware enabled at 0x%lx, %d streams", base, MAX_STREAMS);
+    LOG_INFO("SMMU: hardware enabled at %lx, %d streams", base, MAX_STREAMS);
     return E_OK;
 }
 
@@ -152,7 +152,7 @@ err_t smmu_assign_stream(u32 sid, u32 vm_id, paddr_t s2_pgd, u64 vttbr)
 
     __asm__ volatile("dsb ish" ::: "memory");
 
-    LOG_INFO("SMMU: stream %u -> VM%u VMID=%u S2=0x%lx",
+    LOG_INFO("SMMU: stream %u -> VM%u VMID=%u S2=%lx",
              sid, vm_id, vmid, s2_pgd);
     return E_OK;
 }

@@ -60,7 +60,7 @@ void hyp_main(u32 cpu_id, paddr_t dtb_pa)
     LOG_INFO("  Tessolve Hypervisor v1.0  booting");
     LOG_INFO("  Platform : %s", g_plat.name);
     LOG_INFO("  CPU ID   : %d", (int)cpu_id);
-    LOG_INFO("  DTB PA   : 0x%lx", dtb_pa);
+    LOG_INFO("  DTB PA   : %lx", dtb_pa);
     LOG_INFO("====================================");
 
 #ifdef RODATA_WP_SELFTEST
@@ -80,7 +80,7 @@ void hyp_main(u32 cpu_id, paddr_t dtb_pa)
     {
         extern const u8 __rodata_start[];
         volatile u8 *ro = (volatile u8 *)__rodata_start;
-        LOG_WARN("RODATA-WP-SELFTEST: storing 0xA5 to .rodata @ 0x%lx",
+        LOG_WARN("RODATA-WP-SELFTEST: storing 0xA5 to .rodata @ %lx",
                  (unsigned long)ro);
         *ro = 0xA5;
         LOG_ERROR("RODATA-WP-SELFTEST: store returned -- .rodata is NOT "
@@ -306,7 +306,7 @@ void hyp_sync_handler(void *regs, u64 esr)
         break;
     }
     default:
-        LOG_INFO("SYNC EC=0x%x ESR=0x%lx ELR=0x%lx",
+        LOG_INFO("SYNC EC=%x ESR=%lx ELR=%lx",
                  (int)ESR_EC(esr), esr,
                  g_current_vcpu[0] ? g_current_vcpu[0]->regs.elr_el2 : 0ULL);
     }

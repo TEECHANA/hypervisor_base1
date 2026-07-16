@@ -115,7 +115,7 @@ void ids_notify_fault(u32 vm_id, u32 fault_type, u64 detail)
             g_ids.anomalies++;
             _log(vm_id, IDS_EV_REPEAT, IDS_SEV_ALERT, fault_type,
                  (u64)m->repeat_run);
-            LOG_ERROR("VSE IDS: ALERT VM%u repeated fault type=0x%x x%u",
+            LOG_ERROR("VSE IDS: ALERT VM%u repeated fault type=%x x%u",
                       vm_id, fault_type, m->repeat_run);
         }
     } else {
@@ -243,7 +243,7 @@ void ids_print_log(void)
     for (u32 i = 0; i < n; i++) {
         const ids_record_t *r = ids_log_at(i);
         if (!r) continue;
-        LOG_INFO("  [%lu us] VM%u %s %s ft=0x%x detail=0x%lx trust=%s",
+        LOG_INFO("  [%lu us] VM%u %s %s ft=%x detail=%lx trust=%s",
                  r->time_us, r->vm_id, ids_event_str(r->type),
                  ids_sev_str(r->severity), r->fault_type, r->detail,
                  trust_level_str(r->trust_at));

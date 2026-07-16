@@ -252,7 +252,7 @@ err_t device_profile_init(void)
                                vm->s2_pgd, vm->vttbr);
         }
 
-        LOG_INFO("DevProfile[%u] VM%u '%s': PA=0x%lx IPA=0x%lx sz=0x%lx%s",
+        LOG_INFO("DevProfile[%u] VM%u '%s': PA=%lx IPA=%lx sz=%lx%s",
                  i, e->vm_id, e->name,
                  e->pa_base, e->ipa_base, e->size,
                  (e->flags & MEM_IO) ? " [IO]" : "");

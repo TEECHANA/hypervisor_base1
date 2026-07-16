@@ -45,7 +45,7 @@ err_t s2_create(struct vm *vm)
     u64 *pgd = pt_alloc();
     vm->s2_pgd = (paddr_t)(uintptr_t)pgd;
     vm->vttbr   = ((u64)_vmid++ << 48) | (vm->s2_pgd & ~0xFFFULL);
-    LOG_DEBUG("S2 create: VM %d PGD=0x%lx VTTBR=0x%lx",
+    LOG_DEBUG("S2 create: VM %d PGD=%lx VTTBR=%lx",
               vm->id, vm->s2_pgd, vm->vttbr);
     return E_OK;
 }
@@ -79,7 +79,7 @@ err_t s2_map(struct vm *vm, ipa_t ipa, paddr_t pa, u64 sz, u64 flags)
 
     u64 *l1 = (u64 *)(uintptr_t)vm->s2_pgd;
 
-    LOG_INFO("S2 MAP START IPA=0x%lx -> PA=0x%lx size=0x%lx", ipa, pa, sz);
+    LOG_INFO("S2 MAP START IPA=%lx -> PA=%lx size=%lx", ipa, pa, sz);
 
     u64 off = 0;
     while (off < sz) {
@@ -87,7 +87,7 @@ err_t s2_map(struct vm *vm, ipa_t ipa, paddr_t pa, u64 sz, u64 flags)
         paddr_t c_pa  = pa  + off;
 
         if (c_ipa == 0x02BFF000ULL)
-            LOG_INFO("Mapped Linux fault page IPA=0x%lx -> PA=0x%lx",
+            LOG_INFO("Mapped Linux fault page IPA=%lx -> PA=%lx",
                      c_ipa, c_pa);
 
         u32 i1 = (u32)((c_ipa >> 30) & 0x1FF);
@@ -112,10 +112,10 @@ err_t s2_map(struct vm *vm, ipa_t ipa, paddr_t pa, u64 sz, u64 flags)
         l3[i3] = desc;
 
         if (c_ipa == 0x2236000ULL)
-            LOG_INFO("FAULT PAGE MAP IPA=0x%lx PA=0x%lx DESC=0x%lx",
+            LOG_INFO("FAULT PAGE MAP IPA=%lx PA=%lx DESC=%lx",
                      c_ipa, c_pa, desc);
 
-        LOG_DEBUG("MAP L3[%u] = 0x%lx", i3, desc);
+        LOG_DEBUG("MAP L3[%u] = %lx", i3, desc);
         off += 4096;
     }
 
@@ -132,7 +132,7 @@ err_t s2_unmap(struct vm *vm, ipa_t ipa, u64 sz)
 
     u64 *l1 = (u64 *)(uintptr_t)vm->s2_pgd;
 
-    LOG_INFO("S2 UNMAP IPA=0x%lx size=0x%lx VM=%d", ipa, sz, vm->id);
+    LOG_INFO("S2 UNMAP IPA=%lx size=%lx VM=%d", ipa, sz, vm->id);
 
     u64 off = 0;
     while (off < sz) {
