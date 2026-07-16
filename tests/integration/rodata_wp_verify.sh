@@ -38,8 +38,11 @@ echo "Building self-test image (-DRODATA_WP_SELFTEST) in isolated dir..."
 # "WRITABLE, protection NOT enforced" FAIL, instead of a Phase 2 panic that some
 # hosts drop as empty output. On a PROTECTED build the probe faults and panics
 # before Phase 2 is ever reached, so learn mode is moot there.
+# pw_verifier.h is fail-closed (no default password); inject the known changeme
+# test verifier so login.c compiles (this test never logs in).
+PW_CFLAGS="-DVSE_PW_VERIFIER=$(python3 "$ROOT/scripts/totp_gen.py" --pw-define changeme)"
 if ! make -C "$ROOT" qemu BUILD_DIR="$BDIR" \
-        EXTRA_CFLAGS="-DRODATA_WP_SELFTEST -DVSE_COMPONENTS_LEARN" \
+        EXTRA_CFLAGS="-DRODATA_WP_SELFTEST -DVSE_COMPONENTS_LEARN $PW_CFLAGS" \
         >"$BDIR/build.log" 2>&1; then
     echo "  FAIL: self-test build failed"; tail -20 "$BDIR/build.log"; exit 1
 fi

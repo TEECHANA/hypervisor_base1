@@ -122,8 +122,8 @@ fi
 
 echo "=== Operator password provisioning (new password works, changeme fails) ==="
 # Separate build+boot: provisions a non-default password, then proves login
-# succeeds with it and is denied with the old dev default. Restores the committed
-# changeme default afterward.
+# succeeds with it and is denied with the "changeme" dev password. Restores the
+# committed fail-closed pw_verifier.h afterward.
 if bash "$HERE/password_provision_verify.sh"; then
     echo "  PASS: password provisioning regression"
 else

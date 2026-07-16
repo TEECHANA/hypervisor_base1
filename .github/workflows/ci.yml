@@ -36,6 +36,21 @@ jobs:
       - name: make test-unit
         run: make test-unit
 
-      # Build the hypervisor ELF — confirms the full image compiles and links.
+      # Fail-closed guard: with no VSE_PW_VERIFIER, the build MUST fail at the
+      # pw_verifier.h #error (no default operator password is shipped). If this
+      # ever succeeds, the fail-closed guarantee has regressed.
+      - name: Assert build fails closed without VSE_PW_VERIFIER
+        run: |
+          if make qemu >build.log 2>&1; then
+            echo "REGRESSION: build succeeded without VSE_PW_VERIFIER"; exit 1
+          fi
+          grep -q "VSE_PW_VERIFIER is unset" build.log \
+            || { echo "Build failed, but NOT at the pw_verifier.h #error:"; tail -20 build.log; exit 1; }
+          echo "OK: fail-closed #error fired as expected"
+
+      # Build the hypervisor ELF with the injected changeme test verifier —
+      # confirms the full image compiles and links. Same script a deployment uses.
       - name: Build hypervisor ELF
-        run: make qemu
+        run: |
+          make clean
+          make qemu EXTRA_CFLAGS=-DVSE_PW_VERIFIER=$(python3 scripts/totp_gen.py --pw-define changeme)

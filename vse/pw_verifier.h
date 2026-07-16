@@ -1,23 +1,28 @@
 /*
- * pw_verifier.h — provisioned VSE operator password verifier.
+ * pw_verifier.h — VSE operator password verifier (FAIL-CLOSED, no default).
  *
- * Defines VSE_PW_VERIFIER = HMAC(login-pepper, password), the value
- * login.c stores in _pw_verifier[]. Set the operator password per
- * deployment by REGENERATING THIS FILE (never edit login.c):
- *     scripts/provision_password.sh '<password>'
- * or override at build time with -DVSE_PW_VERIFIER='{...}'.
+ * VSE_PW_VERIFIER = HMAC(login-pepper, password) is the value login.c stores in
+ * _pw_verifier[]. There is deliberately NO shipped default password: a bare
+ * `make qemu` / `make all` FAILS to compile with the #error below unless
+ * VSE_PW_VERIFIER is supplied. Provide it one of two ways:
  *
- * Derived with the dev/QEMU master key. The committed default is HMAC(., "changeme").
+ *   1. Provision a header (per deployment; regenerates THIS file, never login.c):
+ *          scripts/provision_password.sh '<password>'
+ *      then `make reprovision-goldens && make qemu`.
  *
- * NOTE: this array lives in the Phase 2-measured .rodata. Changing it
- * changes the .rodata golden ONLY (never .text); reprovision slot [1]
- * of _golden_components[] (manual LEARN-mode boot) after a real change.
+ *   2. Define it at build time (no file change):
+ *          make qemu EXTRA_CFLAGS=-DVSE_PW_VERIFIER=$(python3 \
+ *              scripts/totp_gen.py --pw-define '<password>')
+ *
+ * Dev/test/CI builds inject a KNOWN test verifier for the "changeme" dev
+ * password via option 2 — see the Makefile (TEST_PW_VERIFIER, applied to
+ * run-with-guests/debug/qemu-run/test-integration) and .github/workflows/.
+ * That is a build-time TEST credential, NOT a committed default.
+ *
+ * NOTE: _pw_verifier[] lives in the Phase 2-measured .rodata, so changing the
+ * password changes the .rodata golden ONLY (never .text); reprovision with
+ * `make reprovision-goldens` after a real (option 1) change.
  */
 #ifndef VSE_PW_VERIFIER
-#define VSE_PW_VERIFIER { \
-    0x21, 0x34, 0xf2, 0xdf, 0x9d, 0x60, 0xa8, 0x41, \
-    0x3f, 0xb2, 0x15, 0x89, 0x56, 0xfa, 0x02, 0x7a, \
-    0x19, 0xf4, 0x2f, 0xfd, 0x4b, 0xe7, 0x3a, 0x9e, \
-    0x9e, 0x17, 0xdb, 0x24, 0x77, 0xdc, 0xed, 0xf5, \
-}
+#error "VSE_PW_VERIFIER is unset: no default operator password is shipped (fail-closed). Provision one with scripts/provision_password.sh '<password>', or pass -DVSE_PW_VERIFIER='{...}' (python3 scripts/totp_gen.py --pw-define '<password>'). See vse/pw_verifier.h and docs/RUNBOOK.md."
 #endif

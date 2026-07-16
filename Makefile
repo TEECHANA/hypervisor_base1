@@ -27,6 +27,16 @@ CFLAGS += -DINITRD_SIZE=$(INITRD_SIZE)  # <--- ADD THIS LINE
 # Extra flags appended last so callers can inject defines (e.g.
 # EXTRA_CFLAGS=-DRODATA_WP_SELFTEST) without overriding the whole CFLAGS set.
 CFLAGS += $(EXTRA_CFLAGS)
+
+# ── Operator password (fail-closed) ─────────────────────────────
+# vse/pw_verifier.h ships NO default password: a bare `make qemu` / `make all`
+# FAILS to compile (#error) unless VSE_PW_VERIFIER is defined. The interactive
+# dev + test targets below inject a KNOWN test verifier for the "changeme" dev
+# password so they keep working — derived by the same script a deployment uses
+# (scripts/totp_gen.py), NOT a committed default. A real deployment provisions
+# its own with scripts/provision_password.sh (or passes -DVSE_PW_VERIFIER=...).
+TEST_PW_VERIFIER := $(shell python3 scripts/totp_gen.py --pw-define changeme 2>/dev/null)
+TEST_PW_CFLAGS   := -DVSE_PW_VERIFIER=$(TEST_PW_VERIFIER)
 ASM_SRCS = arch/arm64/entry.S arch/arm64/context.S arch/arm64/mmu.S
 
 C_SRCS = \
@@ -159,6 +169,16 @@ check-guests:
 # .bin and re-provision its golden) OR the toolchain differs.
 .PHONY: check-guests-rebuild
 check-guests-rebuild: guest-rtos guest-android check-guests
+
+# Inject the dev/test operator verifier into every target that actually BOOTS
+# (or is the interactive/CI-driven build). GNU make propagates a target-specific
+# variable to the target's prerequisites, so this reaches the $(HYP_ELF) ->
+# $(HYP_OBJS) compile of login.c. Bare `make qemu`/`make all` get nothing and
+# stay fail-closed. test-integration builds $(HYP_ELF) from clean this way.
+qemu-run:         EXTRA_CFLAGS += $(TEST_PW_CFLAGS)
+run-with-guests:  EXTRA_CFLAGS += $(TEST_PW_CFLAGS)
+debug:            EXTRA_CFLAGS += $(TEST_PW_CFLAGS)
+test-integration: EXTRA_CFLAGS += $(TEST_PW_CFLAGS)
 
 # ── Run Hypervisor Only ─────────────────────────────────────────
 qemu-run: $(HYP_ELF)

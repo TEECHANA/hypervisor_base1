@@ -42,16 +42,27 @@ git status --porcelain          # empty output == clean
 
 ## 1. Build
 
+`vse/pw_verifier.h` is **fail-closed**: no default operator password ships, so a
+bare `make qemu` deliberately fails to compile with a `pw_verifier.h` `#error`.
+For a local/dev build, inject the known `changeme` dev verifier (the same script
+a real deployment uses):
+
 ```bash
-make qemu
+make qemu EXTRA_CFLAGS=-DVSE_PW_VERIFIER=$(python3 scripts/totp_gen.py --pw-define changeme)
 ```
 - **Does:** compiles + links the hypervisor into `build/qemu/hypervisor.elf`.
 - **Expect:** `✓ Hypervisor built: build/qemu/hypervisor.elf`
 - **Dirties tree:** No (`build/` is git-ignored).
 
-Optional clean rebuild:
+> The run targets `make run-with-guests` / `make debug` / `make qemu-run` and
+> `make test-integration` inject this dev verifier **for you** (see the Makefile
+> `TEST_PW_VERIFIER`) — you only need the explicit `EXTRA_CFLAGS` for a bare
+> `make qemu`/`make all`. A real deployment instead runs
+> `scripts/provision_password.sh '<password>'` (§5).
+
+Confirm the fail-closed guarantee (bare build must error):
 ```bash
-make clean && make qemu         # clean removes build/ only; committed guest blobs survive
+make clean && make qemu         # EXPECT: error: #error "VSE_PW_VERIFIER is unset..."
 ```
 
 ---
@@ -109,8 +120,8 @@ bash tests/integration/trust_promote_verify.sh
 ```bash
 bash tests/integration/password_provision_verify.sh
 ```
-- **Proves:** login succeeds with a newly provisioned password and is denied with the old
-  `changeme`; the committed default is left untouched.
+- **Proves:** login succeeds with a newly provisioned password and is denied with the
+  `changeme` dev password; the committed fail-closed `pw_verifier.h` is left untouched.
 - **Expect:** `Password provisioning verified: new password works, changeme rejected.`
 - **Dirties tree:** No (it provisions into a temp build and restores `pw_verifier.h`).
 
@@ -155,10 +166,11 @@ make reprovision-goldens && make qemu
 - **Expect:** `both goldens re-provisioned — Phase 2 verifies (.text + .rodata).`
 - **Dirties tree:** **YES — may modify `vse/component_check.c`.**
 
-**Undo — restore the committed `changeme` default and goldens:**
+**Undo — restore the committed fail-closed header and goldens:**
 ```bash
 git checkout -- vse/pw_verifier.h vse/component_check.c
-make qemu
+# pw_verifier.h is fail-closed again, so rebuild with the dev verifier:
+make qemu EXTRA_CFLAGS=-DVSE_PW_VERIFIER=$(python3 scripts/totp_gen.py --pw-define changeme)
 git status --porcelain          # confirm empty (clean)
 ```
 

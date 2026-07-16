@@ -27,8 +27,11 @@ trap 'rm -rf "$BDIR" "$LOG"' EXIT
 
 echo "=== trust auto-promote (DEGRADED -> TRUSTED) runtime test ==="
 echo "Building self-test image in isolated dir..."
+# pw_verifier.h is fail-closed (no default password); inject the known changeme
+# test verifier so login.c compiles (this test boots before login).
+PW_CFLAGS="-DVSE_PW_VERIFIER=$(python3 "$ROOT/scripts/totp_gen.py" --pw-define changeme)"
 if ! make -C "$ROOT" qemu BUILD_DIR="$BDIR" \
-        EXTRA_CFLAGS="-DTRUST_PROMOTE_SELFTEST -DVSE_COMPONENTS_LEARN -DTRUST_CLEAN_PERIOD_US=${CLEAN_US}ull" \
+        EXTRA_CFLAGS="-DTRUST_PROMOTE_SELFTEST -DVSE_COMPONENTS_LEARN -DTRUST_CLEAN_PERIOD_US=${CLEAN_US}ull $PW_CFLAGS" \
         >"$BDIR/build.log" 2>&1; then
     echo "  FAIL: self-test build failed"; tail -20 "$BDIR/build.log"; exit 1
 fi

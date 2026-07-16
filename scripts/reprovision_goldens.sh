@@ -41,9 +41,23 @@ command -v python3 >/dev/null || die "python3 required"
 BDIR="$(mktemp -d)"; LOG="$(mktemp)"
 trap 'rm -rf "$BDIR" "$LOG"' EXIT
 
+# pw_verifier.h is fail-closed (no default password), so every build here must
+# supply VSE_PW_VERIFIER. If the header is already PROVISIONED with a concrete
+# password (scripts/provision_password.sh), measure THAT image — do not inject,
+# since -D would override the header's #ifndef and silently measure the wrong
+# password. Only when the header is the committed fail-closed #error do we inject
+# the "changeme" dev verifier (the repo's canonical measured image).
+if grep -qE '^#[[:space:]]*define[[:space:]]+VSE_PW_VERIFIER' "$ROOT/vse/pw_verifier.h"; then
+    PW_CFLAGS=""
+    info "pw_verifier.h is provisioned — measuring that password"
+else
+    PW_CFLAGS="-DVSE_PW_VERIFIER=$(python3 "$ROOT/scripts/totp_gen.py" --pw-define changeme)"
+    info "pw_verifier.h is fail-closed — measuring the changeme dev image"
+fi
+
 # ── 1. Build a learn-mode image (blank goldens -> Phase 2 logs, never panics) ──
 info "building learn-mode image (-DVSE_COMPONENTS_LEARN)..."
-make -C "$ROOT" qemu BUILD_DIR="$BDIR" EXTRA_CFLAGS=-DVSE_COMPONENTS_LEARN \
+make -C "$ROOT" qemu BUILD_DIR="$BDIR" EXTRA_CFLAGS="-DVSE_COMPONENTS_LEARN $PW_CFLAGS" \
      >"$BDIR/build.log" 2>&1 || { tail -20 "$BDIR/build.log"; die "learn build failed"; }
 
 # ── 2. Boot hypervisor-only and capture both [LEARN] blocks ──
@@ -112,7 +126,7 @@ PY
 # ── 4. Rebuild for real and verify Phase 2 now passes ──
 info "rebuilding (enforce) and verifying..."
 rm -rf "$ROOT/build/qemu"
-make -C "$ROOT" qemu >"$BDIR/rebuild.log" 2>&1 || { tail -20 "$BDIR/rebuild.log"; die "rebuild failed"; }
+make -C "$ROOT" qemu EXTRA_CFLAGS="$PW_CFLAGS" >"$BDIR/rebuild.log" 2>&1 || { tail -20 "$BDIR/rebuild.log"; die "rebuild failed"; }
 : > "$LOG"
 timeout 25 qemu-system-aarch64 \
     -machine virt,gic-version=3,virtualization=on,iommu=smmuv3 \

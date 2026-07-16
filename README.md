@@ -27,10 +27,12 @@ docker run --rm -it tessolve-hyp
 # 1. Install tools
 apt install gcc-aarch64-linux-gnu qemu-system-arm make
 
-# 2. Build everything (hypervisor + all 3 guest OSes)
-make all PLATFORM=qemu
+# 2. Build the hypervisor. No default operator password ships (fail-closed), so
+#    inject the "changeme" dev verifier for local runs — the same script a real
+#    deployment uses. (`make run-with-guests`/`debug` below inject it for you.)
+make qemu EXTRA_CFLAGS=-DVSE_PW_VERIFIER=$(python3 scripts/totp_gen.py --pw-define changeme)
 
-# 3. Run in QEMU with all guests loaded
+# 3. Run in QEMU with all guests loaded (builds with the dev verifier wired in)
 make run-with-guests
 
 # 4. Debug with GDB
